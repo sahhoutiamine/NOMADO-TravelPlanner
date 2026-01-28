@@ -1,7 +1,5 @@
 # CAHIER DES CHARGES : NOMADO
 
-## Version Simplifiée - Projet de Fin d'Année (1ère Année)
-
 ## 1. Présentation du Projet
 
 **Nom du projet :** Nomado
@@ -10,9 +8,7 @@
 
 **Objectif :** Simplifier la réservation de voyage en automatisant le choix de la destination et des services selon les préférences et le budget de l'utilisateur.
 
-**Durée du projet :** 8 semaines
-
-**Niveau :** Projet de fin d'année - 1ère année programmation
+**Durée du projet :** 8-10 semaines
 
 ---
 
@@ -338,23 +334,7 @@ hotels (1) ----< (N) bookings
 
 ---
 
-## 7. Fonctionnalités À NE PAS FAIRE (Trop complexe)
-
-❌ Vrai système de paiement (Stripe, PayPal)  
-❌ Export PDF  
-❌ Envoi d'emails automatiques  
-❌ Système d'avis et notations  
-❌ Gestion d'activités détaillées  
-❌ Carte interactive (Google Maps)  
-❌ Itinéraire jour par jour  
-❌ Modification d'un voyage après création  
-❌ API externes (vols réels, météo)  
-❌ Multi-langue  
-❌ Upload d'images par l'utilisateur
-
----
-
-## 8. Planning Réaliste sur 8 Semaines
+## 7. Planning Réaliste sur 8 Semaines
 
 ### Semaine 1-2 : Préparation et Setup
 
@@ -397,7 +377,7 @@ hotels (1) ----< (N) bookings
 
 ---
 
-## 9. Pages à Créer (8 PAGES)
+## 8. Pages à Créer (8 PAGES)
 
 ### Pages Utilisateur (Après connexion)
 
@@ -419,7 +399,7 @@ hotels (1) ----< (N) bookings
 
 ---
 
-## 10. Algorithme de Sélection (LOGIQUE SIMPLE)
+## 9. Algorithme de Sélection (LOGIQUE SIMPLE)
 
 ### A. Sélection du Pays
 
@@ -485,7 +465,7 @@ $totalPrice = $hotelTotalPrice + $flightBudget;
 
 ---
 
-## 11. Exemple de Données à Créer dans la Base
+## 10. Exemple de Données à Créer dans la Base
 
 ### Table Countries (Exemples)
 
@@ -511,7 +491,7 @@ $totalPrice = $hotelTotalPrice + $flightBudget;
 
 ---
 
-## 12. Critères de Réussite (OBLIGATOIRE)
+## 11. Critères de Réussite (OBLIGATOIRE)
 
 ✅ Un utilisateur peut s'inscrire et se connecter  
 ✅ Un utilisateur peut choisir un type de voyage (Aventure, Culture, Plage, etc.)  
@@ -531,7 +511,7 @@ $totalPrice = $hotelTotalPrice + $flightBudget;
 
 ---
 
-## 13. Conseils pour Réussir
+## 12. Conseils pour Réussir
 
 ### Phase 1 : Commencer Simple
 
@@ -592,7 +572,7 @@ app/
 
 ---
 
-## 14. Ce qui Peut Attendre (Si pas le temps)
+## 13. Ce qui Peut Attendre (Si pas le temps)
 
 Ces fonctionnalités sont optionnelles :
 
@@ -608,7 +588,7 @@ Ces fonctionnalités sont optionnelles :
 
 ---
 
-## 15. Exemple de Flux Complet
+## 14. Exemple de Flux Complet
 
 ### Scénario : Ahmed veut voyager
 
@@ -647,3 +627,4 @@ Ces fonctionnalités sont optionnelles :
 
 **FIN DU CAHIER DES CHARGES**
 
+---
