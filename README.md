@@ -1,491 +1,654 @@
 # CAHIER DES CHARGES : NOMADO
 
+## Version Simplifiée - Projet de Fin d'Année (1ère Année)
+
 ## 1. Présentation du Projet
 
 **Nom du projet :** Nomado
 
-**Concept :** Plateforme intelligente de planification de voyages permettant aux utilisateurs de générer automatiquement des plans de voyage personnalisés en fonction de leur budget, du nombre de voyageurs et de la durée du séjour.
+**Concept :** Site web qui génère automatiquement un voyage complet (pays + hôtel + vol) basé sur le type de voyage souhaité, le budget, la durée et le nombre de passagers. L'utilisateur paie directement sur le site et Nomado s'occupe de tout.
 
-**Objectif :** Simplifier et automatiser le processus de planification de voyage en offrant des itinéraires sur mesure, des recommandations d'hébergement et d'activités adaptées au budget de chaque utilisateur.
+**Objectif :** Simplifier la réservation de voyage en automatisant le choix de la destination et des services selon les préférences et le budget de l'utilisateur.
+
+**Durée du projet :** 8 semaines
+
+**Niveau :** Projet de fin d'année - 1ère année programmation
 
 ---
 
-## 2. Analyse des Besoins (Rôles Utilisateurs)
+## 2. Comment Ça Marche ?
 
-### Visiteur (Non authentifié)
-- Consulter la page d'accueil et les destinations populaires
-- Voir des exemples d'itinéraires générés
-- Accéder aux informations sur le fonctionnement du site
-- S'inscrire ou se connecter
+### Processus Utilisateur :
 
-### Utilisateur (Voyageur)
-- S'authentifier (Login/Register)
-- Créer un plan de voyage personnalisé :
-  - Définir le budget total
-  - Indiquer le nombre de voyageurs
-  - Choisir la durée du séjour
-  - Spécifier les préférences (type de voyage : aventure, détente, culture, etc.)
-- Consulter et modifier les plans de voyage générés
-- Sauvegarder ses itinéraires favoris
-- Consulter l'historique de ses voyages planifiés
-- Exporter l'itinéraire en PDF
-- Laisser des avis sur les destinations visitées
+1. **L'utilisateur s'inscrit et se connecte** au site
+2. **L'utilisateur remplit un formulaire unique** :
+   - Type de voyage (Aventure, Culture, Plage, Romantique, etc.)
+   - Budget total (€)
+   - Durée du séjour (en jours)
+   - Nombre de passagers
+3. **Le système calcule automatiquement** :
+   - Répartition du budget (Vols: 30%, Hôtel: 40%, Activités: 20%, Divers: 10%)
+4. **Le système recommande** :
+   - UN pays correspondant au type de voyage choisi
+   - UN hôtel selon le budget calculé pour l'hébergement
+   - Prix estimé des vols (calculé automatiquement)
+5. **L'utilisateur voit le résultat** avec le prix total
+6. **L'utilisateur peut payer** directement sur le site
+7. **Le voyage est confirmé** et sauvegardé dans son compte
+
+---
+
+## 3. Rôles Utilisateurs (SIMPLIFIÉ)
+
+### ❌ PAS DE VISITEUR
+
+- Pas de consultation sans compte
+- Il faut obligatoirement créer un compte pour utiliser le site
+
+### Utilisateur (Client)
+
+- S'inscrire et se connecter
+- Remplir le formulaire de génération de voyage
+- Voir la recommandation (pays + hôtel + prix)
+- Payer pour confirmer le voyage
+- Voir ses voyages payés/confirmés
 
 ### Administrateur
-- Gérer la base de données des destinations
-- Gérer les hôtels et leurs tarifs
-- Gérer les activités et attractions par destination
-- Gérer les utilisateurs (CRUD complet)
-- Consulter les statistiques d'utilisation
-- Modérer les avis utilisateurs
-- Configurer les paramètres de génération d'itinéraires
+
+- Se connecter avec un compte admin
+- Gérer les pays (CRUD)
+- Gérer les hôtels (CRUD)
+- Voir les réservations des utilisateurs
 
 ---
 
-## 3. Spécifications Fonctionnelles
+## 4. Fonctionnalités Détaillées
 
-### A. Système de Génération d'Itinéraires
+### A. Système de Génération Automatique de Voyage
 
-**Processus de création :**
-1. L'utilisateur remplit un formulaire avec :
-   - Budget total (€)
-   - Nombre de voyageurs
-   - Durée du séjour (en jours)
-   - Période souhaitée (dates ou saison)
-   - Préférences de voyage (nature, ville, plage, montagne, culture, aventure)
-   - Point de départ (optionnel)
+**Étape 1 : L'utilisateur remplit le formulaire**
 
-2. Le système calcule et génère automatiquement :
-   - **Destination optimale** basée sur le budget et les préférences
-   - **Répartition budgétaire** :
-     - Transport (25-35% du budget)
-     - Hébergement (30-40% du budget)
-     - Activités (20-30% du budget)
-     - Nourriture et divers (15-20% du budget)
+```
+- Type de voyage : (Aventure, Culture, Plage, Romantique, Nature, Shopping)
+- Budget total : (ex: 2000€)
+- Durée : (ex: 7 jours)
+- Nombre de passagers : (ex: 2 personnes)
+```
 
-### B. Génération de l'Itinéraire Détaillé
+**Étape 2 : Le système calcule la répartition du budget**
 
-**Contenu de l'itinéraire :**
-- **Jour par jour :** Planning détaillé pour chaque journée du voyage
-- **Hébergement recommandé** : Sélection d'hôtels/logements selon le budget
-- **Activités suggérées** : Liste d'activités avec prix estimés
-- **Estimations de coûts** : Détail des dépenses prévues
-- **Conseils pratiques** : Informations utiles sur la destination
+```
+Budget total = 2000€
 
-### C. Gestion des Destinations
+Répartition automatique :
+- Vols : 30% = 600€
+- Hôtel : 40% = 800€
+- Activités : 20% = 400€
+- Divers : 10% = 200€
+```
 
-**Base de données destinations :**
-- Nom de la destination (ville/pays)
-- Description et caractéristiques
-- Budget moyen par jour et par personne
-- Saisons recommandées
-- Attraits principaux
-- Photos et galerie
-- Température moyenne par saison
-- Niveau de sécurité
+**Étape 3 : Le système choisit le pays**
 
-### D. Gestion des Hébergements
+- Chaque pays dans la base de données a un attribut "trip_type"
+- Le système cherche les pays qui correspondent au type choisi
+- Exemple : Si l'utilisateur choisit "Aventure" → Le système propose Maroc, Népal, Costa Rica...
 
-**Informations hôtels :**
-- Nom et catégorie (étoiles)
-- Prix par nuit (différentes gammes)
-- Localisation (coordonnées GPS)
-- Équipements et services
-- Photos
-- Lien vers le site de réservation
+**Étape 4 : Le système choisit l'hôtel**
 
-### E. Gestion des Activités
+- Calcul du budget hôtel par nuit : `Budget hôtel ÷ Nombre de nuits ÷ Nombre de passagers`
+- Exemple : 800€ ÷ 7 nuits ÷ 2 personnes = 57€ par personne par nuit
+- Le système trouve un hôtel dont le prix est proche de ce budget
 
-**Base de données activités :**
-- Nom de l'activité
-- Destination associée
-- Type (culture, sport, détente, gastronomie, etc.)
-- Prix estimé
-- Durée
-- Description
-- Niveau de difficulté (facile, modéré, difficile)
+**Étape 5 : Le système calcule le prix total**
 
-### F. Système de Sauvegarde et Partage
+```
+Prix hôtel total = Prix par nuit × Nombre de nuits × Nombre de passagers
+Prix vol estimé = Budget vol (30% du total)
+Prix total = Prix hôtel + Prix vol
+```
 
-- Sauvegarder un itinéraire dans "Mes Voyages"
-- Modifier un itinéraire sauvegardé
-- Partager l'itinéraire par email ou lien
-- Exporter en PDF avec design professionnel
-- Marquer un voyage comme "réalisé"
+### B. Affichage du Résultat
 
-### G. Système d'Avis et Retours
+**Page de résultat montre :**
 
-- Noter une destination (1-5 étoiles)
-- Laisser un commentaire détaillé
-- Ajouter des photos du voyage
-- Consulter les avis d'autres utilisateurs
+- 🌍 Pays recommandé (nom + photo + description)
+- 🏨 Hôtel recommandé (nom + photo + prix par nuit)
+- ✈️ Prix estimé des vols
+- 💰 Prix total du voyage
+- 📝 Détail de la répartition du budget
+- ✅ Bouton "Payer maintenant"
+
+### C. Système de Paiement (SIMPLIFIÉ)
+
+**Important : Pas de vrai paiement !**
+
+- On simule juste le paiement
+- L'utilisateur clique sur "Payer"
+- Le système enregistre le voyage comme "Payé"
+- Pas besoin d'intégrer Stripe ou PayPal (trop complexe)
+
+### D. Mes Voyages
+
+**L'utilisateur peut voir :**
+
+- Liste de tous ses voyages
+- Statut : "En attente" ou "Payé"
+- Détails de chaque voyage (pays, hôtel, prix)
 
 ---
 
-## 4. Spécifications Techniques
+## 4. Technologies Utilisées (SIMPLES)
 
 ### Frontend
-- **HTML5** : Structure sémantique
-- **CSS3** : Stylisation
-- **Tailwind CSS** : Framework CSS pour design moderne et responsive
-- **JavaScript (Vanilla)** : Interactions dynamiques et manipulation du DOM
-- **AJAX** : Requêtes asynchrones pour génération d'itinéraires
+
+- **HTML5** : Structure des pages
+- **CSS3 + Tailwind CSS** : Design et style
+- **JavaScript** : Interactions basiques (afficher/cacher, validation formulaire)
 
 ### Backend
-- **PHP 8** : Langage serveur (Programmation Orientée Objet)
-- **Laravel 10+** : Framework PHP
-  - Routing
+
+- **PHP 8** : Logique serveur
+- **Laravel** : Framework PHP (utilisation basique)
+  - Routes
   - Controllers
-  - Models (Eloquent ORM)
-  - Middleware pour authentification
-  - Validation des formulaires
-  - API RESTful pour communication frontend-backend
+  - Models (Eloquent)
+  - Blade (templates)
 
 ### Base de Données
-- **MySQL** : Système de gestion de base de données relationnelle
-- **Migrations Laravel** : Gestion de la structure de la base
 
-### Sécurité
-- **Authentification sécurisée** : Laravel Sanctum ou Breeze
-- **Protection CSRF** : Tokens de sécurité
-- **Hachage des mots de passe** : Bcrypt
-- **Validation des entrées** : Prévention des injections SQL et XSS
-- **HTTPS** : Certificat SSL pour connexions sécurisées
+- **MySQL** : Base de données simple
 
-### APIs et Services Externes (Optionnel)
-- **API Météo** : OpenWeatherMap pour informations climatiques
-- **API de Change** : Taux de conversion de devises
-- **Google Maps API** : Cartes et géolocalisation
-- **API de Vol** : Skyscanner ou Amadeus pour prix de vols (si intégration)
+### Sécurité Basique
+
+- Hash des mots de passe (bcrypt)
+- Protection CSRF (Laravel intégré)
+- Validation des formulaires
 
 ---
 
-## 5. Modélisation de la Base de Données (MCD)
+## 5. Base de Données SIMPLIFIÉE (4 Tables)
 
-### Tables Principales
+### **users** (Table des utilisateurs)
 
-#### **users**
-```
-- id (PK)
-- name (VARCHAR)
-- email (VARCHAR, UNIQUE)
-- password (VARCHAR, hashed)
-- role_id (FK -> roles.id)
-- created_at (TIMESTAMP)
-- updated_at (TIMESTAMP)
-```
-
-#### **roles**
-```
-- id (PK)
-- name (VARCHAR) -> 'admin', 'user'
-- created_at (TIMESTAMP)
-- updated_at (TIMESTAMP)
+```sql
+- id (clé primaire)
+- name (nom complet)
+- email (unique)
+- password (hashé)
+- role (ENUM: 'user', 'admin')
+- created_at
+- updated_at
 ```
 
-#### **destinations**
-```
-- id (PK)
-- name (VARCHAR)
-- country (VARCHAR)
-- description (TEXT)
-- average_budget_per_day (DECIMAL)
-- best_season (VARCHAR)
-- safety_level (ENUM: 'low', 'medium', 'high')
-- image_url (VARCHAR)
-- latitude (DECIMAL)
-- longitude (DECIMAL)
-- created_at (TIMESTAMP)
-- updated_at (TIMESTAMP)
+### **countries** (Table des pays)
+
+```sql
+- id (clé primaire)
+- name (nom du pays: "Maroc", "Espagne", "Thaïlande")
+- trip_type (ENUM: 'adventure', 'culture', 'beach', 'romantic', 'nature', 'shopping')
+  → C'est le type de voyage qui correspond à ce pays
+- description (texte court sur le pays)
+- image (URL de l'image du pays)
+- created_at
+- updated_at
 ```
 
-#### **hotels**
+**Exemple de données dans countries:**
+
 ```
-- id (PK)
-- destination_id (FK -> destinations.id)
-- name (VARCHAR)
-- category (INT) -> Nombre d'étoiles (1-5)
-- price_per_night (DECIMAL)
-- address (VARCHAR)
-- amenities (TEXT)
-- image_url (VARCHAR)
-- booking_link (VARCHAR)
-- created_at (TIMESTAMP)
-- updated_at (TIMESTAMP)
+| id | name      | trip_type   | description                           |
+|----|-----------|-------------|---------------------------------------|
+| 1  | Maroc     | adventure   | Déserts, montagnes, et médinas       |
+| 2  | Espagne   | culture     | Architecture, musées, gastronomie    |
+| 3  | Maldives  | beach       | Plages paradisiaques et eau turquoise|
+| 4  | France    | romantic    | Paris, la ville de l'amour           |
 ```
 
-#### **activities**
-```
-- id (PK)
-- destination_id (FK -> destinations.id)
-- name (VARCHAR)
-- type (ENUM: 'culture', 'sport', 'relaxation', 'gastronomy', 'adventure')
-- description (TEXT)
-- price (DECIMAL)
-- duration (INT) -> En heures
-- difficulty_level (ENUM: 'easy', 'moderate', 'hard')
-- created_at (TIMESTAMP)
-- updated_at (TIMESTAMP)
+### **hotels** (Table des hôtels)
+
+```sql
+- id (clé primaire)
+- country_id (clé étrangère → countries.id)
+- name (nom de l'hôtel)
+- price_per_night (prix par nuit par personne en €)
+- description (texte court)
+- image (URL de l'image)
+- created_at
+- updated_at
 ```
 
-#### **trips** (Plans de voyage créés)
+**Exemple de données dans hotels:**
+
 ```
-- id (PK)
-- user_id (FK -> users.id)
-- destination_id (FK -> destinations.id)
-- title (VARCHAR)
-- budget (DECIMAL)
-- number_of_travelers (INT)
-- duration (INT) -> Nombre de jours
-- start_date (DATE, nullable)
-- end_date (DATE, nullable)
-- preferences (TEXT) -> JSON avec préférences
-- status (ENUM: 'draft', 'saved', 'completed')
-- created_at (TIMESTAMP)
-- updated_at (TIMESTAMP)
+| id | country_id | name           | price_per_night |
+|----|------------|----------------|-----------------|
+| 1  | 1          | Riad Marrakech | 50€            |
+| 2  | 1          | Atlas Hotel    | 80€            |
+| 3  | 2          | Hotel Barcelona| 70€            |
 ```
 
-#### **trip_hotels** (Relation Many-to-Many)
-```
-- id (PK)
-- trip_id (FK -> trips.id)
-- hotel_id (FK -> hotels.id)
-- number_of_nights (INT)
-- total_price (DECIMAL)
+### **bookings** (Table des réservations/voyages)
+
+```sql
+- id (clé primaire)
+- user_id (clé étrangère → users.id)
+- country_id (clé étrangère → countries.id)
+- hotel_id (clé étrangère → hotels.id)
+- trip_type (type de voyage choisi par l'utilisateur)
+- budget_total (budget total entré par l'utilisateur)
+- duration (durée en jours)
+- passengers (nombre de passagers)
+- flight_budget (30% du budget total - pour les vols)
+- hotel_budget (40% du budget total - pour l'hôtel)
+- activities_budget (20% du budget total)
+- misc_budget (10% du budget total)
+- total_price (prix final calculé)
+- status (ENUM: 'pending', 'paid')
+  → 'pending' = en attente de paiement
+  → 'paid' = voyage payé et confirmé
+- created_at
+- updated_at
 ```
 
-#### **trip_activities** (Relation Many-to-Many)
+### Relations Entre les Tables
+
 ```
-- id (PK)
-- trip_id (FK -> trips.id)
-- activity_id (FK -> activities.id)
-- day_number (INT) -> Jour de l'itinéraire
-- is_selected (BOOLEAN) -> Activité confirmée ou optionnelle
+users (1) ----< (N) bookings
+countries (1) ----< (N) hotels
+countries (1) ----< (N) bookings
+hotels (1) ----< (N) bookings
 ```
 
-#### **itinerary_days** (Détail jour par jour)
-```
-- id (PK)
-- trip_id (FK -> trips.id)
-- day_number (INT)
-- title (VARCHAR)
-- description (TEXT)
-- estimated_cost (DECIMAL)
-- created_at (TIMESTAMP)
-- updated_at (TIMESTAMP)
+**Explication des relations :**
+
+- Un utilisateur peut avoir plusieurs réservations
+- Un pays peut avoir plusieurs hôtels
+- Un pays peut être réservé plusieurs fois
+- Un hôtel peut être réservé plusieurs fois
+
+---
+
+## 6. Fonctionnalités Essentielles (User Stories)
+
+### 🔐 Authentification (PRIORITÉ 1)
+
+**US1** - En tant qu'utilisateur, je veux m'inscrire avec un email et mot de passe pour utiliser le site.
+
+**US2** - En tant qu'utilisateur, je veux me connecter pour accéder aux fonctionnalités.
+
+**US3** - En tant qu'utilisateur, je veux me déconnecter.
+
+---
+
+### ✈️ Génération de Voyage (PRIORITÉ 1)
+
+**US4** - En tant qu'utilisateur, je veux choisir un type de voyage (Aventure, Culture, Plage, etc.).
+
+**US5** - En tant qu'utilisateur, je veux entrer mon budget total, la durée et le nombre de passagers.
+
+**US6** - En tant qu'utilisateur, je veux que le système calcule automatiquement la répartition de mon budget (30% vols, 40% hôtel, 20% activités, 10% divers).
+
+**US7** - En tant qu'utilisateur, je veux voir UN pays recommandé basé sur le type de voyage que j'ai choisi.
+
+**US8** - En tant qu'utilisateur, je veux voir UN hôtel recommandé dans ce pays selon mon budget.
+
+**US9** - En tant qu'utilisateur, je veux voir le prix total de mon voyage (hôtel + vols estimés).
+
+---
+
+### 💳 Paiement (PRIORITÉ 2)
+
+**US10** - En tant qu'utilisateur, je veux pouvoir "payer" mon voyage (simulation de paiement).
+
+**US11** - En tant qu'utilisateur, après paiement, je veux que mon voyage soit marqué comme "Payé".
+
+---
+
+### 📋 Mes Voyages (PRIORITÉ 2)
+
+**US12** - En tant qu'utilisateur, je veux voir la liste de tous mes voyages (en attente et payés).
+
+**US13** - En tant qu'utilisateur, je veux voir les détails d'un voyage (pays, hôtel, prix, statut).
+
+**US14** - En tant qu'utilisateur, je veux supprimer un voyage en attente.
+
+---
+
+### 🛠️ Administration (PRIORITÉ 2)
+
+**US15** - En tant qu'admin, je veux me connecter avec un compte administrateur.
+
+**US16** - En tant qu'admin, je veux voir la liste de tous les pays.
+
+**US17** - En tant qu'admin, je veux ajouter un nouveau pays avec son type de voyage (trip_type).
+
+**US18** - En tant qu'admin, je veux modifier les informations d'un pays.
+
+**US19** - En tant qu'admin, je veux supprimer un pays.
+
+**US20** - En tant qu'admin, je veux voir la liste des hôtels par pays.
+
+**US21** - En tant qu'admin, je veux ajouter un hôtel à un pays avec son prix par nuit.
+
+**US22** - En tant qu'admin, je veux modifier un hôtel existant.
+
+**US23** - En tant qu'admin, je veux supprimer un hôtel.
+
+**US24** - En tant qu'admin, je veux voir toutes les réservations des utilisateurs.
+
+---
+
+## 7. Fonctionnalités À NE PAS FAIRE (Trop complexe)
+
+❌ Vrai système de paiement (Stripe, PayPal)  
+❌ Export PDF  
+❌ Envoi d'emails automatiques  
+❌ Système d'avis et notations  
+❌ Gestion d'activités détaillées  
+❌ Carte interactive (Google Maps)  
+❌ Itinéraire jour par jour  
+❌ Modification d'un voyage après création  
+❌ API externes (vols réels, météo)  
+❌ Multi-langue  
+❌ Upload d'images par l'utilisateur
+
+---
+
+## 8. Planning Réaliste sur 8 Semaines
+
+### Semaine 1-2 : Préparation et Setup
+
+- ✅ Installer Laravel
+- ✅ Créer la base de données (4 tables : users, countries, hotels, bookings)
+- ✅ Design simple avec Tailwind CSS
+- ✅ Créer les migrations Laravel
+
+### Semaine 3-4 : Authentification
+
+- ✅ Système d'inscription (Register)
+- ✅ Système de connexion (Login)
+- ✅ Logout
+- ✅ Protection des routes (middleware)
+
+### Semaine 5-6 : Fonctionnalité Principale (Génération de Voyage)
+
+- ✅ Formulaire de génération (type, budget, durée, passagers)
+- ✅ Logique de répartition du budget (30%, 40%, 20%, 10%)
+- ✅ Algorithme de sélection du pays selon trip_type
+- ✅ Algorithme de sélection de l'hôtel selon budget
+- ✅ Calcul du prix total
+- ✅ Page de résultat avec détails
+- ✅ Simulation de paiement
+- ✅ Sauvegarde de la réservation
+
+### Semaine 7 : Administration
+
+- ✅ Page admin pour gérer les pays (CRUD)
+- ✅ Page admin pour gérer les hôtels (CRUD)
+- ✅ Affichage des réservations
+
+### Semaine 8 : Finalisation
+
+- ✅ Tests complets
+- ✅ Corrections de bugs
+- ✅ Amélioration du design
+- ✅ Ajout de données test (10-15 pays, 30-40 hôtels)
+- ✅ Préparation de la présentation
+
+---
+
+## 9. Pages à Créer (8 PAGES)
+
+### Pages Utilisateur (Après connexion)
+
+1. **Inscription** (`/register`) - Créer un compte
+2. **Connexion** (`/login`) - Se connecter
+3. **Accueil/Dashboard** (`/home`) - Page principale après connexion
+4. **Générer un voyage** (`/generate-trip`) - Formulaire principal
+5. **Résultat du voyage** (`/trip-result`) - Affiche pays + hôtel + prix
+6. **Mes réservations** (`/my-bookings`) - Liste des voyages (pending/paid)
+
+### Pages Admin
+
+7. **Dashboard Admin** (`/admin`) - Vue d'ensemble
+8. **Gérer pays** (`/admin/countries`) - Liste + CRUD pays
+9. **Gérer hôtels** (`/admin/hotels`) - Liste + CRUD hôtels
+10. **Toutes les réservations** (`/admin/bookings`) - Voir toutes les réservations
+
+**Total : 10 pages**
+
+---
+
+## 10. Algorithme de Sélection (LOGIQUE SIMPLE)
+
+### A. Sélection du Pays
+
+```php
+// Étape 1 : L'utilisateur choisit "adventure"
+$tripType = $request->trip_type; // ex: "adventure"
+
+// Étape 2 : Chercher tous les pays de type "adventure"
+$countries = Country::where('trip_type', $tripType)->get();
+
+// Étape 3 : Choisir un pays au hasard parmi les résultats
+$selectedCountry = $countries->random();
 ```
 
-#### **reviews** (Avis utilisateurs)
+### B. Répartition du Budget
+
+```php
+$totalBudget = $request->budget; // ex: 2000€
+$duration = $request->duration; // ex: 7 jours
+$passengers = $request->passengers; // ex: 2 personnes
+
+// Calcul de la répartition (pourcentages fixes)
+$flightBudget = $totalBudget * 0.30;      // 30% = 600€
+$hotelBudget = $totalBudget * 0.40;       // 40% = 800€
+$activitiesBudget = $totalBudget * 0.20;  // 20% = 400€
+$miscBudget = $totalBudget * 0.10;        // 10% = 200€
 ```
-- id (PK)
-- user_id (FK -> users.id)
-- destination_id (FK -> destinations.id)
-- rating (INT) -> 1-5 étoiles
-- comment (TEXT)
-- photos (TEXT) -> JSON avec URLs des photos
-- is_approved (BOOLEAN)
-- created_at (TIMESTAMP)
-- updated_at (TIMESTAMP)
+
+### C. Sélection de l'Hôtel
+
+```php
+// Budget hôtel par personne par nuit
+$budgetPerNightPerPerson = $hotelBudget / $duration / $passengers;
+// Exemple : 800€ ÷ 7 jours ÷ 2 personnes = 57€/nuit/personne
+
+// Chercher les hôtels du pays sélectionné avec un prix proche
+$hotels = Hotel::where('country_id', $selectedCountry->id)
+    ->where('price_per_night', '<=', $budgetPerNightPerPerson * 1.2) // +20% de marge
+    ->where('price_per_night', '>=', $budgetPerNightPerPerson * 0.8) // -20% de marge
+    ->get();
+
+// Si aucun hôtel dans cette fourchette, prendre le moins cher
+if ($hotels->isEmpty()) {
+    $selectedHotel = Hotel::where('country_id', $selectedCountry->id)
+        ->orderBy('price_per_night', 'asc')
+        ->first();
+} else {
+    $selectedHotel = $hotels->random();
+}
+```
+
+### D. Calcul du Prix Total
+
+```php
+// Prix total de l'hôtel
+$hotelTotalPrice = $selectedHotel->price_per_night * $duration * $passengers;
+// Exemple : 60€ × 7 nuits × 2 personnes = 840€
+
+// Prix total du voyage
+$totalPrice = $hotelTotalPrice + $flightBudget;
+// Exemple : 840€ + 600€ = 1440€
 ```
 
 ---
 
-## 6. Diagramme des Relations
+## 11. Exemple de Données à Créer dans la Base
+
+### Table Countries (Exemples)
+
+| id  | name      | trip_type | description                        |
+| --- | --------- | --------- | ---------------------------------- |
+| 1   | Maroc     | adventure | Désert du Sahara, Atlas, Marrakech |
+| 2   | Népal     | adventure | Himalaya, trekking, temples        |
+| 3   | Espagne   | culture   | Gaudi, musées, flamenco            |
+| 4   | Italie    | culture   | Rome, Renaissance, gastronomie     |
+| 5   | Maldives  | beach     | Plages de rêve, eau turquoise      |
+| 6   | Thaïlande | beach     | Îles paradisiaques, temples        |
+| 7   | France    | romantic  | Paris, châteaux de la Loire        |
+| 8   | Grèce     | romantic  | Santorin, coucher de soleil        |
+
+### Table Hotels (Exemples pour le Maroc)
+
+| id  | country_id | name           | price_per_night |
+| --- | ---------- | -------------- | --------------- |
+| 1   | 1          | Riad Marrakech | 50€             |
+| 2   | 1          | Atlas Mountain | 70€             |
+| 3   | 1          | Desert Camp    | 45€             |
+| 4   | 1          | Luxury Palace  | 150€            |
+
+---
+
+## 12. Critères de Réussite (OBLIGATOIRE)
+
+✅ Un utilisateur peut s'inscrire et se connecter  
+✅ Un utilisateur peut choisir un type de voyage (Aventure, Culture, Plage, etc.)  
+✅ Un utilisateur peut entrer budget, durée, nombre de passagers  
+✅ Le système répartit automatiquement le budget (30/40/20/10%)  
+✅ Le système propose UN pays basé sur le trip_type choisi  
+✅ Le système propose UN hôtel selon le budget calculé  
+✅ Le système affiche le prix total (hôtel + vols)  
+✅ L'utilisateur peut "payer" (simulation) son voyage  
+✅ Le voyage est sauvegardé avec statut "pending" puis "paid"  
+✅ L'utilisateur peut voir ses réservations (en attente et payées)  
+✅ Un admin peut gérer les pays (CRUD complet)  
+✅ Un admin peut gérer les hôtels (CRUD complet)  
+✅ Un admin peut voir toutes les réservations  
+✅ Le site est responsive (mobile, tablette, desktop)  
+✅ Les mots de passe sont sécurisés (hashés avec bcrypt)
+
+---
+
+## 13. Conseils pour Réussir
+
+### Phase 1 : Commencer Simple
+
+1. **Créer d'abord l'authentification** (Login/Register)
+2. **Créer la base de données avec données test**
+   - 8-10 pays minimum (2 par type de voyage)
+   - 3-5 hôtels par pays
+3. **Tester le formulaire de génération** sans la partie paiement d'abord
+
+### Phase 2 : Algorithme de Génération
+
+- **L'algorithme est SIMPLE** : pas de IA, pas de complexité
+- Le pays est choisi UNIQUEMENT selon le trip_type
+- L'hôtel est choisi selon le budget calculé
+- Utiliser les formules données dans ce document
+
+### Phase 3 : Simulation de Paiement
+
+```php
+// Quand l'utilisateur clique sur "Payer"
+$booking->status = 'paid';
+$booking->save();
+
+// Rediriger vers "Mes Réservations"
+return redirect('/my-bookings')->with('success', 'Voyage payé avec succès!');
+```
+
+### Design avec Tailwind
+
+- Utiliser des composants Tailwind UI gratuits
+- S'inspirer de sites comme Booking.com pour le design
+- Rester simple : pas d'animations complexes
+
+### Structure des fichiers Laravel
 
 ```
-users (1) ----< (N) trips
-destinations (1) ----< (N) trips
-destinations (1) ----< (N) hotels
-destinations (1) ----< (N) activities
-destinations (1) ----< (N) reviews
-users (1) ----< (N) reviews
-
-trips (N) ----< (N) hotels (via trip_hotels)
-trips (N) ----< (N) activities (via trip_activities)
-trips (1) ----< (N) itinerary_days
+app/
+├── Models/
+│   ├── User.php
+│   ├── Country.php
+│   ├── Hotel.php
+│   └── Booking.php
+├── Http/Controllers/
+│   ├── Auth/
+│   ├── TripController.php
+│   ├── BookingController.php
+│   └── Admin/
+│       ├── CountryController.php
+│       └── HotelController.php
 ```
 
----
+### Données de Test à Créer
 
-## 7. User Stories (Backlog Fonctionnel)
-
-### Epic 1 : Authentification et Gestion des Utilisateurs
-
-**US1.1** - En tant que visiteur, je veux pouvoir m'inscrire sur la plateforme pour créer mes plans de voyage.
-
-**US1.2** - En tant qu'utilisateur, je veux me connecter de manière sécurisée pour accéder à mes voyages sauvegardés.
-
-**US1.3** - En tant qu'utilisateur, je veux pouvoir modifier mes informations de profil (nom, email, mot de passe).
-
-**US1.4** - En tant qu'administrateur, je veux gérer tous les utilisateurs (créer, modifier, supprimer).
-
-### Epic 2 : Génération d'Itinéraires
-
-**US2.1** - En tant qu'utilisateur, je veux remplir un formulaire avec mon budget, le nombre de voyageurs et la durée pour obtenir un itinéraire personnalisé.
-
-**US2.2** - En tant qu'utilisateur, je veux voir une destination recommandée basée sur mes critères et préférences.
-
-**US2.3** - En tant qu'utilisateur, je veux consulter un itinéraire détaillé jour par jour avec activités suggérées.
-
-**US2.4** - En tant qu'utilisateur, je veux voir une répartition claire de mon budget (transport, hébergement, activités, nourriture).
-
-**US2.5** - En tant qu'utilisateur, je veux pouvoir régénérer un itinéraire si le premier ne me convient pas.
-
-### Epic 3 : Gestion des Hébergements
-
-**US3.1** - En tant qu'utilisateur, je veux voir des recommandations d'hôtels adaptés à mon budget.
-
-**US3.2** - En tant qu'utilisateur, je veux consulter les détails d'un hôtel (prix, équipements, localisation).
-
-**US3.3** - En tant qu'administrateur, je veux ajouter, modifier ou supprimer des hôtels dans la base de données.
-
-### Epic 4 : Gestion des Activités
-
-**US4.1** - En tant qu'utilisateur, je veux voir des activités suggérées pour chaque jour de mon voyage.
-
-**US4.2** - En tant qu'utilisateur, je veux filtrer les activités par type (culture, sport, détente).
-
-**US4.3** - En tant qu'administrateur, je veux gérer la liste des activités disponibles par destination.
-
-### Epic 5 : Sauvegarde et Gestion des Voyages
-
-**US5.1** - En tant qu'utilisateur, je veux sauvegarder mon itinéraire généré pour le consulter plus tard.
-
-**US5.2** - En tant qu'utilisateur, je veux consulter l'historique de tous mes voyages planifiés.
-
-**US5.3** - En tant qu'utilisateur, je veux modifier un itinéraire sauvegardé (changer dates, activités).
-
-**US5.4** - En tant qu'utilisateur, je veux supprimer un voyage de ma liste.
-
-**US5.5** - En tant qu'utilisateur, je veux marquer un voyage comme "réalisé".
-
-### Epic 6 : Export et Partage
-
-**US6.1** - En tant qu'utilisateur, je veux exporter mon itinéraire en PDF pour l'imprimer.
-
-**US6.2** - En tant qu'utilisateur, je veux partager mon itinéraire par email ou lien.
-
-**US6.3** - En tant qu'utilisateur, je veux générer un lien public pour partager mon voyage avec des amis.
-
-### Epic 7 : Avis et Retours
-
-**US7.1** - En tant qu'utilisateur, je veux laisser un avis sur une destination que j'ai visitée.
-
-**US7.2** - En tant qu'utilisateur, je veux noter une destination (1-5 étoiles).
-
-**US7.3** - En tant qu'utilisateur, je veux ajouter des photos à mon avis.
-
-**US7.4** - En tant qu'administrateur, je veux modérer les avis avant publication.
-
-**US7.5** - En tant que visiteur, je veux consulter les avis d'autres utilisateurs sur une destination.
-
-### Epic 8 : Administration et Gestion des Destinations
-
-**US8.1** - En tant qu'administrateur, je veux ajouter de nouvelles destinations à la base de données.
-
-**US8.2** - En tant qu'administrateur, je veux modifier les informations d'une destination (budget moyen, description).
-
-**US8.3** - En tant qu'administrateur, je veux supprimer une destination obsolète.
-
-**US8.4** - En tant qu'administrateur, je veux consulter des statistiques sur les destinations les plus populaires.
-
-### Epic 9 : Dashboard et Statistiques
-
-**US9.1** - En tant qu'administrateur, je veux voir le nombre total d'utilisateurs inscrits.
-
-**US9.2** - En tant qu'administrateur, je veux consulter le nombre d'itinéraires générés.
-
-**US9.3** - En tant qu'administrateur, je veux voir les destinations les plus demandées.
-
-**US9.4** - En tant qu'utilisateur, je veux voir mes statistiques personnelles (nombre de voyages planifiés, budget total dépensé).
+- **10 pays minimum** avec différents trip_types
+- **30-40 hôtels** répartis dans tous les pays
+- **1 compte admin** : email: admin@nomado.com / password: admin123
+- **2-3 comptes utilisateurs** pour tester
 
 ---
 
-## 8. Contraintes et Exigences Non Fonctionnelles
+## 14. Ce qui Peut Attendre (Si pas le temps)
 
-### Performance
-- Temps de génération d'un itinéraire : < 3 secondes
-- Temps de chargement des pages : < 2 secondes
-- Support de 100+ utilisateurs simultanés
+Ces fonctionnalités sont optionnelles :
 
-### Compatibilité
-- Responsive design (mobile, tablette, desktop)
-- Compatible avec les navigateurs modernes (Chrome, Firefox, Safari, Edge)
-
-### Accessibilité
-- Contraste suffisant pour la lisibilité
-- Navigation au clavier possible
-- Textes alternatifs sur les images
-
-### Évolutivité
-- Architecture modulaire pour ajout de nouvelles fonctionnalités
-- Possibilité d'intégration d'APIs tierces (vols, météo)
+- 📌 Modifier une réservation après création
+- 📌 Annuler une réservation payée
+- 📌 Recherche/filtre de pays
+- 📌 Page de détail d'un pays
+- 📌 Afficher plusieurs hôtels au choix
+- 📌 Système d'évaluation des voyages
+- 📌 Dashboard avec statistiques
+- 📌 Export de réservation en PDF
+- 📌 Envoi d'email de confirmation
 
 ---
 
-## 9. Phases de Développement
+## 15. Exemple de Flux Complet
 
-### Phase 1 : MVP (Minimum Viable Product)
-- Authentification utilisateur
-- Formulaire de génération d'itinéraire
-- Génération basique d'une destination
-- Affichage d'itinéraire simple
-- Base de données avec 10-20 destinations
+### Scénario : Ahmed veut voyager
 
-### Phase 2 : Fonctionnalités Avancées
-- Sauvegarde des voyages
-- Recommandations d'hôtels
-- Suggestions d'activités détaillées
-- Export PDF
-
-### Phase 3 : Fonctionnalités Premium
-- Système d'avis et notations
-- Partage social
-- Dashboard administrateur complet
-- Statistiques et analytics
-
-### Phase 4 : Optimisations et Extensions
-- Intégration APIs externes (météo, change)
-- Optimisation des performances
-- Système de recommandations intelligent (IA/ML)
-- Application mobile (optionnel)
-
----
-
-## 10. Livrables Attendus
-
-- Code source complet (Frontend + Backend)
-- Base de données avec données de test
-- Documentation technique
-- Guide utilisateur
-- Présentation du projet (slides)
-- Démo fonctionnelle déployée
+1. **Ahmed s'inscrit** sur Nomado
+2. **Ahmed se connecte** avec son compte
+3. **Ahmed va sur "Générer un voyage"**
+4. **Ahmed remplit le formulaire :**
+   - Type : "Aventure"
+   - Budget : 1500€
+   - Durée : 5 jours
+   - Passagers : 2 personnes
+5. **Le système calcule :**
+   - Vols : 450€ (30%)
+   - Hôtel : 600€ (40%)
+   - Activités : 300€ (20%)
+   - Divers : 150€ (10%)
+6. **Le système cherche :**
+   - Pays avec trip_type = "adventure" → Trouve : Maroc, Népal, Costa Rica
+   - Choisit au hasard → **Maroc**
+7. **Le système cherche un hôtel au Maroc :**
+   - Budget par nuit par personne : 600€ ÷ 5 jours ÷ 2 = 60€/nuit
+   - Trouve "Riad Marrakech" à 50€/nuit → Parfait !
+8. **Ahmed voit le résultat :**
+   - Pays : Maroc
+   - Hôtel : Riad Marrakech (50€/nuit)
+   - Prix total hôtel : 50€ × 5 × 2 = 500€
+   - Prix vols estimés : 450€
+   - **Prix total : 950€**
+9. **Ahmed clique sur "Payer maintenant"**
+10. **Le système enregistre :**
+    - Nouvelle réservation dans la table `bookings`
+    - Statut : "paid"
+11. **Ahmed peut voir sa réservation dans "Mes Réservations"**
 
 ---
 
-## 11. Planning Estimatif
+**FIN DU CAHIER DES CHARGES**
 
-| Phase | Durée | Tâches principales |
-|-------|-------|-------------------|
-| Analyse et Design | 1 semaine | MCD, Wireframes, Architecture |
-| Développement Backend | 3 semaines | Laravel, API, Base de données |
-| Développement Frontend | 3 semaines | HTML/CSS/JS, Intégration |
-| Tests et Débogage | 1 semaine | Tests fonctionnels, corrections |
-| Déploiement | 3 jours | Mise en production |
-| **Total** | **8-9 semaines** | |
+🎯 **Objectif** : Site qui génère automatiquement un voyage (pays + hôtel) basé sur le type de voyage et le budget, avec simulation de paiement.
 
----
-
-## 12. Critères de Succès
-
-✅ Un utilisateur peut créer un compte et se connecter  
-✅ Un itinéraire est généré en fonction du budget et de la durée  
-✅ L'itinéraire contient une destination, un hôtel et des activités  
-✅ Un utilisateur peut sauvegarder et consulter ses voyages  
-✅ L'interface est intuitive et responsive  
-✅ Les données sont sécurisées (HTTPS, mots de passe hachés)  
-✅ L'administrateur peut gérer destinations, hôtels et activités  
-
----
-
-**Fin du Cahier des Charges**
+⏱️ **Durée** : 8 semaines  
+📚 **Niveau** : 1ère année programmation  
+💪 **Faisable** : OUI ! Suivez le planning étape par étape !
