@@ -647,8 +647,3 @@ Ces fonctionnalités sont optionnelles :
 
 **FIN DU CAHIER DES CHARGES**
 
-🎯 **Objectif** : Site qui génère automatiquement un voyage (pays + hôtel) basé sur le type de voyage et le budget, avec simulation de paiement.
-
-⏱️ **Durée** : 8 semaines  
-📚 **Niveau** : 1ère année programmation  
-💪 **Faisable** : OUI ! Suivez le planning étape par étape !
