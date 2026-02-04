@@ -377,7 +377,7 @@ hotels (1) ----< (N) bookings
 
 ---
 
-## 10. Exemple de Données à Créer dans la Base
+## 8. Exemple de Données à Créer dans la Base
 
 ### Table Countries (Exemples)
 
@@ -403,7 +403,7 @@ hotels (1) ----< (N) bookings
 
 ---
 
-## 14. Exemple de Flux Complet
+## 9. Exemple de Flux Complet
 
 ### Scénario : Ahmed veut voyager
 
