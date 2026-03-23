@@ -16,12 +16,17 @@ class User extends Authenticatable
      * The attributes that are mass assignable.
      *
      * @var list<string>
-     */
     protected $fillable = [
         'name',
         'email',
         'password',
+        'role',
     ];
+
+    public function bookings()
+    {
+        return $this->hasMany(Booking::class);
+    }
 
     /**
      * The attributes that should be hidden for serialization.
