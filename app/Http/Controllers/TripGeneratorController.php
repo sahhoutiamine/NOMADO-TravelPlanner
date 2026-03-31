@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\Country;
 use App\Models\Hotel;
 use App\Models\Booking;
+use Illuminate\Support\Facades\Auth;
 
 class TripGeneratorController extends Controller
 {
@@ -49,7 +50,7 @@ class TripGeneratorController extends Controller
         $totalPrice = $totalHotelPrice + $flightBudget;
 
         $booking = Booking::create([
-            'user_id' => auth()->id(),
+            'user_id' => Auth::id(),
             'country_id' => $country->id,
             'hotel_id' => $hotel->id,
             'trip_type' => $request->trip_type,
