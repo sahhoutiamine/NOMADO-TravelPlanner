@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('countries', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->enum('trip_type', ['adventure', 'culture', 'beach', 'romantic', 'nature', 'shopping']);
+            $table->string('name')->unique();
+            $table->enum('trip_type', ['adventure', 'culture', 'beach', 'romantic', 'nature', 'shopping'])->index();
             $table->text('description')->nullable();
             $table->string('image')->nullable();
             $table->timestamps();
