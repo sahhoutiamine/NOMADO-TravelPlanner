@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('country_id')->constrained()->onDelete('cascade');
             $table->string('name');
+            $table->string('location');
             $table->decimal('price_per_night', 8, 2);
             $table->text('description')->nullable();
             $table->string('image')->nullable();
