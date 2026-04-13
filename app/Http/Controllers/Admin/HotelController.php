@@ -5,26 +5,26 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Hotel;
-use App\Models\Country;
+use App\Models\Place;
 
 class HotelController extends Controller
 {
     public function index()
     {
-        $hotels = Hotel::with('country')->get();
+        $hotels = Hotel::with('place.country')->get();
         return view('admin.hotels.index', compact('hotels'));
     }
 
     public function create()
     {
-        $countries = Country::all();
-        return view('admin.hotels.create', compact('countries'));
+        $places = Place::with('country')->get();
+        return view('admin.hotels.create', compact('places'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'country_id' => 'required|exists:countries,id',
+            'place_id' => 'required|exists:places,id',
             'name' => 'required|string|max:255',
             'price_per_night' => 'required|numeric|min:0',
             'description' => 'nullable|string',
@@ -37,14 +37,14 @@ class HotelController extends Controller
 
     public function edit(Hotel $hotel)
     {
-        $countries = Country::all();
-        return view('admin.hotels.edit', compact('hotel', 'countries'));
+        $places = Place::with('country')->get();
+        return view('admin.hotels.edit', compact('hotel', 'places'));
     }
 
     public function update(Request $request, Hotel $hotel)
     {
         $validated = $request->validate([
-            'country_id' => 'required|exists:countries,id',
+            'place_id' => 'required|exists:places,id',
             'name' => 'required|string|max:255',
             'price_per_night' => 'required|numeric|min:0',
             'description' => 'nullable|string',
