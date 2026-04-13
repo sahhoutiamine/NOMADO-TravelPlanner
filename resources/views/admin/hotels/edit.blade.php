@@ -18,13 +18,15 @@
                             <x-input-error :messages="$errors->get('name')" class="mt-2" />
                         </div>
                         <div>
-                            <label class="block text-sm font-medium text-gray-700">Pays Associé</label>
-                            <select name="country_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                @foreach($countries as $country)
-                                    <option value="{{ $country->id }}" {{ $hotel->country_id == $country->id ? 'selected' : '' }}>{{ $country->name }}</option>
+                            <label class="block text-sm font-medium text-gray-700">Lieu / Place Associé</label>
+                            <select name="place_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                                @foreach($places as $place)
+                                    <option value="{{ $place->id }}" {{ $hotel->place_id == $place->id ? 'selected' : '' }}>
+                                        {{ $place->name }} ({{ $place->country->name }})
+                                    </option>
                                 @endforeach
                             </select>
-                            <x-input-error :messages="$errors->get('country_id')" class="mt-2" />
+                            <x-input-error :messages="$errors->get('place_id')" class="mt-2" />
                         </div>
                         <div>
                             <label class="block text-sm font-medium text-gray-700">Prix par nuit (€)</label>
