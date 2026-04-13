@@ -25,7 +25,7 @@
                         <tr>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nom</th>
-                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Pays</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Lieu (Pays)</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prix/Nuit</th>
                             <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                         </tr>
@@ -35,7 +35,9 @@
                         <tr>
                             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $hotel->id }}</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{{ $hotel->name }}</td>
-                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">{{ $hotel->country->name }}</td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                                {{ $hotel->place->name }} ({{ $hotel->place->country->name }})
+                            </td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">{{ number_format($hotel->price_per_night, 2) }} €</td>
                             <td class="px-6 py-4 whitespace-nowrap text-sm font-medium flex space-x-2">
                                 <a href="{{ route('admin.hotels.edit', $hotel->id) }}" class="text-indigo-600 hover:text-indigo-900 border px-3 py-1 rounded">Modifier</a>
