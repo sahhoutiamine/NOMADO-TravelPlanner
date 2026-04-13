@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Place;
+use App\Models\City;
 use App\Models\Hotel;
 use App\Models\Booking;
 use Illuminate\Support\Facades\Auth;
@@ -30,20 +30,20 @@ class TripGeneratorController extends Controller
         $activitiesBudget  = $budgetTotal * 0.20;
         $miscBudget        = $budgetTotal * 0.10;
 
-        $place = Place::where('trip_type', $request->trip_type)->inRandomOrder()->first();
+        $city = City::where('trip_type', $request->trip_type)->inRandomOrder()->first();
 
-        if (!$place) {
-            return back()->with('error', 'Aucun lieu trouvé pour ce type de voyage.');
+        if (!$city) {
+            return back()->with('error', 'Aucune ville trouvée pour ce type de voyage.');
         }
 
         $budgetPerNight = $hotelBudget / $request->duration / $request->passengers;
 
-        $hotel = Hotel::where('place_id', $place->id)
+        $hotel = Hotel::where('city_id', $city->id)
             ->orderByRaw('ABS(price_per_night - ?)', [$budgetPerNight])
             ->first();
 
         if (!$hotel) {
-            return back()->with('error', 'Aucun hôtel trouvé pour ce lieu.');
+            return back()->with('error', 'Aucun hôtel trouvé pour cette ville.');
         }
 
         $totalHotelPrice = $hotel->price_per_night * $request->duration * $request->passengers;
@@ -51,7 +51,7 @@ class TripGeneratorController extends Controller
 
         $booking = Booking::create([
             'user_id'           => Auth::id(),
-            'place_id'          => $place->id,
+            'city_id'           => $city->id,
             'hotel_id'          => $hotel->id,
             'trip_type'         => $request->trip_type,
             'budget_total'      => $budgetTotal,
