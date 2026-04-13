@@ -6,6 +6,7 @@ use App\Http\Controllers\MyBookingsController;
 use App\Http\Controllers\Admin\CountryController;
 use App\Http\Controllers\Admin\HotelController;
 use App\Http\Controllers\Admin\BookingController;
+use App\Http\Controllers\PlaceController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -29,6 +30,10 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/my-bookings/{id}', [MyBookingsController::class, 'show'])->name('bookings.show');
     Route::post('/my-bookings/{id}/pay', [MyBookingsController::class, 'pay'])->name('bookings.pay');
     Route::delete('/my-bookings/{id}', [MyBookingsController::class, 'destroy'])->name('bookings.destroy');
+
+    // Place Explorer Routes
+    Route::get('/places', [PlaceController::class, 'index'])->name('places.index');
+    Route::get('/places/{id}', [PlaceController::class, 'show'])->name('places.show');
 
     // Profile Routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
