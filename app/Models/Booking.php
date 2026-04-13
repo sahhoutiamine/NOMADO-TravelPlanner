@@ -7,23 +7,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class Booking extends Model
 {
-    /** @use HasFactory<\Database\Factories\BookingFactory> */
     use HasFactory;
 
     protected $fillable = [
-        'user_id',
-        'place_id',
-        'hotel_id',
-        'trip_type',
-        'budget_total',
-        'duration',
-        'passengers',
-        'flight_budget',
-        'hotel_budget',
-        'activities_budget',
-        'misc_budget',
-        'total_price',
-        'status',
+        'user_id', 'city_id', 'hotel_id', 'trip_type',
+        'budget_total', 'duration', 'passengers',
+        'flight_budget', 'hotel_budget', 'activities_budget', 'misc_budget',
+        'total_price', 'status',
     ];
 
     public function user()
@@ -31,9 +21,9 @@ class Booking extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function place()
+    public function city()
     {
-        return $this->belongsTo(Place::class);
+        return $this->belongsTo(City::class);
     }
 
     public function hotel()
