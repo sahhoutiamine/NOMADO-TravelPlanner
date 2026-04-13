@@ -1,7 +1,7 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Détails du Voyage: ') }} {{ $booking->country->name ?? 'Destination' }}
+            {{ __('Détails du Voyage: ') }} {{ $booking->place->country->name ?? 'Destination' }}
         </h2>
     </x-slot>
 
@@ -24,11 +24,11 @@
                 <div class="md:col-span-2 space-y-6">
                     <!-- Pays Box -->
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div class="h-48 bg-cover bg-center" style="background-image: url('{{ $booking->country->image ?? 'https://images.unsplash.com/photo-1488646953014-c8c32bc611ee?ixlib=rb-4.0.3' }}');"></div>
+                        <div class="h-48 bg-cover bg-center" style="background-image: url('{{ $booking->place->country->image ?? 'https://images.unsplash.com/photo-1488646953014-c8c32bc611ee?ixlib=rb-4.0.3' }}');"></div>
                         <div class="p-6">
-                            <span class="uppercase tracking-widest text-xs font-bold text-blue-500">{{ $booking->trip_type }}</span>
-                            <h3 class="text-2xl font-bold text-gray-900 mt-1">🌍 Pays Recommandé : {{ $booking->country->name }}</h3>
-                            <p class="text-gray-600 mt-2">{{ $booking->country->description }}</p>
+                            <span class="uppercase tracking-widest text-xs font-bold text-blue-500">{{ $booking->trip_type }} • {{ $booking->place->name }}</span>
+                            <h3 class="text-2xl font-bold text-gray-900 mt-1">🌍 Pays Recommandé : {{ $booking->place->country->name }}</h3>
+                            <p class="text-gray-600 mt-2">{{ $booking->place->country->description }}</p>
                         </div>
                     </div>
 
@@ -37,6 +37,7 @@
                         <div class="sm:w-1/3 bg-cover bg-center h-48 sm:h-auto" style="background-image: url('{{ $booking->hotel->image ?? 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3' }}');"></div>
                         <div class="p-6 sm:w-2/3">
                             <h3 class="text-xl font-bold text-gray-900">🏨 Hôtel Recommandé : {{ $booking->hotel->name }}</h3>
+                            <p class="text-sm font-medium text-blue-600 mb-2">📍 Situé près de : {{ $booking->hotel->place->name }}</p>
                             <p class="text-gray-600 mt-2">{{ $booking->hotel->description }}</p>
                             <p class="mt-4 inline-block bg-gray-100 rounded-lg px-3 py-1 text-sm font-semibold text-gray-700">Prix exact par nuit : {{ number_format($booking->hotel->price_per_night, 2) }} €</p>
                         </div>
