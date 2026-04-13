@@ -30,8 +30,9 @@
                                         <span class="block text-xs text-gray-500">{{ $booking->user->email }}</span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $booking->country->name ?? 'N/A' }}
-                                        <span class="block text-xs uppercase tracking-wider text-blue-500">{{ $booking->trip_type }}</span>
+                                        {{ $booking->place->country->name ?? 'N/A' }}
+                                        <span class="block text-xs font-semibold text-gray-600 italic mt-0.5">{{ $booking->place->name }}</span>
+                                        <span class="block text-xs uppercase tracking-wider text-blue-500 mt-1">{{ $booking->trip_type }}</span>
                                     </td>
                                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {{ $booking->hotel->name ?? 'N/A' }}
