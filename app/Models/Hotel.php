@@ -11,16 +11,17 @@ class Hotel extends Model
     use HasFactory;
 
     protected $fillable = [
-        'country_id',
+        'place_id',
         'name',
+        'location',
         'price_per_night',
         'description',
         'image',
     ];
 
-    public function country()
+    public function place()
     {
-        return $this->belongsTo(Country::class);
+        return $this->belongsTo(Place::class);
     }
 
     public function bookings()
