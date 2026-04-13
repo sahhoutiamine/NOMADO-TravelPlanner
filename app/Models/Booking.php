@@ -12,7 +12,7 @@ class Booking extends Model
 
     protected $fillable = [
         'user_id',
-        'country_id',
+        'place_id',
         'hotel_id',
         'trip_type',
         'budget_total',
@@ -31,9 +31,9 @@ class Booking extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function country()
+    public function place()
     {
-        return $this->belongsTo(Country::class);
+        return $this->belongsTo(Place::class);
     }
 
     public function hotel()
