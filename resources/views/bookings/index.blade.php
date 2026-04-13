@@ -50,7 +50,8 @@
                                             </span>
                                             <span class="text-xs text-gray-500">{{ $booking->created_at->format('d/m/Y') }}</span>
                                         </div>
-                                        <h3 class="text-lg font-bold text-gray-900">{{ ucfirst($booking->country->name ?? 'Pays inconnu') }}</h3>
+                                        <h3 class="text-lg font-bold text-gray-900">{{ ucfirst($booking->place->country->name ?? 'Pays inconnu') }}</h3>
+                                        <p class="text-xs text-blue-600 font-semibold mb-1">{{ $booking->place->name }}</p>
                                         <p class="text-sm text-gray-600 mb-4">{{ $booking->duration }} jours • {{ $booking->passengers }} passagers</p>
                                         
                                         <div class="flex justify-between border-t pt-4">
