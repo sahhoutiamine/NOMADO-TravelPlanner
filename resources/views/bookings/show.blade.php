@@ -1,13 +1,13 @@
 <x-app-layout>
     <x-slot name="header">
         <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Détails du Voyage: ') }} {{ $booking->place->country->name ?? 'Destination' }}
+            {{ __('Détails du Voyage: ') }} {{ $booking->city->name ?? 'Destination' }}, {{ $booking->city->country->name ?? '' }}
         </h2>
     </x-slot>
 
     <div class="py-12">
         <div class="max-w-5xl mx-auto sm:px-6 lg:px-8">
-            
+
             @if(session('success'))
                 <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
                     <span class="block sm:inline">{{ session('success') }}</span>
@@ -20,15 +20,23 @@
             @endif
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Info Globale -->
+                <!-- Left Column -->
                 <div class="md:col-span-2 space-y-6">
-                    <!-- Pays Box -->
+
+                    <!-- City / Country Box -->
                     <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                        <div class="h-48 bg-cover bg-center" style="background-image: url('{{ $booking->place->country->image ?? 'https://images.unsplash.com/photo-1488646953014-c8c32bc611ee?ixlib=rb-4.0.3' }}');"></div>
+                        <div class="h-48 bg-cover bg-center" style="background-image: url('{{ $booking->city->image ?? 'https://images.unsplash.com/photo-1488646953014-c8c32bc611ee?ixlib=rb-4.0.3' }}');"></div>
                         <div class="p-6">
-                            <span class="uppercase tracking-widest text-xs font-bold text-blue-500">{{ $booking->trip_type }} • {{ $booking->place->name }}</span>
-                            <h3 class="text-2xl font-bold text-gray-900 mt-1">🌍 Pays Recommandé : {{ $booking->place->country->name }}</h3>
-                            <p class="text-gray-600 mt-2">{{ $booking->place->country->description }}</p>
+                            <span class="uppercase tracking-widest text-xs font-bold text-blue-500">
+                                {{ $booking->trip_type }} • {{ $booking->city->country->name ?? '' }}
+                            </span>
+                            <h3 class="text-2xl font-bold text-gray-900 mt-1">
+                                🌍 Ville Recommandée : {{ $booking->city->name }}
+                            </h3>
+                            <p class="text-sm text-gray-500 mt-1">
+                                📍 {{ $booking->city->country->name ?? '' }}
+                            </p>
+                            <p class="text-gray-600 mt-2">{{ $booking->city->description }}</p>
                         </div>
                     </div>
 
@@ -37,14 +45,39 @@
                         <div class="sm:w-1/3 bg-cover bg-center h-48 sm:h-auto" style="background-image: url('{{ $booking->hotel->image ?? 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3' }}');"></div>
                         <div class="p-6 sm:w-2/3">
                             <h3 class="text-xl font-bold text-gray-900">🏨 Hôtel Recommandé : {{ $booking->hotel->name }}</h3>
-                            <p class="text-sm font-medium text-blue-600 mb-2">📍 Situé près de : {{ $booking->hotel->place->name }}</p>
+                            <p class="text-sm font-medium text-blue-600 mb-2">📍 {{ $booking->hotel->city->name ?? $booking->city->name }}</p>
                             <p class="text-gray-600 mt-2">{{ $booking->hotel->description }}</p>
-                            <p class="mt-4 inline-block bg-gray-100 rounded-lg px-3 py-1 text-sm font-semibold text-gray-700">Prix exact par nuit : {{ number_format($booking->hotel->price_per_night, 2) }} €</p>
+                            <p class="mt-4 inline-block bg-gray-100 rounded-lg px-3 py-1 text-sm font-semibold text-gray-700">
+                                Prix par nuit : {{ number_format($booking->hotel->price_per_night, 2) }} €
+                            </p>
                         </div>
                     </div>
+
+                    <!-- Places to Visit -->
+                    @if($booking->city->places->isNotEmpty())
+                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg p-6">
+                        <h3 class="text-xl font-bold text-gray-900 mb-4">🗺️ À Visiter à {{ $booking->city->name }}</h3>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            @foreach($booking->city->places as $place)
+                            <div class="rounded-lg overflow-hidden border hover:shadow-md transition duration-200">
+                                @if($place->image)
+                                <div class="h-32 bg-cover bg-center" style="background-image: url('{{ $place->image }}');"></div>
+                                @endif
+                                <div class="p-3">
+                                    <h4 class="font-semibold text-gray-900">{{ $place->name }}</h4>
+                                    @if($place->description)
+                                    <p class="text-sm text-gray-500 mt-1">{{ $place->description }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                            @endforeach
+                        </div>
+                    </div>
+                    @endif
+
                 </div>
 
-                <!-- Récapitulatif -->
+                <!-- Right Column: Budget Summary + Actions -->
                 <div class="space-y-6">
                     <div class="bg-white shadow-sm sm:rounded-lg p-6 border-t-4 border-blue-500">
                         <h3 class="text-lg font-bold text-gray-900 mb-4">Répartition du Budget</h3>
@@ -79,14 +112,12 @@
                             <div class="text-center mb-4">
                                 <span class="px-3 py-1 bg-yellow-100 text-yellow-800 rounded-full text-sm font-semibold">En attente de paiement</span>
                             </div>
-                            <!-- Form Payer -->
                             <form action="{{ route('bookings.pay', $booking->id) }}" method="POST">
                                 @csrf
                                 <button type="submit" class="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors">
                                     ✅ PAYER MAINTENANT
                                 </button>
                             </form>
-                            <!-- Form Annuler -->
                             <form action="{{ route('bookings.destroy', $booking->id) }}" method="POST" class="mt-3">
                                 @csrf
                                 @method('DELETE')
@@ -104,6 +135,7 @@
                     </div>
                 </div>
             </div>
+
             <div class="mt-6">
                 <a href="{{ route('bookings.index') }}" class="text-blue-600 hover:text-blue-800 flex items-center">
                     &larr; Retour à mes voyages
