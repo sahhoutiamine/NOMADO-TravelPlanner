@@ -15,7 +15,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Create Admin User
+        // Admin user
         User::factory()->create([
             'name' => 'Admin User',
             'email' => 'admin@nomado.com',
@@ -23,16 +23,18 @@ class DatabaseSeeder extends Seeder
             'role' => 'admin',
         ]);
 
-        // Create Regular User
+        // Regular user
         User::factory()->create([
-            'name' => 'John Doe',
+            'name' => 'Jane Doe',
             'email' => 'user@nomado.com',
             'password' => bcrypt('password'),
             'role' => 'user',
         ]);
 
+        // Application Seeders
         $this->call([
             CountrySeeder::class,
+            PlaceSeeder::class,
             HotelSeeder::class,
         ]);
     }
