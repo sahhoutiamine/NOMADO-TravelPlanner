@@ -26,7 +26,13 @@
                         <x-nav-link :href="route('admin.hotels.index')" :active="request()->routeIs('admin.hotels.*')">
                             Hôtels
                         </x-nav-link>
-                    @else
+                    @endif
+
+                    <x-nav-link :href="route('places.index')" :active="request()->routeIs('places.*')">
+                        Explorer Destinations
+                    </x-nav-link>
+
+                    @if(Auth::user()->role !== 'admin')
                         <x-nav-link :href="route('trip.index')" :active="request()->routeIs('trip.*')">
                             Générer Un Voyage
                         </x-nav-link>
@@ -100,7 +106,13 @@
                 <x-responsive-nav-link :href="route('admin.hotels.index')" :active="request()->routeIs('admin.hotels.*')">
                     Hôtels
                 </x-responsive-nav-link>
-            @else
+            @endif
+
+            <x-responsive-nav-link :href="route('places.index')" :active="request()->routeIs('places.*')">
+                Explorer Destinations
+            </x-responsive-nav-link>
+
+            @if(Auth::user()->role !== 'admin')
                 <x-responsive-nav-link :href="route('trip.index')" :active="request()->routeIs('trip.*')">
                     Générer Un Voyage
                 </x-responsive-nav-link>
