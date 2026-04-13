@@ -9,13 +9,13 @@ class MyBookingsController extends Controller
 {
     public function index()
     {
-        $bookings = Booking::with(['place.country', 'hotel'])->where('user_id', auth()->id())->latest()->get();
+        $bookings = Booking::with(['city.country', 'hotel'])->where('user_id', auth()->id())->latest()->get();
         return view('bookings.index', compact('bookings'));
     }
 
     public function show($id)
     {
-        $booking = Booking::with(['place.country', 'hotel.place'])->where('user_id', auth()->id())->findOrFail($id);
+        $booking = Booking::with(['city.country', 'city.places', 'hotel.city'])->where('user_id', auth()->id())->findOrFail($id);
         return view('bookings.show', compact('booking'));
     }
 
