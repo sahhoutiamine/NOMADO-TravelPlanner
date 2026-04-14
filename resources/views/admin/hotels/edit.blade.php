@@ -1,56 +1,74 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Modifier Hôtel: ') }} {{ $hotel->name }}
-        </h2>
-    </x-slot>
+@extends('layouts.admin')
 
-    <div class="py-12">
-        <div class="max-w-4xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    <form action="{{ route('admin.hotels.update', $hotel->id) }}" method="POST" class="space-y-4">
-                        @csrf
-                        @method('PUT')
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Nom</label>
-                            <input type="text" name="name" value="{{ $hotel->name }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900 focus:border-indigo-500 focus:ring-indigo-500">
-                            <x-input-error :messages="$errors->get('name')" class="mt-2" />
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Lieu / Place Associé</label>
-                            <select name="place_id" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
-                                @foreach($places as $place)
-                                    <option value="{{ $place->id }}" {{ $hotel->place_id == $place->id ? 'selected' : '' }}>
-                                        {{ $place->name }} ({{ $place->country->name }})
-                                    </option>
-                                @endforeach
-                            </select>
-                            <x-input-error :messages="$errors->get('place_id')" class="mt-2" />
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Prix par nuit (€)</label>
-                            <input type="number" step="0.01" name="price_per_night" value="{{ $hotel->price_per_night }}" required class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900 focus:border-indigo-500 focus:ring-indigo-500">
-                            <x-input-error :messages="$errors->get('price_per_night')" class="mt-2" />
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">Description</label>
-                            <textarea name="description" rows="3" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-indigo-500 focus:ring-indigo-500">{{ $hotel->description }}</textarea>
-                            <x-input-error :messages="$errors->get('description')" class="mt-2" />
-                        </div>
-                        <div>
-                            <label class="block text-sm font-medium text-gray-700">URL Image</label>
-                            <input type="url" name="image" value="{{ $hotel->image }}" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm text-gray-900 focus:border-indigo-500 focus:ring-indigo-500">
-                            <x-input-error :messages="$errors->get('image')" class="mt-2" />
-                        </div>
-                        <div class="flex items-center justify-end mt-4">
-                            <button type="submit" class="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-white hover:bg-blue-700 focus:outline-none">
-                                Mettre à jour
-                            </button>
-                        </div>
-                    </form>
+@section('category', 'Content Management')
+@section('title', 'Refine Property')
+
+@section('content')
+<div class="max-w-5xl">
+    <div class="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 p-10 border border-white fade-in">
+        <form action="{{ route('admin.hotels.update', $hotel->id) }}" method="POST" class="space-y-8">
+            @csrf
+            @method('PATCH')
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="space-y-2">
+                    <label for="name" class="block text-xs font-black uppercase tracking-widest text-slate-400">Property Name</label>
+                    <input type="text" name="name" id="name" required value="{{ old('name', $hotel->name) }}"
+                           class="w-full bg-slate-50 border-none rounded-2xl py-4 px-6 text-lg font-bold text-slate-900 focus:ring-4 focus:ring-primary-500/10 transition-all">
+                    <x-input-error :messages="$errors->get('name')" />
+                </div>
+
+                <div class="space-y-2">
+                    <label for="city_id" class="block text-xs font-black uppercase tracking-widest text-slate-400">Urban Locale</label>
+                    <select name="city_id" id="city_id" required class="w-full bg-slate-50 border-none rounded-2xl py-4 px-6 text-lg font-bold text-slate-900 focus:ring-4 focus:ring-primary-500/10 transition-all appearance-none cursor-pointer">
+                        @foreach($cities as $city)
+                            <option value="{{ $city->id }}" {{ old('city_id', $hotel->city_id) == $city->id ? 'selected' : '' }}>{{ $city->name }}</option>
+                        @endforeach
+                    </select>
+                    <x-input-error :messages="$errors->get('city_id')" />
                 </div>
             </div>
-        </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="space-y-2">
+                    <label for="type" class="block text-xs font-black uppercase tracking-widest text-slate-400">Property Tiers</label>
+                    <select name="type" id="type" required class="w-full bg-slate-50 border-none rounded-2xl py-4 px-6 text-lg font-bold text-slate-900 focus:ring-4 focus:ring-primary-500/10 transition-all appearance-none cursor-pointer">
+                        <option value="economy" {{ old('type', $hotel->type) == 'economy' ? 'selected' : '' }}>Economy</option>
+                        <option value="mid_range" {{ old('type', $hotel->type) == 'mid_range' ? 'selected' : '' }}>Mid Range</option>
+                        <option value="luxury" {{ old('type', $hotel->type) == 'luxury' ? 'selected' : '' }}>Luxury Elite</option>
+                    </select>
+                    <x-input-error :messages="$errors->get('type')" />
+                </div>
+
+                <div class="space-y-2">
+                    <label for="price_per_night" class="block text-xs font-black uppercase tracking-widest text-slate-400">Base Nightly Rate (€)</label>
+                    <input type="number" step="0.01" name="price_per_night" id="price_per_night" required value="{{ old('price_per_night', $hotel->price_per_night) }}"
+                           class="w-full bg-slate-50 border-none rounded-2xl py-4 px-6 text-2xl font-black text-slate-900 focus:ring-4 focus:ring-primary-500/10 transition-all">
+                    <x-input-error :messages="$errors->get('price_per_night')" />
+                </div>
+
+                <div class="space-y-2">
+                    <label for="image" class="block text-xs font-black uppercase tracking-widest text-slate-400">Master Asset URL</label>
+                    <input type="url" name="image" id="image" value="{{ old('image', $hotel->image) }}"
+                           class="w-full bg-slate-50 border-none rounded-2xl py-4 px-6 text-lg font-bold text-slate-900 focus:ring-4 focus:ring-primary-500/10 transition-all">
+                    <x-input-error :messages="$errors->get('image')" />
+                </div>
+            </div>
+
+            <div class="space-y-2">
+                <label for="description" class="block text-xs font-black uppercase tracking-widest text-slate-400">Hospitality Vision</label>
+                <textarea name="description" id="description" rows="3"
+                          class="w-full bg-slate-50 border-none rounded-2xl py-4 px-6 text-lg font-medium text-slate-900 focus:ring-4 focus:ring-primary-500/10 transition-all">{{ old('description', $hotel->description) }}</textarea>
+                <x-input-error :messages="$errors->get('description')" />
+            </div>
+
+            <div class="pt-6 flex justify-end gap-4 border-t border-slate-50">
+                <a href="{{ route('admin.hotels.index') }}" class="px-8 py-4 text-slate-400 font-black uppercase tracking-widest text-xs hover:text-slate-600 transition-colors">Discard Revisions</a>
+                <button type="submit" class="px-10 py-4 bg-indigo-600 text-white rounded-2xl font-black shadow-xl shadow-indigo-500/20 hover:bg-indigo-700 transition-all hover:-translate-y-1">
+                    Apply Operational Update
+                </button>
+            </div>
+        </form>
     </div>
-</x-app-layout>
+</div>
+@endsection
