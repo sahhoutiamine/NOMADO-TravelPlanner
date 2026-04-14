@@ -23,7 +23,6 @@ class CountryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'trip_type' => 'required|in:adventure,culture,beach,romantic,nature,shopping',
             'description' => 'nullable|string',
             'image' => 'nullable|string|url'
         ]);
@@ -41,7 +40,6 @@ class CountryController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255',
-            'trip_type' => 'required|in:adventure,culture,beach,romantic,nature,shopping',
             'description' => 'nullable|string',
             'image' => 'nullable|string|url'
         ]);
