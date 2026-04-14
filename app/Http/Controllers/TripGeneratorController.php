@@ -24,47 +24,97 @@ class TripGeneratorController extends Controller
             'passengers' => 'required|integer|min:1',
         ]);
 
-        $budgetTotal       = $request->budget;
-        $flightBudget      = $budgetTotal * 0.30;
-        $hotelBudget       = $budgetTotal * 0.40;
-        $activitiesBudget  = $budgetTotal * 0.20;
-        $miscBudget        = $budgetTotal * 0.10;
+        $budgetTotal = $request->budget;
+        $trip_type = $request->trip_type;
+        $duration = $request->duration;
+        $passengers = $request->passengers;
 
-        $city = City::where('trip_type', $request->trip_type)->inRandomOrder()->first();
+        // Find cities matching trip type
+        $cities = City::where('trip_type', $trip_type)->get();
 
-        if (!$city) {
+        if ($cities->isEmpty()) {
             return back()->with('error', 'Aucune ville trouvée pour ce type de voyage.');
         }
 
-        $budgetPerNight = $hotelBudget / $request->duration / $request->passengers;
+        // Search for hotels that fit within ~70% of the total budget to leave room for activities
+        $maxHotelTotal = $budgetTotal * 0.7;
+        $maxPricePerNight = $maxHotelTotal / $duration / $passengers;
 
-        $hotel = Hotel::where('city_id', $city->id)
-            ->orderByRaw('ABS(price_per_night - ?)', [$budgetPerNight])
-            ->first();
+        $hotels = Hotel::with('city.places')
+            ->whereIn('city_id', $cities->pluck('id'))
+            ->where('price_per_night', '<=', $maxPricePerNight)
+            ->inRandomOrder()
+            ->limit(3)
+            ->get();
 
-        if (!$hotel) {
-            return back()->with('error', 'Aucun hôtel trouvé pour cette ville.');
+        if ($hotels->isEmpty()) {
+            // Fallback: search for any hotel within the budget in these cities
+            $maxPricePerNight = $budgetTotal / $duration / $passengers;
+            $hotels = Hotel::with('city.places')
+                ->whereIn('city_id', $cities->pluck('id'))
+                ->where('price_per_night', '<=', $maxPricePerNight)
+                ->orderBy('price_per_night', 'asc')
+                ->limit(3)
+                ->get();
         }
 
-        $totalHotelPrice = $hotel->price_per_night * $request->duration * $request->passengers;
-        $totalPrice      = $totalHotelPrice + $flightBudget;
+        if ($hotels->isEmpty()) {
+            return back()->with('error', 'Aucun voyage trouvé correspondant à votre budget.');
+        }
+
+        $trips = [];
+        foreach ($hotels as $hotel) {
+            $hotelTotal = $hotel->price_per_night * $duration * $passengers;
+            $remaining = $budgetTotal - $hotelTotal;
+            
+            $trips[] = [
+                'city' => $hotel->city,
+                'hotel' => $hotel,
+                'duration' => $duration,
+                'passengers' => $passengers,
+                'hotel_budget' => $hotelTotal,
+                'activities_budget' => $remaining * 0.6,
+                'misc_budget' => $remaining * 0.4,
+                'total_price' => $budgetTotal,
+                'budget_total' => $budgetTotal,
+                'trip_type' => $trip_type
+            ];
+        }
+
+        return view('results', compact('trips', 'budgetTotal'));
+    }
+
+    public function confirm(Request $request)
+    {
+        $request->validate([
+            'city_id' => 'required|exists:cities,id',
+            'hotel_id' => 'required|exists:hotels,id',
+            'duration' => 'required|integer',
+            'passengers' => 'required|integer',
+            'budget_total' => 'required|numeric',
+            'hotel_budget' => 'required|numeric',
+            'activities_budget' => 'required|numeric',
+            'misc_budget' => 'required|numeric',
+            'total_price' => 'required|numeric',
+            'trip_type' => 'required',
+        ]);
 
         $booking = Booking::create([
             'user_id'           => Auth::id(),
-            'city_id'           => $city->id,
-            'hotel_id'          => $hotel->id,
+            'city_id'           => $request->city_id,
+            'hotel_id'          => $request->hotel_id,
             'trip_type'         => $request->trip_type,
-            'budget_total'      => $budgetTotal,
+            'budget_total'      => $request->budget_total,
             'duration'          => $request->duration,
             'passengers'        => $request->passengers,
-            'flight_budget'     => $flightBudget,
-            'hotel_budget'      => $totalHotelPrice,
-            'activities_budget' => $activitiesBudget,
-            'misc_budget'       => $miscBudget,
-            'total_price'       => $totalPrice,
+            'flight_budget'     => 0,
+            'hotel_budget'      => $request->hotel_budget,
+            'activities_budget' => $request->activities_budget,
+            'misc_budget'       => $request->misc_budget,
+            'total_price'       => $request->total_price,
             'status'            => 'pending',
         ]);
 
-        return redirect()->route('bookings.show', $booking->id)->with('success', 'Voyage généré avec succès !');
+        return redirect()->route('bookings.show', $booking->id)->with('success', 'Voyage enregistré avec succès !');
     }
 }
