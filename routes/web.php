@@ -3,6 +3,7 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TripGeneratorController;
 use App\Http\Controllers\MyBookingsController;
+use App\Http\Controllers\HotelShowController;
 use App\Http\Controllers\Admin\CountryController;
 use App\Http\Controllers\Admin\HotelController;
 use App\Http\Controllers\Admin\BookingController;
@@ -34,6 +35,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Place Explorer Routes
     Route::get('/places', [PlaceController::class, 'index'])->name('places.index');
     Route::get('/places/{id}', [PlaceController::class, 'show'])->name('places.show');
+
+    // Hotel Detail Route
+    Route::get('/hotels/{id}', [HotelShowController::class, 'show'])->name('hotels.show');
 
     // Profile Routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
