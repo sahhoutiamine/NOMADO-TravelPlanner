@@ -13,6 +13,7 @@ return new class extends Migration
             $table->foreignId('city_id')->constrained()->onDelete('cascade');
             $table->string('name');
             $table->text('description')->nullable();
+            $table->string('localisation')->nullable(); // Format: "latitude, longitude"
             $table->string('image')->nullable();
             $table->timestamps();
         });
