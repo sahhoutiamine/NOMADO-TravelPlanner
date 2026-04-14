@@ -40,18 +40,21 @@
                         </div>
                     </div>
 
-                    <!-- Hotel Box -->
-                    <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg flex flex-col sm:flex-row">
-                        <div class="sm:w-1/3 bg-cover bg-center h-48 sm:h-auto" style="background-image: url('{{ $booking->hotel->image ?? 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3' }}');"></div>
+                    {{-- Hotel Box --}}
+                    <a href="{{ route('hotels.show', $booking->hotel->id) }}" class="bg-white overflow-hidden shadow-sm sm:rounded-lg flex flex-col sm:flex-row hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 group block">
+                        <div class="sm:w-1/3 bg-cover bg-center h-48 sm:h-auto group-hover:scale-105 transition-transform duration-500 overflow-hidden" style="background-image: url('{{ $booking->hotel->image ?? 'https://images.unsplash.com/photo-1566073771259-6a8506099945?ixlib=rb-4.0.3' }}');"></div>
                         <div class="p-6 sm:w-2/3">
-                            <h3 class="text-xl font-bold text-gray-900">🏨 Hôtel Recommandé : {{ $booking->hotel->name }}</h3>
+                            <h3 class="text-xl font-bold text-gray-900 group-hover:text-blue-600 transition-colors">🏨 Hôtel Recommandé : {{ $booking->hotel->name }}</h3>
                             <p class="text-sm font-medium text-blue-600 mb-2">📍 {{ $booking->hotel->city->name ?? $booking->city->name }}</p>
                             <p class="text-gray-600 mt-2">{{ $booking->hotel->description }}</p>
-                            <p class="mt-4 inline-block bg-gray-100 rounded-lg px-3 py-1 text-sm font-semibold text-gray-700">
-                                Prix par nuit : {{ number_format($booking->hotel->price_per_night, 2) }} €
-                            </p>
+                            <div class="mt-4 flex items-center justify-between">
+                                <p class="inline-block bg-gray-100 rounded-lg px-3 py-1 text-sm font-semibold text-gray-700">
+                                    Prix par nuit : {{ number_format($booking->hotel->price_per_night, 2) }} €
+                                </p>
+                                <span class="text-blue-600 text-sm font-black flex items-center gap-1">Voir détails →</span>
+                            </div>
                         </div>
-                    </div>
+                    </a>
 
                     <!-- Places to Visit -->
                     @if($booking->city->places->isNotEmpty())
@@ -59,15 +62,26 @@
                         <h3 class="text-xl font-bold text-gray-900 mb-4">🗺️ À Visiter à {{ $booking->city->name }}</h3>
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             @foreach($booking->city->places as $place)
-                            <div class="rounded-lg overflow-hidden border hover:shadow-md transition duration-200">
+                            <div class="block rounded-lg overflow-hidden border hover:shadow-md transition duration-200 hover:border-blue-500 group relative">
+                                <!-- Main Link to Details -->
+                                <a href="{{ route('places.show', $place->id) }}" class="absolute inset-0 z-10" aria-label="Voir les détails de {{ $place->name }}"></a>
+                                
                                 @if($place->image)
-                                <div class="h-32 bg-cover bg-center" style="background-image: url('{{ $place->image }}');"></div>
+                                <div class="h-32 bg-cover bg-center group-hover:scale-105 transition-transform duration-500" style="background-image: url('{{ $place->image }}');"></div>
                                 @endif
-                                <div class="p-3">
-                                    <h4 class="font-semibold text-gray-900">{{ $place->name }}</h4>
+                                <div class="p-3 relative z-20 bg-white">
+                                    <h4 class="font-semibold text-gray-900 group-hover:text-blue-600 transition-colors">{{ $place->name }}</h4>
                                     @if($place->description)
-                                    <p class="text-sm text-gray-500 mt-1">{{ $place->description }}</p>
+                                    <p class="text-sm text-gray-500 mt-1 line-clamp-2">{{ $place->description }}</p>
                                     @endif
+                                    <div class="mt-2 flex items-center justify-between">
+                                        @if($place->localisation)
+                                        <a href="https://www.google.com/maps?q={{ urlencode($place->localisation) }}" target="_blank" class="text-[10px] text-green-600 font-bold flex items-center hover:underline relative z-30" onclick="event.stopPropagation()">
+                                            <span class="mr-1">🗺️</span> Map
+                                        </a>
+                                        @endif
+                                        <span class="text-[10px] font-black text-blue-600 uppercase tracking-tighter">Voir détails →</span>
+                                    </div>
                                 </div>
                             </div>
                             @endforeach
