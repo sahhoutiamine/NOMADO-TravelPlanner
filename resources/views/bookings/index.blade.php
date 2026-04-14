@@ -1,72 +1,119 @@
 <x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Mes Voyages') }}
-        </h2>
-    </x-slot>
-
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="min-h-screen bg-[#f8fafc] py-12 md:py-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             
+            <!-- Header -->
+            <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-8 fade-in">
+                <div>
+                    <h1 class="text-4xl md:text-6xl font-black text-slate-900 tracking-tighter leading-tight">
+                        Your <span class="text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-indigo-600">Collection.</span>
+                    </h1>
+                    <p class="mt-4 text-slate-500 text-lg font-light max-w-xl">
+                        A gallery of your past explorations and upcoming adventures curated by Nomado.
+                    </p>
+                </div>
+                <a href="{{ route('trip.index') }}" class="inline-flex items-center px-8 py-4 bg-slate-900 text-white font-black rounded-2xl shadow-xl shadow-slate-900/20 hover:bg-primary-600 hover:-translate-y-1 transition-all group overflow-hidden relative">
+                    <span class="relative z-10">New Journey</span>
+                    <div class="absolute inset-0 bg-gradient-to-r from-primary-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <svg class="w-5 h-5 ml-2 relative z-10 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                </a>
+            </div>
+
             @if(session('success'))
-                <div class="mb-4 bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative" role="alert">
-                    <span class="block sm:inline">{{ session('success') }}</span>
+                <div class="mb-10 bg-green-50 border border-green-100 text-green-700 px-6 py-4 rounded-2xl flex items-center gap-3 fade-in">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    <span class="font-medium">{{ session('success') }}</span>
                 </div>
             @endif
 
-            @if(session('error'))
-                <div class="mb-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
-                    <span class="block sm:inline">{{ session('error') }}</span>
+            @if($bookings->isEmpty())
+                <div class="text-center py-20 bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/40 border border-white fade-in">
+                    <div class="w-24 h-24 bg-slate-50 rounded-3xl flex items-center justify-center text-slate-300 mx-auto mb-6">
+                        <svg class="w-12 h-12" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"></path></svg>
+                    </div>
+                    <h3 class="text-2xl font-black text-slate-900 tracking-tight">Your gallery is empty.</h3>
+                    <p class="mt-2 text-slate-500 font-light mb-8">Ready to discover your next favorite place?</p>
+                    <a href="{{ route('trip.index') }}" class="text-primary-600 font-black flex items-center justify-center gap-2 hover:underline">
+                        Launch the Generator <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                    </a>
                 </div>
-            @endif
+            @else
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+                    @foreach($bookings as $index => $booking)
+                        <div class="group bg-white rounded-[2.5rem] overflow-hidden shadow-xl shadow-slate-200/50 border border-white hover:shadow-2xl hover:shadow-primary-100/40 transition-all duration-500 transform hover:-translate-y-2 fade-in" style="animation-delay: {{ $index * 0.1 }}s;">
+                            <!-- Image Header -->
+                            <div class="h-56 relative overflow-hidden">
+                                <img src="{{ $booking->city->image ?? 'https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1' }}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
+                                
+                                <span class="absolute top-5 right-5 px-3 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-widest leading-none z-10 {{ $booking->status === 'paid' ? 'bg-green-500 text-white' : 'bg-primary-600 text-white' }}">
+                                    {{ $booking->status === 'paid' ? 'Confirmed' : 'Pending' }}
+                                </span>
 
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900">
-                    
-                    @if($bookings->isEmpty())
-                        <div class="text-center py-10">
-                            <svg class="mx-auto h-12 w-12 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
-                            </svg>
-                            <h3 class="mt-2 text-sm font-medium text-gray-900">Aucun voyage pour le moment.</h3>
-                            <p class="mt-1 text-sm text-gray-500">Commencez par générer un nouveau voyage !</p>
-                            <div class="mt-6">
-                                <a href="{{ route('trip.index') }}" class="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-                                    <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                        <path fill-rule="evenodd" d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z" clip-rule="evenodd" />
-                                    </svg>
-                                    Nouveau Voyage
-                                </a>
+                                <div class="absolute bottom-6 left-6 text-white z-10">
+                                    <p class="text-[10px] font-black uppercase tracking-[0.2em] opacity-80 mb-1">{{ $booking->trip_type }} Trip</p>
+                                    <h3 class="text-2xl font-black tracking-tight leading-none">{{ $booking->city->name }}</h3>
+                                </div>
                             </div>
-                        </div>
-                    @else
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                            @foreach($bookings as $booking)
-                                <div class="bg-white rounded-lg border shadow-sm hover:shadow-md transition duration-200">
-                                    <div class="p-5 relative">
-                                        <div class="flex justify-between items-center mb-4">
-                                            <span class="px-2 py-1 text-xs font-semibold rounded-full uppercase tracking-wide {{ $booking->status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
-                                                {{ $booking->status === 'paid' ? 'Payé' : 'En attente' }}
-                                            </span>
-                                            <span class="text-xs text-gray-500">{{ $booking->created_at->format('d/m/Y') }}</span>
-                                        </div>
-                                        <h3 class="text-lg font-bold text-gray-900">{{ $booking->city->name ?? 'Ville inconnue' }}, {{ $booking->city->country->name ?? '' }}</h3>
-                                        <p class="text-xs text-blue-600 font-semibold mb-1">{{ ucfirst($booking->trip_type) }}</p>
-                                        <p class="text-sm text-gray-600 mb-4">{{ $booking->duration }} jours • {{ $booking->passengers }} passagers</p>
-                                        
-                                        <div class="flex justify-between border-t pt-4">
-                                            <div class="text-xl font-black text-blue-600">{{ number_format($booking->total_price, 2) }} €</div>
-                                            <a href="{{ route('bookings.show', $booking->id) }}" class="text-blue-500 hover:text-blue-700 text-sm font-medium flex items-center">
-                                                Voir détails &rarr;
-                                            </a>
-                                        </div>
+
+                            <!-- Card Content -->
+                            <div class="p-8">
+                                <div class="flex items-center gap-6 mb-8">
+                                    <div>
+                                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Duration</p>
+                                        <p class="text-slate-900 font-bold flex items-center text-sm">
+                                            <svg class="w-4 h-4 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                            {{ $booking->duration }} Nights
+                                        </p>
+                                    </div>
+                                    <div class="w-px h-8 bg-slate-100"></div>
+                                    <div>
+                                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Passengers</p>
+                                        <p class="text-slate-900 font-bold flex items-center text-sm">
+                                            <svg class="w-4 h-4 mr-1 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                                            {{ $booking->passengers }} Persons
+                                        </p>
                                     </div>
                                 </div>
-                            @endforeach
+
+                                <div class="flex items-center justify-between pt-6 border-t border-slate-50">
+                                    <div>
+                                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Total Budget</p>
+                                        <div class="text-2xl font-black text-slate-900 group-hover:text-primary-600 transition-colors leading-none tracking-tighter">
+                                            {{ number_format($booking->total_price, 2) }} €
+                                        </div>
+                                    </div>
+                                    <a href="{{ route('bookings.show', $booking->id) }}" class="w-12 h-12 bg-slate-50 rounded-2xl flex items-center justify-center text-slate-400 hover:bg-slate-900 hover:text-white transition-all transform hover:rotate-45">
+                                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14 5l7 7m0 0l-7 7m7-7H3"></path></svg>
+                                    </a>
+                                </div>
+                            </div>
                         </div>
-                    @endif
+                    @endforeach
                 </div>
-            </div>
+            @endif
         </div>
     </div>
+
+    <style>
+        .fade-in {
+            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .tracking-tighter { letter-spacing: -0.05em; }
+        .tracking-tight { letter-spacing: -0.025em; }
+    </style>
 </x-app-layout>
