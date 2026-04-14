@@ -1,65 +1,60 @@
-<x-app-layout>
-    <x-slot name="header">
-        <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-            {{ __('Toutes les Réservations') }}
-        </h2>
-    </x-slot>
+@extends('layouts.admin')
 
-    <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
-            <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
-                <div class="p-6 text-gray-900 border-b border-gray-200">
-                    <h3 class="text-lg leading-6 font-medium text-gray-900 mb-4">Aperçu Global</h3>
-                    <div class="overflow-x-auto">
-                        <table class="min-w-full divide-y divide-gray-200">
-                            <thead class="bg-gray-50">
-                                <tr>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Client</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Destination</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hôtel</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Durée</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Prix Total</th>
-                                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Statut</th>
-                                </tr>
-                            </thead>
-                            <tbody class="bg-white divide-y divide-gray-200">
-                                @forelse($bookings as $booking)
-                                <tr>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                                        {{ $booking->user->name }}
-                                        <span class="block text-xs text-gray-500">{{ $booking->user->email }}</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $booking->place->country->name ?? 'N/A' }}
-                                        <span class="block text-xs font-semibold text-gray-600 italic mt-0.5">{{ $booking->place->name }}</span>
-                                        <span class="block text-xs uppercase tracking-wider text-blue-500 mt-1">{{ $booking->trip_type }}</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $booking->hotel->name ?? 'N/A' }}
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {{ $booking->duration }} nuits<br>
-                                        <span class="text-xs">{{ $booking->passengers }} pers.</span>
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-bold text-gray-900">
-                                        {{ number_format($booking->total_price, 2) }} €
-                                    </td>
-                                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                        <span class="px-2 py-1 text-xs font-semibold rounded-full uppercase tracking-wide {{ $booking->status === 'paid' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800' }}">
-                                            {{ $booking->status === 'paid' ? 'Payé' : 'En attente' }}
-                                        </span>
-                                    </td>
-                                </tr>
-                                @empty
-                                <tr>
-                                    <td colspan="6" class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">Aucune réservation trouvée.</td>
-                                </tr>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-            </div>
-        </div>
+@section('category', 'Operational Center')
+@section('title', 'Global Booking Register')
+
+@section('content')
+<div class="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 overflow-hidden border border-white">
+    <div class="overflow-x-auto">
+        <table class="w-full text-left">
+            <thead>
+                <tr class="bg-slate-50 text-[10px] font-black text-slate-400 uppercase tracking-[0.2em] border-b border-slate-100">
+                    <th class="px-8 py-6">Reference & User</th>
+                    <th class="px-8 py-6">Destination Hub</th>
+                    <th class="px-8 py-6">Financial Value</th>
+                    <th class="px-8 py-6">Status</th>
+                    <th class="px-8 py-6 text-right">Details</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100">
+                @forelse($bookings as $booking)
+                    <tr class="group hover:bg-slate-50 transition-all">
+                        <td class="px-8 py-6">
+                            <div class="flex items-center gap-4">
+                                <div class="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-primary-500 group-hover:text-white transition-all font-black text-xs">
+                                    #{{ $booking->id }}
+                                </div>
+                                <div>
+                                    <p class="text-sm font-black text-slate-900 leading-none mb-1">{{ $booking->user->name }}</p>
+                                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{{ $booking->created_at->format('M d, H:i') }}</p>
+                                </div>
+                            </div>
+                        </td>
+                        <td class="px-8 py-6">
+                            <p class="text-sm font-bold text-slate-700">{{ $booking->city->name ?? 'N/A' }}</p>
+                            <p class="text-[10px] text-slate-400 italic">{{ $booking->city->country->name ?? 'Global' }}</p>
+                        </td>
+                        <td class="px-8 py-6 font-black text-slate-900">
+                            {{ number_format($booking->total_price, 2) }} €
+                        </td>
+                        <td class="px-8 py-6">
+                            <span class="px-3 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter {{ $booking->status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700' }}">
+                                {{ $booking->status }}
+                            </span>
+                        </td>
+                        <td class="px-8 py-6 text-right">
+                            <a href="{{ route('bookings.show', $booking->id) }}" class="inline-flex items-center text-xs font-black uppercase tracking-widest text-primary-600 hover:text-primary-800 transition-colors">
+                                Review &rarr;
+                            </a>
+                        </td>
+                    </tr>
+                @empty
+                    <tr>
+                        <td colspan="5" class="px-8 py-20 text-center text-slate-300 font-bold italic tracking-widest uppercase text-xs">The registry is currently void of expeditions.</td>
+                    </tr>
+                @endforelse
+            </tbody>
+        </table>
     </div>
-</x-app-layout>
+</div>
+@endsection
