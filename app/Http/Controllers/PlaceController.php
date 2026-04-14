@@ -10,10 +10,12 @@ class PlaceController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Place::with(['country', 'hotels']);
+        $query = Place::with(['city.country', 'city.hotels']);
 
         if ($request->has('country_id') && $request->country_id != '') {
-            $query->where('country_id', $request->country_id);
+            $query->whereHas('city', function($q) use ($request) {
+                $q->where('country_id', $request->country_id);
+            });
         }
 
         if ($request->has('search') && $request->search != '') {
@@ -28,7 +30,7 @@ class PlaceController extends Controller
 
     public function show($id)
     {
-        $place = Place::with(['country', 'hotels'])->findOrFail($id);
+        $place = Place::with(['city.country', 'city.hotels'])->findOrFail($id);
         return view('places.show', compact('place'));
     }
 }
