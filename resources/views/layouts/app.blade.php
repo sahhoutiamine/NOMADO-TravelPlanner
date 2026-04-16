@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Nomado - Generative Travel Planner</title>
+    <title>Nomado - AI Travel Planner</title>
     <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@700;900&family=Plus+Jakarta+Sans:wght@400;500;700&family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
     <!-- Scripts/Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -16,83 +16,363 @@
             theme: {
                 extend: {
                     fontFamily: {
-                        sans: ['Outfit', 'sans-serif'],
+                        'display': ['Clash Display', 'sans-serif'],
+                        'sans': ['Inter', 'sans-serif'],
+                        'jakarta': ['Plus Jakarta Sans', 'sans-serif'],
                     },
                     colors: {
-                        primary: {
-                            50: '#f0f9ff',
-                            100: '#e0f2fe',
-                            200: '#bae6fd',
-                            300: '#7dd3fc',
-                            400: '#38bdf8',
-                            500: '#0ea5e9',
-                            600: '#0284c7',
-                            700: '#0369a1',
-                            800: '#075985',
-                            900: '#0c4a6e',
-                        }
-                    }
+                        'navy': {
+                            50: '#E8EAED',
+                            100: '#D1D5DB',
+                            200: '#A3ABB7',
+                            300: '#6F7A8D',
+                            400: '#3B4563',
+                            500: '#07153A',
+                            600: '#0A0F1E',
+                            700: '#050A11',
+                            800: '#02050A',
+                            900: '#000000',
+                        },
+                        'coral': {
+                            400: '#FF7A4D',
+                            500: '#FF6B35',
+                            600: '#E55A24',
+                        },
+                        'amber': {
+                            400: '#FFC857',
+                            500: '#F59E0B',
+                            600: '#D97706',
+                        },
+                        'cream': '#FFFAF0',
+                    },
+                    boxShadow: {
+                        'glow-coral': '0 0 30px rgba(255, 107, 53, 0.3)',
+                        'glow-navy': '0 0 30px rgba(10, 15, 30, 0.3)',
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'shimmer': 'shimmer 2s ease-in-out infinite',
+                        'glow': 'glow 2s ease-in-out infinite',
+                        'drift-slow': 'drift-slow 20s ease-in-out infinite',
+                        'drift-fast': 'drift-fast 15s ease-in-out infinite',
+                    },
                 }
             }
         }
     </script>
     <style>
+        * {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background: linear-gradient(135deg, #0A0F1E 0%, #050A11 100%);
+            color: #E8EAED;
+        }
+
+        /* Glassmorphism */
         .glass {
-            background: rgba(255, 255, 255, 0.7);
+            background: rgba(255, 255, 255, 0.08);
             backdrop-filter: blur(10px);
             -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.15);
         }
-        .fade-in {
-            animation: fadeIn 0.4s ease-out forwards;
+
+        .glass-dark {
+            background: rgba(10, 15, 30, 0.6);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
+
+        /* Animations */
         @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes shimmer {
+            0%, 100% {
+                background-position: 200% center;
+            }
+            50% {
+                background-position: -200% center;
+            }
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(255, 107, 53, 0.5);
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(255, 107, 53, 0.8);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0px);
+            }
+            50% {
+                transform: translateY(-20px);
+            }
+        }
+
+        @keyframes drift-slow {
+            0% {
+                transform: translateX(0px) translateY(0px);
+            }
+            33% {
+                transform: translateX(30px) translateY(-30px);
+            }
+            66% {
+                transform: translateX(-20px) translateY(20px);
+            }
+            100% {
+                transform: translateX(0px) translateY(0px);
+            }
+        }
+
+        @keyframes drift-fast {
+            0% {
+                transform: translateX(0px) translateY(0px);
+            }
+            33% {
+                transform: translateX(-40px) translateY(30px);
+            }
+            66% {
+                transform: translateX(30px) translateY(-30px);
+            }
+            100% {
+                transform: translateX(0px) translateY(0px);
+            }
+        }
+
+        @keyframes typewriter {
+            0% {
+                width: 0;
+            }
+            100% {
+                width: 100%;
+            }
+        }
+
+        @keyframes checkmarkDraw {
+            0% {
+                stroke-dashoffset: 50;
+            }
+            100% {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+        }
+
+        .slide-in-up {
+            animation: slideInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+        }
+
+        .slide-in-left {
+            animation: slideInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+        }
+
+        .slide-in-right {
+            animation: slideInRight 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            opacity: 0;
+        }
+
+        /* Selection color */
+        ::selection {
+            background: #FF6B35;
+            color: #0A0F1E;
+        }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #FF6B35;
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #F59E0B;
+        }
+
+        /* Button base styles */
+        .btn-primary {
+            background: linear-gradient(135deg, #FF6B35 0%, #F59E0B 100%);
+            color: #0A0F1E;
+            font-weight: 700;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 10px 25px rgba(255, 107, 53, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 15px 35px rgba(255, 107, 53, 0.5);
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            color: #E8EAED;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            font-weight: 600;
+            border-radius: 12px;
+            padding: 10px 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        /* Gradient text */
+        .gradient-text {
+            background: linear-gradient(135deg, #FF6B35 0%, #F59E0B 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Input styles */
+        input, textarea, select {
+            background: rgba(255, 255, 255, 0.08);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: #E8EAED;
+            border-radius: 8px;
+            padding: 10px 16px;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            background: rgba(255, 255, 255, 0.12);
+            border-color: #FF6B35;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.2);
+        }
+
+        input::placeholder {
+            color: rgba(232, 234, 237, 0.5);
+        }
+
+        /* Links */
+        a {
+            color: #FF6B35;
+            transition: color 0.3s ease;
+        }
+
+        a:hover {
+            color: #F59E0B;
         }
     </style>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col font-sans selection:bg-primary-500 selection:text-white">
+<body class="antialiased min-h-screen flex flex-col font-sans">
     <!-- Navbar -->
-    <nav class="fixed w-full z-50 glass border-b border-white/40 shadow-sm">
+    <nav id="navbar" class="fixed w-full z-50 transition-all duration-500 border-b border-transparent">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
-                <div class="flex-shrink-0 flex items-center gap-2">
-                    <!-- Logo Icon -->
-                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-primary-500 to-indigo-600 flex items-center justify-center shadow-lg shadow-primary-500/30">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"></path></svg>
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-coral-500 to-amber-500 flex items-center justify-center shadow-lg shadow-coral-500/30">
+                        <svg class="w-6 h-6 text-navy-900" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
                     </div>
-                    <span class="font-bold text-xl tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-slate-900 to-slate-600">Nomado</span>
-                </div>
-                <!-- Links -->
-                <div class="hidden md:flex space-x-8 items-center">
-                    <a href="{{ route('trip.index') }}" class="text-slate-600 hover:text-primary-600 font-bold text-sm uppercase tracking-widest transition-colors {{ Route::is('trip.*') ? 'text-primary-600' : '' }}">Generator</a>
-                    <a href="{{ route('places.index') }}" class="text-slate-600 hover:text-primary-600 font-bold text-sm uppercase tracking-widest transition-colors {{ Route::is('places.*') ? 'text-primary-600' : '' }}">Destinations</a>
-                    <a href="{{ route('bookings.index') }}" class="text-slate-600 hover:text-primary-600 font-bold text-sm uppercase tracking-widest transition-colors {{ Route::is('bookings.*') ? 'text-primary-600' : '' }}">My Trips</a>
+                    <span class="font-display font-black text-xl tracking-tight text-white">Nomado</span>
                 </div>
 
+                <!-- Links -->
+                <div class="hidden md:flex space-x-1 items-center">
+                    <a href="{{ route('trip.index') }}" class="px-4 py-2 text-sm font-jakarta font-semibold text-gray-300 hover:text-coral-400 transition-colors {{ Route::is('trip.*') ? 'text-coral-400' : '' }}">Generator</a>
+                    <a href="{{ route('bookings.index') }}" class="px-4 py-2 text-sm font-jakarta font-semibold text-gray-300 hover:text-coral-400 transition-colors {{ Route::is('bookings.*') ? 'text-coral-400' : '' }}">My Trips</a>
+                    @auth
+                        @if(auth()->user()->is_admin)
+                            <a href="{{ route('admin.dashboard') }}" class="px-4 py-2 text-sm font-jakarta font-semibold text-gray-300 hover:text-coral-400 transition-colors {{ Route::is('admin.*') ? 'text-coral-400' : '' }}">Admin</a>
+                        @endif
+                    @endauth
+                </div>
+
+                <!-- Auth Links -->
                 <div class="flex items-center gap-4">
                     @auth
-                        <a href="{{ route('profile.edit') }}" class="flex items-center gap-3 pr-4 border-r border-slate-200 hover:opacity-80 transition-opacity group">
+                        <div class="flex items-center gap-3">
                             <div class="text-right hidden sm:block">
-                                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest leading-none mb-1">Traveler</p>
-                                <p class="text-xs font-black text-slate-900 leading-none group-hover:text-primary-600 transition-colors">{{ auth()->user()->name }}</p>
+                                <p class="text-xs font-jakarta font-semibold text-gray-400 leading-none">Traveler</p>
+                                <p class="text-sm font-jakarta font-bold text-white group-hover:text-coral-400 transition-colors leading-none">{{ auth()->user()->name }}</p>
                             </div>
-                            <div class="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center text-slate-400 border border-slate-200 group-hover:border-primary-200 group-hover:bg-primary-50 transition-all">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                            <div class="w-10 h-10 rounded-lg bg-gradient-to-br from-coral-500/20 to-amber-500/20 flex items-center justify-center border border-coral-500/30">
+                                <svg class="w-6 h-6 text-coral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
                             </div>
-                        </a>
-                        <form method="POST" action="{{ route('logout') }}">
+                        </div>
+                        <form method="POST" action="{{ route('logout') }}" class="inline">
                             @csrf
-                            <button type="submit" class="text-xs font-black text-red-500 uppercase tracking-widest hover:text-red-700 transition-colors flex items-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
-                                Logout
-                            </button>
+                            <button type="submit" class="btn-secondary text-xs">Logout</button>
                         </form>
                     @else
-                        <a href="{{ route('login') }}" class="text-sm font-black text-slate-700 hover:text-primary-600 uppercase tracking-widest transition-colors">Sign in</a>
-                        <a href="{{ route('register') }}" class="px-6 py-2.5 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-primary-600 transition-all shadow-lg shadow-slate-900/10">Join Nomado</a>
+                        <a href="{{ route('login') }}" class="btn-secondary text-sm">Sign In</a>
+                        <a href="{{ route('register') }}" class="btn-primary text-sm">Join Nomado</a>
                     @endauth
                 </div>
             </div>
@@ -106,14 +386,99 @@
     </main>
 
     <!-- Footer -->
-    <footer class="bg-white border-t border-slate-200 mt-auto">
-        <div class="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <p class="text-slate-500 text-sm">© 2026 Nomado Travel Planner. All rights reserved.</p>
-            <div class="flex gap-4">
-                <a href="#" class="text-slate-400 hover:text-slate-600 transition-colors">Twitter</a>
-                <a href="#" class="text-slate-400 hover:text-slate-600 transition-colors">GitHub</a>
+    <footer class="border-t border-white/10 mt-auto">
+        <div class="max-w-7xl mx-auto py-12 px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-8">
+                <!-- Brand -->
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-coral-500 to-amber-500 flex items-center justify-center">
+                            <svg class="w-4 h-4 text-navy-900" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/></svg>
+                        </div>
+                        <span class="font-display font-black text-lg">Nomado</span>
+                    </div>
+                    <p class="text-sm text-gray-400">Your perfect journey, generated in seconds.</p>
+                </div>
+
+                <!-- Links -->
+                <div>
+                    <h4 class="font-jakarta font-bold mb-4 text-white">Product</h4>
+                    <ul class="space-y-2">
+                        <li><a href="{{ route('trip.index') }}" class="text-sm text-gray-400 hover:text-coral-400">Generator</a></li>
+                        <li><a href="{{ route('bookings.index') }}" class="text-sm text-gray-400 hover:text-coral-400">My Trips</a></li>
+                    </ul>
+                </div>
+
+                <!-- Company -->
+                <div>
+                    <h4 class="font-jakarta font-bold mb-4 text-white">Company</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-sm text-gray-400 hover:text-coral-400">About</a></li>
+                        <li><a href="#" class="text-sm text-gray-400 hover:text-coral-400">Blog</a></li>
+                        <li><a href="#" class="text-sm text-gray-400 hover:text-coral-400">Contact</a></li>
+                    </ul>
+                </div>
+
+                <!-- Legal -->
+                <div>
+                    <h4 class="font-jakarta font-bold mb-4 text-white">Legal</h4>
+                    <ul class="space-y-2">
+                        <li><a href="#" class="text-sm text-gray-400 hover:text-coral-400">Privacy</a></li>
+                        <li><a href="#" class="text-sm text-gray-400 hover:text-coral-400">Terms</a></li>
+                        <li><a href="#" class="text-sm text-gray-400 hover:text-coral-400">Cookies</a></li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="border-t border-white/10 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+                <p class="text-gray-400 text-sm">© 2026 Nomado Travel Planner. All rights reserved.</p>
+                <div class="flex gap-6">
+                    <a href="#" class="text-gray-400 hover:text-coral-400 transition-colors">Twitter</a>
+                    <a href="#" class="text-gray-400 hover:text-coral-400 transition-colors">Instagram</a>
+                    <a href="#" class="text-gray-400 hover:text-coral-400 transition-colors">LinkedIn</a>
+                </div>
             </div>
         </div>
     </footer>
+
+    <!-- Navbar scroll effect -->
+    <script>
+        const navbar = document.getElementById('navbar');
+        let lastScrollY = 0;
+
+        window.addEventListener('scroll', () => {
+            lastScrollY = window.scrollY;
+
+            if (lastScrollY > 50) {
+                navbar.classList.add('glass');
+                navbar.classList.remove('border-transparent');
+                navbar.style.borderBottomColor = 'rgba(255, 255, 255, 0.1)';
+            } else {
+                navbar.classList.remove('glass');
+                navbar.classList.add('border-transparent');
+            }
+        });
+
+        // Intersection Observer for scroll-triggered animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -100px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('opacity-100');
+                    entry.target.classList.remove('opacity-0');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, observerOptions);
+
+        // Observe all elements with animate-on-scroll class
+        document.querySelectorAll('.animate-on-scroll').forEach(el => {
+            observer.observe(el);
+        });
+    </script>
 </body>
 </html>
