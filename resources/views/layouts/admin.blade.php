@@ -56,6 +56,8 @@
             from { opacity: 0; transform: translateY(5px); }
             to { opacity: 1; transform: translateY(0); }
         }
+        * { -ms-overflow-style: none; scrollbar-width: none; }
+        *::-webkit-scrollbar { display: none; }
     </style>
 </head>
 <body class="bg-[#f1f5f9] text-slate-800 antialiased font-sans flex min-h-screen">
