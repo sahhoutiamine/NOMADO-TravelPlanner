@@ -1,121 +1,121 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="min-h-screen bg-[#fdfdfd] py-12 md:py-24 flex items-center justify-center relative overflow-hidden">
-    <!-- Abstract background elements -->
-    <div class="absolute top-0 left-0 w-96 h-96 bg-primary-100 rounded-full blur-3xl -ml-40 -mt-40 opacity-40"></div>
-    <div class="absolute bottom-0 right-0 w-[30rem] h-[30rem] bg-indigo-100 rounded-full blur-[100px] -mr-60 -mb-60 opacity-40"></div>
-
-    <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 w-full relative z-10">
-        <div class="text-center mb-16 fade-in">
-            <div class="inline-flex items-center space-x-2 bg-primary-100 text-primary-700 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-[0.2em] mb-6 shadow-sm border border-primary-200/50">
-                AI Powered Planner
-            </div>
-            <h1 class="text-4xl md:text-7xl font-black text-slate-900 tracking-tighter leading-tight mb-6">
-                Start Your Next <span class="block text-transparent bg-clip-text bg-gradient-to-r from-primary-600 to-indigo-600">Adventure.</span>
-            </h1>
-            <p class="text-slate-500 text-lg md:text-xl font-light max-w-2xl mx-auto">
-                Define your vision, set your budget, and let our engine craft the perfect escape tailored just for you.
-            </p>
+<div class="min-h-screen py-12 md:py-24">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
+        <!-- Page Title -->
+        <div class="mb-10 animate-on-scroll fade-in">
+            <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Plan your trip</h1>
+            <p class="text-gray-500 text-sm mt-1">Define your preferences and let our engine craft the perfect escape for you.</p>
         </div>
 
-        <div class="bg-white/80 backdrop-blur-xl rounded-[2.5rem] shadow-2xl shadow-slate-200/60 p-8 md:p-12 border border-white fade-in" style="animation-delay: 0.2s;">
-            <form action="{{ route('trip.generate') }}" method="POST" class="space-y-10">
+        <!-- Form Card -->
+        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-8 animate-on-scroll slide-in-up" style="animation-delay: 0.1s;">
+            <form action="{{ route('trip.generate') }}" method="POST" class="space-y-8">
                 @csrf
-                
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-10">
-                    <!-- Trip Type -->
-                    <div class="group">
-                        <label for="trip_type" class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-3 group-focus-within:text-primary-600 transition-colors">Experience Type</label>
-                        <div class="relative">
-                            <select id="trip_type" name="trip_type" required class="w-full bg-slate-50 border-none rounded-2xl py-5 px-6 text-lg font-bold text-slate-900 focus:ring-4 focus:ring-primary-500/10 transition-all appearance-none cursor-pointer">
-                                <option value="" disabled selected>Select Atmosphere...</option>
-                                <option value="adventure">🏔️ Adventure & Thrills</option>
-                                <option value="culture">🏛️ Arts & Culture</option>
-                                <option value="beach">🏖️ Sun & Relaxation</option>
-                                <option value="romantic">💍 Pure Romance</option>
-                                <option value="nature">🌿 Nature Escape</option>
-                                <option value="shopping">🛍️ Luxury Shopping</option>
-                            </select>
-                            <div class="absolute inset-y-0 right-5 flex items-center pointer-events-none text-slate-400">
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
-                            </div>
-                        </div>
-                        <x-input-error :messages="$errors->get('trip_type')" class="mt-2" />
-                    </div>
 
+                <!-- Trip Type Grid -->
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Trip Type</label>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                        @foreach([
+                            'adventure' => 'Adventure',
+                            'culture' => 'Culture',
+                            'beach' => 'Beach',
+                            'romantic' => 'Romantic',
+                            'nature' => 'Nature',
+                            'shopping' => 'Shopping'
+                        ] as $value => $label)
+                            <label class="relative cursor-pointer animate-on-scroll fade-in" style="animation-delay: {{ 0.05 * ($loop->index + 1) }}s;">
+                                <input type="radio" name="trip_type" value="{{ $value }}" required class="sr-only peer"
+                                    {{ old('trip_type') == $value ? 'checked' : '' }}>
+                                <div class="peer-checked:border-primary-600 peer-checked:bg-primary-50 peer-checked:text-primary-700 peer-checked:font-semibold peer-checked:scale-105 border border-gray-200 bg-white text-gray-600 rounded-xl py-4 px-4 transition-all hover:border-primary-400 hover:bg-primary-50 flex items-center justify-center text-center text-sm font-medium trip-type-option">
+                                    {{ $label }}
+                                </div>
+                            </label>
+                        @endforeach
+                    </div>
+                    <x-input-error :messages="$errors->get('trip_type')" class="mt-2" />
+                </div>
+
+                <!-- Form Fields Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <!-- Budget -->
-                    <div class="group">
-                        <label for="budget" class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-3 group-focus-within:text-primary-600 transition-colors">Total Budget (€)</label>
-                        <div class="relative">
-                            <input id="budget" type="number" name="budget" min="100" required placeholder="e.g. 2500" 
-                                   class="w-full bg-slate-50 border-none rounded-2xl py-5 px-6 text-2xl font-black text-slate-900 focus:ring-4 focus:ring-primary-500/10 transition-all placeholder:text-slate-300">
-                            <div class="absolute inset-y-0 right-6 flex items-center pointer-events-none text-slate-400 font-black text-xl">
-                                €
-                            </div>
-                        </div>
+                    <div>
+                        <label for="budget" class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Total Budget (EUR)</label>
+                        <input id="budget" type="number" name="budget" min="100" required placeholder="e.g. 2500"
+                               class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors placeholder:text-gray-400">
                         <x-input-error :messages="$errors->get('budget')" class="mt-2" />
                     </div>
 
                     <!-- Duration -->
-                    <div class="group">
-                        <label for="duration" class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-3 group-focus-within:text-primary-600 transition-colors">Stay Duration (Nights)</label>
-                        <div class="relative">
-                            <input id="duration" type="number" name="duration" min="1" required placeholder="e.g. 7" 
-                                   class="w-full bg-slate-50 border-none rounded-2xl py-5 px-6 text-2xl font-black text-slate-900 focus:ring-4 focus:ring-primary-500/10 transition-all placeholder:text-slate-300">
-                            <div class="absolute inset-y-0 right-6 flex items-center pointer-events-none text-slate-400">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                            </div>
-                        </div>
+                    <div>
+                        <label for="duration" class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Stay Duration (Nights)</label>
+                        <input id="duration" type="number" name="duration" min="1" required placeholder="e.g. 7"
+                               class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors placeholder:text-gray-400">
                         <x-input-error :messages="$errors->get('duration')" class="mt-2" />
                     </div>
 
-                    <!-- Passengers -->
-                    <div class="group">
-                        <label for="passengers" class="block text-[11px] font-black uppercase tracking-widest text-slate-400 mb-3 group-focus-within:text-primary-600 transition-colors">Travelers</label>
-                        <div class="relative">
-                            <input id="passengers" type="number" name="passengers" min="1" required placeholder="e.g. 2" 
-                                   class="w-full bg-slate-50 border-none rounded-2xl py-5 px-6 text-2xl font-black text-slate-900 focus:ring-4 focus:ring-primary-500/10 transition-all placeholder:text-slate-300">
-                             <div class="absolute inset-y-0 right-6 flex items-center pointer-events-none text-slate-400">
-                                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                            </div>
-                        </div>
+                    <!-- Travelers -->
+                    <div class="md:col-span-2">
+                        <label for="passengers" class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Number of Travelers</label>
+                        <input id="passengers" type="number" name="passengers" min="1" required placeholder="e.g. 2"
+                               class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors placeholder:text-gray-400">
                         <x-input-error :messages="$errors->get('passengers')" class="mt-2" />
                     </div>
                 </div>
 
-                <div class="pt-6 border-t border-slate-50">
-                    <button type="submit" class="w-full py-6 bg-slate-900 text-white rounded-[1.5rem] font-black text-xl shadow-2xl shadow-slate-900/20 hover:bg-primary-600 hover:-translate-y-1 transition-all active:scale-95 flex items-center justify-center group overflow-hidden relative">
-                        <span class="relative z-10">Generate My Journey</span>
-                        <div class="absolute inset-0 bg-gradient-to-r from-primary-600 to-indigo-600 opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                        <svg class="w-6 h-6 ml-3 relative z-10 group-hover:translate-x-3 transition-transform duration-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"></path></svg>
+                <!-- Submit Button -->
+                <div class="pt-4 border-t border-gray-100">
+                    <button type="submit" class="w-full py-4 bg-gray-900 text-white rounded-xl font-semibold text-base hover:bg-primary-600 transition-colors flex items-center justify-center gap-2 submit-shimmer">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                        Generate My Journey
                     </button>
-                    <p class="text-center text-slate-400 text-xs mt-6 font-medium uppercase tracking-[0.2em]">Crafted by Nomado Intelligience</p>
                 </div>
             </form>
         </div>
     </div>
 </div>
 
+<script>
+    // Scale bounce on trip type selection
+    document.querySelectorAll('.trip-type-option').forEach(option => {
+        option.addEventListener('click', function() {
+            this.style.animation = 'scaleClick 0.3s ease-out';
+            setTimeout(() => {
+                this.style.animation = '';
+            }, 300);
+        });
+    });
+</script>
+
 <style>
-    .fade-in {
-        animation: fadeIn 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        opacity: 0;
-        transform: translateY(30px);
+    @keyframes scaleClick {
+        0% { transform: scale(1); }
+        50% { transform: scale(0.95); }
+        100% { transform: scale(1.05); }
     }
 
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(30px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
+    @keyframes shimmerButton {
+        0% { background-position: -1000px 0; }
+        100% { background-position: 1000px 0; }
+    }
+
+    .submit-shimmer {
+        position: relative;
+        overflow: hidden;
+    }
+
+    .submit-shimmer:hover {
+        background-image: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
+        background-size: 200% 100%;
+        animation: shimmerButton 0.8s ease-in-out;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .trip-type-option, .submit-shimmer:hover {
+            animation: none !important;
         }
     }
-    
-    .tracking-tighter { letter-spacing: -0.05em; }
-    .tracking-tight { letter-spacing: -0.025em; }
 </style>
 @endsection
