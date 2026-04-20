@@ -382,19 +382,39 @@
         animation-fill-mode: forwards;
     }
 
-    .slide-in-up {
+    .animate-on-scroll.scroll-visible {
+        animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    .animate-on-scroll.slide-in-up {
+        animation: none;
+    }
+
+    .animate-on-scroll.slide-in-up.scroll-visible {
         animation: slideInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    .slide-in-left {
+    .animate-on-scroll.slide-in-left {
+        animation: none;
+    }
+
+    .animate-on-scroll.slide-in-left.scroll-visible {
         animation: slideInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    .slide-in-right {
+    .animate-on-scroll.slide-in-right {
+        animation: none;
+    }
+
+    .animate-on-scroll.slide-in-right.scroll-visible {
         animation: slideInRight 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
-    .fade-in {
+    .animate-on-scroll.fade-in {
+        animation: none;
+    }
+
+    .animate-on-scroll.fade-in.scroll-visible {
         animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
 
@@ -436,6 +456,13 @@
             opacity: 0;
         }
         to {
+            opacity: 1;
+        }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .animate-on-scroll {
+            animation: none !important;
             opacity: 1;
         }
     }
