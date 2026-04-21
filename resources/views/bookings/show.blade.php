@@ -203,12 +203,9 @@
                     <!-- Actions -->
                     <div class="relative z-10 space-y-4">
                         @if($booking->status === 'pending')
-                            <form action="{{ route('bookings.pay', $booking->id) }}" method="POST">
-                                @csrf
-                                <button type="submit" class="w-full py-5 bg-gradient-primary text-white font-black text-xl rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3 active:scale-95">
-                                    Secure Payment <span class="material-symbols-outlined">payments</span>
-                                </button>
-                            </form>
+                            <a href="{{ route('payment.show', $booking->id) }}" class="w-full py-5 bg-gradient-primary text-white font-black text-xl rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3 active:scale-95">
+                                Secure Payment <span class="material-symbols-outlined">payments</span>
+                            </a>
                             <form action="{{ route('bookings.destroy', $booking->id) }}" method="POST">
                                 @csrf
                                 @method('DELETE')
@@ -222,6 +219,9 @@
                                 <p class="text-emerald-900 font-black text-lg">Transaction Complete</p>
                                 <p class="text-emerald-600/70 text-xs font-bold uppercase tracking-widest mt-1">Journey Confirmed</p>
                             </div>
+                            <a href="{{ route('payment.ticket', $booking->id) }}" class="w-full py-5 bg-gradient-primary text-white font-black text-xl rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3 active:scale-95">
+                                View & Print Ticket <span class="material-symbols-outlined">confirmation_number</span>
+                            </a>
                         @endif
                     </div>
                 </div>
