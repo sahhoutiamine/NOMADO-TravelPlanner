@@ -10,6 +10,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
     <!-- Scripts/Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -189,17 +190,16 @@
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16 items-center">
                 <!-- Logo -->
-                <div class="flex-shrink-0 flex items-center gap-2.5">
+                <a href="{{ route('dashboard') }}" class="flex-shrink-0 flex items-center gap-2.5 group transition-transform hover:scale-[1.02] duration-200">
                     <div class="w-9 h-9 rounded-lg bg-primary-600 flex items-center justify-center">
-                        <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                        <span class="material-symbols-outlined text-white text-xl" style="font-variation-settings: 'FILL' 1;">explore</span>
                     </div>
-                    <span class="font-bold text-xl text-gray-900 tracking-tight">Nomado</span>
-                </div>
+                    <span class="font-black text-2xl text-gray-900 tracking-tighter">Nomado</span>
+                </a>
 
                 <!-- Links -->
                 <div class="hidden md:flex space-x-1 items-center">
-                    <a href="{{ route('trip.index') }}" class="px-4 py-2 text-sm font-semibold rounded-lg transition-colors {{ Route::is('trip.*') ? 'text-primary-600 bg-primary-50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50' }}">Generator</a>
-                    <a href="{{ route('places.index') }}" class="px-4 py-2 text-sm font-semibold rounded-lg transition-colors {{ Route::is('places.*') ? 'text-primary-600 bg-primary-50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50' }}">Destinations</a>
+                    <a href="{{ route('trip.index') }}" class="px-4 py-2 text-sm font-semibold rounded-lg transition-colors {{ Route::is('trip.*') ? 'text-primary-600 bg-primary-50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50' }}">Planner</a>
                     <a href="{{ route('bookings.index') }}" class="px-4 py-2 text-sm font-semibold rounded-lg transition-colors {{ Route::is('bookings.*') ? 'text-primary-600 bg-primary-50' : 'text-gray-500 hover:text-gray-900 hover:bg-gray-50' }}">My Trips</a>
                     @auth
                         @if(auth()->user()->is_admin)
@@ -247,9 +247,9 @@
                 <div>
                     <div class="flex items-center gap-2 mb-4">
                         <div class="w-8 h-8 rounded-lg bg-primary-600 flex items-center justify-center">
-                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
+                            <span class="material-symbols-outlined text-white text-base" style="font-variation-settings: 'FILL' 1;">explore</span>
                         </div>
-                        <span class="font-bold text-lg text-gray-900">Nomado</span>
+                        <span class="font-black text-xl text-gray-900 tracking-tighter">Nomado</span>
                     </div>
                     <p class="text-sm text-gray-500">Your perfect journey, generated in seconds.</p>
                 </div>
@@ -258,7 +258,7 @@
                 <div>
                     <h4 class="font-semibold mb-4 text-gray-900">Product</h4>
                     <ul class="space-y-2">
-                        <li><a href="{{ route('trip.index') }}" class="text-sm text-gray-500 hover:text-primary-600 transition-colors">Generator</a></li>
+                        <li><a href="{{ route('trip.index') }}" class="text-sm text-gray-500 hover:text-primary-600 transition-colors">Planner</a></li>
                         <li><a href="{{ route('bookings.index') }}" class="text-sm text-gray-500 hover:text-primary-600 transition-colors">My Trips</a></li>
                     </ul>
                 </div>
