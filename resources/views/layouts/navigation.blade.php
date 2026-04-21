@@ -3,10 +3,12 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
-                <!-- Logo -->
                 <div class="shrink-0 flex items-center">
-                    <a href="{{ route('dashboard') }}" class="flex items-center gap-2 font-black text-blue-600 text-xl tracking-tight">
-                        ✈️ <span>Nomado</span>
+                    <a href="{{ route('dashboard') }}" class="flex items-center gap-2.5 font-black text-gray-900 text-2xl tracking-tighter group transition-transform hover:scale-[1.02] duration-200">
+                        <div class="w-9 h-9 rounded-lg bg-primary-600 flex items-center justify-center">
+                            <span class="material-symbols-outlined text-white text-xl" style="font-variation-settings: 'FILL' 1;">explore</span>
+                        </div>
+                        <span>Nomado</span>
                     </a>
                 </div>
 
@@ -23,16 +25,14 @@
                             🏨 Hôtels
                         </x-nav-link>
                     @else
-                        <x-nav-link :href="route('trip.index')" :active="request()->routeIs('trip.*')">
-                            🗺️ Générer un Voyage
+                        <x-nav-link :href="route('trip.index')" :active="request()->routeIs('trip.*')" class="font-semibold text-sm">
+                            Planner
                         </x-nav-link>
-                        <x-nav-link :href="route('bookings.index')" :active="request()->routeIs('bookings.*')">
-                            🧳 Mes Voyages
+                        <x-nav-link :href="route('bookings.index')" :active="request()->routeIs('bookings.*')" class="font-semibold text-sm">
+                            My Trips
                         </x-nav-link>
                     @endif
-                    <x-nav-link :href="route('places.index')" :active="request()->routeIs('places.*')">
-                        🔭 Explorer
-                    </x-nav-link>
+
                 </div>
             </div>
 
@@ -101,15 +101,13 @@
                 </x-responsive-nav-link>
             @else
                 <x-responsive-nav-link :href="route('trip.index')" :active="request()->routeIs('trip.*')">
-                    🗺️ Générer Un Voyage
+                    Planner
                 </x-responsive-nav-link>
                 <x-responsive-nav-link :href="route('bookings.index')" :active="request()->routeIs('bookings.*')">
-                    🧳 Mes Voyages
+                    My Trips
                 </x-responsive-nav-link>
             @endif
-            <x-responsive-nav-link :href="route('places.index')" :active="request()->routeIs('places.*')">
-                🔭 Explorer Destinations
-            </x-responsive-nav-link>
+
         </div>
 
         <!-- Responsive User + Logout -->
