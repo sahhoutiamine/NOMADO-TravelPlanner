@@ -13,6 +13,11 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
             'is.admin' => \App\Http\Middleware\IsAdmin::class,
+            'check.banned' => \App\Http\Middleware\CheckBanned::class,
+        ]);
+
+        $middleware->appendToGroup('web', [
+            \App\Http\Middleware\CheckBanned::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
