@@ -274,6 +274,7 @@
                                 <input type="hidden" name="duration" value="{{ $trip['duration'] }}">
                                 <input type="hidden" name="passengers" value="{{ $trip['passengers'] }}">
                                 <input type="hidden" name="budget_total" value="{{ $trip['budget_total'] }}">
+                                <input type="hidden" name="flight_budget" value="{{ $trip['flight_budget'] }}">
                                 <input type="hidden" name="hotel_budget" value="{{ $trip['hotel_budget'] }}">
                                 <input type="hidden" name="activities_budget" value="{{ $trip['activities_budget'] }}">
                                 <input type="hidden" name="misc_budget" value="{{ $trip['misc_budget'] }}">
