@@ -11,7 +11,10 @@ use App\Http\Controllers\PlaceController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return redirect()->route('login');
+    if (auth()->check()) {
+        return redirect()->route('dashboard');
+    }
+    return view('welcome');
 });
 
 Route::middleware(['auth', 'verified'])->group(function () {
@@ -32,8 +35,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/my-bookings/{id}/pay', [MyBookingsController::class, 'pay'])->name('bookings.pay');
     Route::delete('/my-bookings/{id}', [MyBookingsController::class, 'destroy'])->name('bookings.destroy');
 
-    // Place Explorer Routes
-    Route::get('/places', [PlaceController::class, 'index'])->name('places.index');
     Route::get('/places/{id}', [PlaceController::class, 'show'])->name('places.show');
 
     // Hotel Detail Route
@@ -53,6 +54,7 @@ Route::middleware(['auth', 'verified', 'is.admin'])->prefix('admin')->name('admi
     Route::resource('hotels', HotelController::class);
     Route::resource('places', App\Http\Controllers\Admin\PlaceController::class);
     Route::resource('users', App\Http\Controllers\Admin\UserController::class);
+    Route::patch('users/{user}/toggle-ban', [App\Http\Controllers\Admin\UserController::class, 'toggleBan'])->name('users.toggle-ban');
     Route::get('bookings', [BookingController::class, 'index'])->name('bookings.index');
 });
 
