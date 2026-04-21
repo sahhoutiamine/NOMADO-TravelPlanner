@@ -68,13 +68,17 @@ class UserController extends Controller
         return redirect()->route('admin.users.index')->with('success', 'Utilisateur mis à jour avec succès.');
     }
 
-    public function destroy(User $user)
+    public function toggleBan(User $user)
     {
         if (auth()->id() === $user->id) {
-            return redirect()->route('admin.users.index')->with('error', 'Vous ne pouvez pas supprimer votre propre compte.');
+            return redirect()->route('admin.users.index')->with('error', 'Vous ne pouvez pas bannir votre propre compte.');
         }
 
-        $user->delete();
-        return redirect()->route('admin.users.index')->with('success', 'Utilisateur supprimé.');
+        $user->update([
+            'is_banned' => !$user->is_banned
+        ]);
+
+        $status = $user->is_banned ? 'banni' : 'débanni';
+        return redirect()->route('admin.users.index')->with('success', "Utilisateur $status avec succès.");
     }
 }
