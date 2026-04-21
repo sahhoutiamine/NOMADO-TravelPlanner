@@ -4,11 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Sign In - Nomado</title>
-    <meta name="description" content="Sign in to your Nomado account and start planning your next adventure.">
+    <title>Login - Nomado</title>
+    <!-- Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
@@ -25,164 +27,182 @@
                             300: '#7dd3fc',
                             400: '#38bdf8',
                             500: '#0ea5e9',
-                            600: '#0284c7',
+                            600: '#0284c7', // Nomado Blue
                             700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
                         },
-                    },
+                    }
                 }
             }
         }
     </script>
     <style>
-        * { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-
-        @keyframes pageFadeIn {
-            from { opacity: 0; transform: translateY(16px); }
-            to { opacity: 1; transform: translateY(0); }
+        body { font-family: 'Outfit', sans-serif; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
         }
-
-        @keyframes slideInUpScale {
-            from {
-                opacity: 0;
-                transform: translateY(30px) scale(0.97);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+        .gradient-text {
+            background: linear-gradient(to right, #0284c7, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
-
-        @keyframes shimmer {
-            0% {
-                background-position: -1000px 0;
-            }
-            100% {
-                background-position: 1000px 0;
-            }
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #0284c7, #6366f1);
         }
-
-        @keyframes focusGlow {
-            0%, 100% {
-                box-shadow: 0 0 0 0 rgba(14, 165, 233, 0.1);
-            }
-            50% {
-                box-shadow: 0 0 0 8px rgba(14, 165, 233, 0.05);
-            }
+        .ambient-glow {
+            box-shadow: 0 0 40px rgba(2, 132, 199, 0.1);
         }
-
-        .page-fade-in {
-            animation: slideInUpScale 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
         }
-
-        body {
-            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%);
-            animation: gradientShift 8s ease infinite;
-            background-size: 200% 200%;
-        }
-
-        @keyframes gradientShift {
-            0%, 100% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-        }
-
-        input:focus {
-            animation: focusGlow 0.6s ease-out;
-        }
-
-        button[type="submit"] {
-            position: relative;
-            overflow: hidden;
-            background-image: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
-            background-size: 200% 100%;
-            transition: all 0.3s ease;
-        }
-
-        button[type="submit"]:hover {
-            animation: shimmer 0.8s ease-in-out infinite;
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(2, 132, 199, 0.3);
-        }
-
-        @media (prefers-reduced-motion: reduce) {
-            .page-fade-in, body, input:focus, button[type="submit"]:hover {
-                animation: none;
-                background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 50%, #bae6fd 100%);
-            }
+        .animate-fade-in {
+            animation: fadeIn 0.8s ease-out forwards;
         }
     </style>
 </head>
-<body class="antialiased min-h-screen flex items-center justify-center font-sans bg-white px-4">
-    <div class="w-full max-w-md mx-auto page-fade-in">
-        <!-- Logo -->
-        <div class="flex items-center justify-center gap-2.5 mb-8">
-            <div class="w-9 h-9 rounded-lg bg-primary-600 flex items-center justify-center">
-                <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 19l9 2-9-18-9 18 9-2zm0 0v-8"/></svg>
-            </div>
-            <span class="font-bold text-xl text-gray-900 tracking-tight">Nomado</span>
-        </div>
-
-        <!-- Card -->
-        <div class="bg-white border border-gray-200 shadow-sm rounded-2xl p-8">
-            <!-- Header -->
-            <div class="mb-8">
-                <h1 class="text-2xl font-bold text-gray-900">Welcome back</h1>
-                <p class="text-sm text-gray-500 mt-1">Sign in to your account</p>
+<body class="bg-white text-slate-900 font-sans min-h-screen flex selection:bg-primary-100 selection:text-primary-900">
+    <div class="flex w-full min-h-screen relative overflow-hidden">
+        <!-- Left Half: Atmospheric Identity -->
+        <div class="hidden lg:flex w-1/2 relative flex-col justify-between p-16 overflow-hidden bg-slate-50 border-r border-slate-100">
+            <!-- Decorative Gradients -->
+            <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary-200/20 rounded-full blur-[100px] pointer-events-none"></div>
+            <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-indigo-200/20 rounded-full blur-[100px] pointer-events-none"></div>
+            
+            <div class="relative z-10">
+                <a class="inline-flex items-center gap-2" href="/">
+                    <span class="material-symbols-outlined text-primary-600 text-3xl" style="font-variation-settings: 'FILL' 1;">explore</span>
+                    <span class="font-black text-2xl tracking-tighter text-slate-900">Nomado</span>
+                </a>
             </div>
 
-            <!-- Session Status / Global Error -->
-            @if ($errors->any())
-            <div class="mb-6 bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl text-sm font-medium">
-                Unable to sign in. Please check your credentials and try again.
+            <div class="relative z-10 max-w-lg mb-24 animate-fade-in">
+                <h1 class="font-black text-6xl leading-[1.1] tracking-tighter mb-6 text-slate-900">
+                    Your next great<br/>
+                    <span class="gradient-text">adventure awaits.</span>
+                </h1>
+                <p class="text-lg text-slate-500 font-medium leading-relaxed">
+                    AI-powered itineraries, seamless booking, and bespoke recommendations tailored to your unique travel style.
+                </p>
             </div>
-            @endif
 
-            <!-- Form -->
-            <form method="POST" action="{{ route('login') }}" class="space-y-5">
-                @csrf
-
-                <!-- Email -->
-                <div>
-                    <label for="email" class="text-sm font-medium text-gray-700 mb-1.5 block">Email Address</label>
-                    <input id="email" type="email" name="email" placeholder="you@example.com" value="{{ old('email') }}" required autofocus autocomplete="username"
-                           class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors bg-white placeholder:text-gray-400">
-                    @error('email')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                    @enderror
-                </div>
-
-                <!-- Password -->
-                <div>
-                    <div class="flex items-center justify-between mb-1.5">
-                        <label for="password" class="text-sm font-medium text-gray-700">Password</label>
-                        @if (Route::has('password.request'))
-                        <a href="{{ route('password.request') }}" class="text-sm text-primary-600 hover:underline">Forgot password?</a>
-                        @endif
+            <!-- Floating Glass Cards -->
+            <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/4 w-[120%] h-[80%] pointer-events-none flex flex-col gap-6 opacity-90">
+                <div class="flex gap-6 translate-x-12">
+                    <div class="glass-panel rounded-3xl w-64 h-80 overflow-hidden relative shadow-2xl">
+                        <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=1000&auto=format&fit=crop" alt="Paris" class="absolute inset-0 w-full h-full object-cover">
+                        <div class="absolute bottom-0 left-0 p-6 w-full bg-gradient-to-t from-black/80 to-transparent">
+                            <h3 class="font-bold text-xl text-white">Paris, FR</h3>
+                            <p class="text-sm text-slate-200 mt-1">3 Days Planned</p>
+                        </div>
                     </div>
-                    <input id="password" type="password" name="password" placeholder="Enter your password" required autocomplete="current-password"
-                           class="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors bg-white placeholder:text-gray-400">
-                    @error('password')
-                    <p class="text-red-500 text-xs mt-1">{{ $message }}</p>
-                    @enderror
+                    <div class="glass-panel rounded-3xl w-72 h-48 overflow-hidden relative mt-16 shadow-2xl">
+                        <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1000&auto=format&fit=crop" alt="Tokyo" class="absolute inset-0 w-full h-full object-cover">
+                        <div class="absolute bottom-0 left-0 p-6 w-full bg-gradient-to-t from-black/80 to-transparent">
+                            <h3 class="font-bold text-xl text-white">Tokyo, JP</h3>
+                            <p class="text-sm text-slate-200 mt-1">Curated Itinerary</p>
+                        </div>
+                    </div>
                 </div>
-
-                <!-- Remember Me -->
-                <div class="flex items-center">
-                    <input id="remember_me" type="checkbox" name="remember" class="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500">
-                    <label for="remember_me" class="ml-2.5 text-sm text-gray-500">Remember me</label>
+                <div class="flex gap-6 -translate-x-8">
+                    <div class="glass-panel rounded-3xl w-80 h-56 overflow-hidden relative shadow-2xl">
+                        <img src="https://images.unsplash.com/photo-1533105079780-92b9be482077?q=80&w=1000&auto=format&fit=crop" alt="Santorini" class="absolute inset-0 w-full h-full object-cover">
+                        <div class="absolute bottom-0 left-0 p-6 w-full bg-gradient-to-t from-black/80 to-transparent">
+                            <h3 class="font-bold text-xl text-white">Santorini, GR</h3>
+                            <p class="text-sm text-slate-200 mt-1">Luxury Stay</p>
+                        </div>
+                    </div>
                 </div>
-
-                <!-- Submit Button -->
-                <button type="submit" class="w-full bg-gray-900 hover:bg-primary-600 text-white font-semibold py-3 rounded-xl transition-colors">
-                    Sign In
-                </button>
-            </form>
+            </div>
         </div>
 
-        <!-- Sign Up Link -->
-        <p class="text-center text-sm text-gray-500 mt-6">
-            Don't have an account?
-            <a href="{{ route('register') }}" class="text-primary-600 font-semibold hover:underline">Sign up</a>
-        </p>
+        <!-- Right Half: Transactional Focus -->
+        <div class="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 lg:p-24 bg-white z-20">
+            <div class="w-full max-w-md">
+                <!-- Mobile Header -->
+                <div class="lg:hidden mb-12 text-center">
+                    <a class="inline-flex items-center gap-2 justify-center mb-6" href="/">
+                        <span class="material-symbols-outlined text-primary-600 text-3xl" style="font-variation-settings: 'FILL' 1;">explore</span>
+                        <span class="font-black text-3xl tracking-tighter text-slate-900">Nomado</span>
+                    </a>
+                    <h2 class="font-bold text-3xl text-slate-900">Welcome back.</h2>
+                </div>
+
+                <div class="hidden lg:block mb-12">
+                    <h2 class="font-black text-4xl text-slate-900 tracking-tight">Log In</h2>
+                    <p class="text-slate-500 mt-2 text-lg">Enter your details to access your trips.</p>
+                </div>
+
+                <!-- Session Status / Errors -->
+                @if ($errors->any())
+                <div class="mb-6 bg-red-50 border border-red-100 text-red-600 px-4 py-3 rounded-xl text-sm font-medium">
+                    Invalid credentials. Please try again.
+                </div>
+                @endif
+
+                <form method="POST" action="{{ route('login') }}" class="space-y-6">
+                    @csrf
+
+                    <!-- Email Input -->
+                    <div class="space-y-2">
+                        <label class="font-semibold text-sm text-slate-700 block" for="email">Email Address</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 flex items-center">
+                                <span class="material-symbols-outlined text-[20px]">mail</span>
+                            </span>
+                            <input class="w-full bg-slate-50 border border-slate-100 rounded-xl py-4 pl-12 pr-4 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-base outline-none @error('email') border-red-300 @enderror" 
+                                   id="email" type="email" name="email" value="{{ old('email') }}" placeholder="hello@nomado.ai" required autofocus />
+                        </div>
+                    </div>
+
+                    <!-- Password Input -->
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <label class="font-semibold text-sm text-slate-700 block" for="password">Password</label>
+                            @if (Route::has('password.request'))
+                                <a class="font-semibold text-sm text-primary-600 hover:text-primary-700 transition-colors" href="{{ route('password.request') }}">Forgot?</a>
+                            @endif
+                        </div>
+                        <div class="relative">
+                            <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 flex items-center">
+                                <span class="material-symbols-outlined text-[20px]">lock</span>
+                            </span>
+                            <input class="w-full bg-slate-50 border border-slate-100 rounded-xl py-4 pl-12 pr-4 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-base outline-none @error('password') border-red-300 @enderror" 
+                                   id="password" type="password" name="password" placeholder="••••••••" required autocomplete="current-password" />
+                        </div>
+                    </div>
+
+                    <!-- Remember Me -->
+                    <div class="flex items-center">
+                        <input class="h-5 w-5 rounded bg-slate-50 border-slate-200 text-primary-600 focus:ring-primary-500/30" 
+                               id="remember_me" name="remember" type="checkbox" />
+                        <label class="ml-3 block text-sm text-slate-500" for="remember_me">
+                            Remember me
+                        </label>
+                    </div>
+
+                    <!-- Actions -->
+                    <div class="pt-4">
+                        <button class="w-full flex justify-center items-center py-4 px-4 rounded-xl text-white font-bold text-lg bg-gradient-primary hover:opacity-90 transition-opacity ambient-glow shadow-lg shadow-primary-500/20" type="submit">
+                            Log In
+                            <span class="material-symbols-outlined ml-2 text-[20px]">arrow_forward</span>
+                        </button>
+                    </div>
+
+                    <!-- Alternate Auth -->
+                    <div class="mt-8 pt-8 border-t border-slate-100 text-center">
+                        <p class="text-slate-500 text-sm">
+                            Don't have an account? 
+                            <a class="font-bold text-primary-600 hover:text-primary-700 transition-colors ml-1" href="{{ route('register') }}">Create Account</a>
+                        </p>
+                    </div>
+                </form>
+            </div>
+        </div>
     </div>
 </body>
 </html>
