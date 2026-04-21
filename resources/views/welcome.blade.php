@@ -1,470 +1,240 @@
-@extends('layouts.app')
-
-@section('content')
-<div class="relative w-full overflow-hidden">
-    <!-- Animated Background Elements -->
-    <div class="absolute inset-0 -z-10 overflow-hidden">
-        <!-- Gradient background -->
-        <div class="absolute inset-0 bg-gradient-to-br from-navy-600 via-navy-700 to-navy-900"></div>
-
-        <!-- Floating orbs -->
-        <div class="absolute top-20 left-10 w-72 h-72 bg-coral-500/20 rounded-full blur-3xl animate-drift-slow"></div>
-        <div class="absolute top-40 right-20 w-96 h-96 bg-amber-500/15 rounded-full blur-3xl animate-drift-fast"></div>
-        <div class="absolute bottom-20 left-1/3 w-80 h-80 bg-blue-500/10 rounded-full blur-3xl animate-drift-slow" style="animation-delay: 2s;"></div>
-
-        <!-- Grid pattern -->
-        <div class="absolute inset-0 opacity-5" style="background-image: url('data:image/svg+xml,<svg width=\"60\" height=\"60\" viewBox=\"0 0 60 60\" xmlns=\"http://www.w3.org/2000/svg\"><g fill=\"none\" fill-rule=\"evenodd\"><g fill=\"%23ffffff\" fill-opacity=\"0.1\"><path d=\"M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\"/></g></g></svg>'); background-size: 30px 30px;"></div>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nomado - AI Powered Travel Planner</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        'sans': ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        'primary': {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            200: '#bae6fd',
+                            300: '#7dd3fc',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7', // Nomado Blue
+                            700: '#0369a1',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                        },
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body { font-family: 'Outfit', sans-serif; }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(2, 132, 199, 0.1);
+        }
+        .text-gradient {
+            background: linear-gradient(to right, #0284c7, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #0284c7, #6366f1);
+        }
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        @keyframes pageFadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .animate-fade-in {
+            animation: pageFadeIn 0.8s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 antialiased selection:bg-primary-100 selection:text-primary-900 min-h-screen flex flex-col relative overflow-x-hidden">
+    <!-- Ambient Background Lighting -->
+    <div class="fixed inset-0 pointer-events-none z-[-1] overflow-hidden">
+        <div class="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-primary-200/30 rounded-full blur-[120px]"></div>
+        <div class="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-indigo-100/40 rounded-full blur-[150px]"></div>
     </div>
 
-    <!-- ===== HERO SECTION ===== -->
-    <section class="relative min-h-screen flex items-center justify-center pt-20 pb-20 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-6xl mx-auto w-full">
-            <!-- Hero Content -->
-            <div class="text-center mb-20 animate-on-scroll slide-in-up">
-                <!-- Badge -->
-                <div class="inline-block mb-8">
-                    <div class="glass px-6 py-2 rounded-full flex items-center gap-2 justify-center">
-                        <span class="flex h-2 w-2">
-                            <span class="animate-ping absolute inline-flex h-2 w-2 rounded-full bg-coral-400 opacity-75"></span>
-                            <span class="relative inline-flex rounded-full h-2 w-2 bg-coral-500"></span>
-                        </span>
-                        <span class="text-sm font-jakarta font-semibold bg-gradient-text">AI-Powered Travel Generation</span>
-                    </div>
-                </div>
+    <!-- Top Navigation Bar -->
+    <nav class="fixed top-0 w-full z-50 bg-white/70 backdrop-blur-xl border-b border-slate-200/50">
+        <div class="flex justify-between items-center px-8 h-20 max-w-7xl mx-auto">
+            <!-- Brand -->
+            <a class="text-2xl font-black tracking-tighter text-slate-900 flex items-center gap-2 transition-transform scale-95 duration-200 ease-out hover:scale-100" href="/">
+                <span class="material-symbols-outlined text-primary-600" style="font-variation-settings: 'FILL' 1;">explore</span>
+                Nomado
+            </a>
 
-                <!-- Main Heading -->
-                <h1 class="text-5xl md:text-7xl font-display font-black tracking-tight mb-8 leading-tight text-white">
-                    Your perfect trip,
-                    <br />
-                    <span class="gradient-text">generated in seconds</span>
+            <!-- Actions -->
+            <div class="flex items-center gap-4">
+                @auth
+                    <a href="{{ route('dashboard') }}" class="text-sm font-semibold text-slate-600 hover:text-primary-600 transition-colors">Dashboard</a>
+                @else
+                    <a href="{{ route('login') }}" class="hidden md:inline-block text-sm font-semibold text-slate-600 hover:text-primary-600 transition-colors">Sign In</a>
+                    <a href="{{ route('register') }}" class="bg-gradient-primary text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:shadow-[0_4px_20px_rgba(2,132,199,0.3)] transition-all duration-200 scale-95 hover:scale-100">Join Nomado</a>
+                @endauth
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow pt-28 pb-20">
+        <!-- Hero Section -->
+        <section class="max-w-7xl mx-auto px-6 lg:px-8 py-10 lg:py-20 grid lg:grid-cols-2 gap-16 items-center relative z-10">
+            <!-- Copy -->
+            <div class="flex flex-col gap-8 max-w-2xl animate-fade-in">
+                <div class="inline-flex items-center gap-2 bg-primary-50 px-4 py-2 rounded-full border border-primary-100 w-fit">
+                    <span class="material-symbols-outlined text-primary-600 text-sm" style="font-variation-settings: 'FILL' 1;">auto_awesome</span>
+                    <span class="text-xs font-bold text-primary-700 uppercase tracking-widest">Powerful Travel</span>
+                </div>
+                <h1 class="text-5xl lg:text-7xl font-black tracking-tighter leading-[1.1] text-slate-900">
+                    Your perfect trip, <br/>
+                    <span class="text-gradient">generated in seconds.</span>
                 </h1>
-
-                <!-- Typewriter Tagline -->
-                <div class="mb-12 h-12 flex items-center justify-center">
-                    <div class="text-xl md:text-2xl font-jakarta font-semibold text-gray-300">
-                        For <span id="typewriter-text" class="text-coral-400"></span>
-                    </div>
-                </div>
-
-                <!-- Description -->
-                <p class="text-lg md:text-xl text-gray-400 max-w-3xl mx-auto mb-12 leading-relaxed font-jakarta">
-                    Tell our AI engine what moves you—adventure, luxury, culture, or romance—and get a complete, personalized itinerary with destination, hotel, flights, and budget breakdown in moments. No endless searching. Pure inspiration.
+                <p class="text-lg text-slate-600 max-w-xl leading-relaxed">
+                    Stop spending hours researching. Our advanced technology crafts bespoke itineraries tailored to your exact vibe, budget, and dreams. Discover the world, effortlessly.
                 </p>
-
-                <!-- CTA Buttons -->
-                <div class="flex flex-col sm:flex-row gap-6 justify-center items-center md:justify-center">
-                    @auth
-                        <a href="{{ route('trip.index') }}" class="btn-primary text-lg px-10 py-4 flex items-center gap-2 group animate-glow">
-                            <span>Launch Generator</span>
-                            <svg class="w-6 h-6 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
-                        </a>
-                    @else
-                        <a href="{{ route('register') }}" class="btn-primary text-lg px-10 py-4 flex items-center gap-2 group animate-glow">
-                            <span>Start Exploring</span>
-                            <svg class="w-6 h-6 group-hover:translate-x-2 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
-                        </a>
-                        <a href="{{ route('login') }}" class="btn-secondary text-lg px-10 py-4">
-                            Sign In
-                        </a>
-                    @endauth
+                <div class="flex flex-col sm:flex-row gap-4 mt-4">
+                    <a href="{{ route('register') }}" class="bg-gradient-primary text-white px-8 py-4 rounded-xl font-semibold text-lg flex items-center justify-center gap-2 hover:shadow-[0_8px_30px_rgba(2,132,199,0.3)] transition-all duration-200 group">
+                        <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">flight_takeoff</span>
+                        Start Planning
+                    </a>
                 </div>
             </div>
 
-            <!-- Floating Destination Cards -->
-            <div class="relative h-96 md:h-[500px] flex items-center justify-center animate-on-scroll">
-                <!-- Card 1 - Top Left -->
-                <div class="absolute top-0 left-0 md:top-10 md:left-20 w-48 md:w-56 h-64 md:h-72 rounded-3xl overflow-hidden shadow-2xl transform hover:scale-105 transition-transform duration-500 animate-float" style="animation-delay: 0s;">
-                    <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=600" alt="Mountain Adventure" class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end p-6">
-                        <div>
-                            <p class="text-xs font-jakarta font-semibold text-coral-400 uppercase tracking-wider mb-1">Adventure</p>
-                            <h3 class="text-2xl font-display font-black text-white">Swiss Alps</h3>
-                        </div>
+            <!-- Staggered Cards -->
+            <div class="relative h-[550px] hidden lg:block perspective-1000">
+                <!-- Card 1 -->
+                <div class="absolute top-0 right-0 w-72 glass-panel rounded-2xl p-4 shadow-xl transform rotate-2 hover:rotate-0 hover:z-30 hover:scale-105 transition-all duration-500 cursor-pointer">
+                    <img src="https://images.unsplash.com/photo-1502602898657-3e91760cbb34?q=80&w=1000&auto=format&fit=crop" alt="Paris" class="w-full h-48 object-cover rounded-xl mb-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="text-xl font-bold text-slate-900">Paris, France</h3>
+                        <div class="bg-primary-50 px-2 py-1 rounded text-xs font-bold text-primary-700">3 Days</div>
                     </div>
+                    <p class="text-sm text-slate-500">Romantic escape with private Seine cruise.</p>
                 </div>
-
-                <!-- Card 2 - Center -->
-                <div class="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-56 md:w-64 h-72 md:h-80 rounded-3xl overflow-hidden shadow-2xl shadow-coral-500/30 transform hover:scale-105 transition-transform duration-500 z-10 animate-float" style="animation-delay: 0.5s;">
-                    <img src="https://images.unsplash.com/photo-1506905925346-21bda4d32df4?ixlib=rb-4.0.3&auto=format&fit=crop&w=550&h=700" alt="Cultural Journey" class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent flex items-end p-6">
-                        <div>
-                            <p class="text-xs font-jakarta font-semibold text-amber-400 uppercase tracking-wider mb-1">Culture</p>
-                            <h3 class="text-3xl font-display font-black text-white">Tokyo</h3>
-                        </div>
+                <!-- Card 2 -->
+                <div class="absolute top-32 left-0 w-72 glass-panel rounded-2xl p-4 shadow-xl transform -rotate-3 hover:rotate-0 hover:z-30 hover:scale-105 transition-all duration-500 cursor-pointer z-10">
+                    <img src="https://images.unsplash.com/photo-1493976040374-85c8e12f0c0e?q=80&w=1000&auto=format&fit=crop" alt="Kyoto" class="w-full h-48 object-cover rounded-xl mb-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="text-xl font-bold text-slate-900">Kyoto, Japan</h3>
+                        <div class="bg-primary-50 px-2 py-1 rounded text-xs font-bold text-primary-700">5 Days</div>
                     </div>
+                    <p class="text-sm text-slate-500">Cultural deep dive through ancient temples.</p>
                 </div>
-
-                <!-- Card 3 - Bottom Right -->
-                <div class="absolute bottom-0 right-0 md:bottom-10 md:right-20 w-48 md:w-56 h-64 md:h-72 rounded-3xl overflow-hidden shadow-2xl transform hover:scale-105 transition-transform duration-500 animate-float" style="animation-delay: 1s;">
-                    <img src="https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=500&h=600" alt="Beach Relaxation" class="w-full h-full object-cover">
-                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent flex items-end p-6">
-                        <div>
-                            <p class="text-xs font-jakarta font-semibold text-blue-400 uppercase tracking-wider mb-1">Relaxation</p>
-                            <h3 class="text-2xl font-display font-black text-white">Maldives</h3>
-                        </div>
+                <!-- Card 3 -->
+                <div class="absolute bottom-0 right-16 w-80 glass-panel rounded-2xl p-4 shadow-2xl transform rotate-1 hover:rotate-0 hover:z-30 hover:scale-105 transition-all duration-500 cursor-pointer z-20">
+                    <img src="https://images.unsplash.com/photo-1533105079780-92b9be482077?q=80&w=1000&auto=format&fit=crop" alt="Santorini" class="w-full h-56 object-cover rounded-xl mb-4">
+                    <div class="flex justify-between items-start mb-2">
+                        <h3 class="text-xl font-bold text-slate-900">Santorini, Greece</h3>
+                        <div class="bg-primary-50 px-2 py-1 rounded text-xs font-bold text-primary-700">7 Days</div>
+                    </div>
+                    <div class="flex items-center gap-2 text-sm text-slate-500 font-medium">
+                        <span class="material-symbols-outlined text-sm text-primary-600">verified</span>
+                        Recommended Match
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
 
-    <!-- ===== HOW IT WORKS ===== -->
-    <section class="relative py-24 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-6xl mx-auto">
-            <!-- Section Header -->
-            <div class="text-center mb-20 animate-on-scroll fade-in">
-                <h2 class="text-4xl md:text-5xl font-display font-black text-white mb-6">How It Works</h2>
-                <p class="text-lg text-gray-400 max-w-2xl mx-auto">Three simple steps to your dream vacation</p>
+        <!-- Stats Bar -->
+        <section class="max-w-6xl mx-auto px-6 mb-32 relative z-20">
+            <div class="glass-panel rounded-[2rem] py-10 px-12 flex flex-col md:flex-row justify-between items-center gap-8 shadow-xl border border-white/50">
+                <div class="text-center">
+                    <div class="text-4xl font-black text-slate-900 mb-1 text-gradient">250+</div>
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-widest">Destinations</div>
+                </div>
+                <div class="hidden md:block w-px h-12 bg-slate-200"></div>
+                <div class="text-center">
+                    <div class="text-4xl font-black text-slate-900 mb-1 text-gradient">1.2K</div>
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-widest">Curated Hotels</div>
+                </div>
+                <div class="hidden md:block w-px h-12 bg-slate-200"></div>
+                <div class="text-center">
+                    <div class="text-4xl font-black text-slate-900 mb-1 text-gradient">50K</div>
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-widest">Trips Generated</div>
+                </div>
+                <div class="hidden md:block w-px h-12 bg-slate-200"></div>
+                <div class="text-center">
+                    <div class="text-4xl font-black text-slate-900 mb-1 text-gradient">98%</div>
+                    <div class="text-xs font-bold text-slate-400 uppercase tracking-widest">Satisfaction</div>
+                </div>
             </div>
+        </section>
 
-            <!-- Steps Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-12">
+        <!-- How It Works Section -->
+        <section class="max-w-7xl mx-auto px-6 lg:px-8 py-24 mb-20 bg-white rounded-[3rem] shadow-sm border border-slate-100">
+            <div class="text-center mb-20 animate-fade-in">
+                <h2 class="text-4xl md:text-5xl font-black text-slate-900 mb-4 tracking-tight">How it works</h2>
+                <p class="text-slate-500 max-w-2xl mx-auto text-lg">From dream to reality in three simple steps.</p>
+            </div>
+            <div class="grid md:grid-cols-3 gap-16 relative">
+                <!-- Connector Line (Web) -->
+                <div class="hidden md:block absolute top-12 left-[15%] right-[15%] h-[2px] bg-slate-100"></div>
+                
                 <!-- Step 1 -->
-                <div class="group animate-on-scroll slide-in-up" style="animation-delay: 0.1s;">
-                    <div class="mb-8 relative h-20 w-20">
-                        <div class="absolute inset-0 bg-gradient-to-br from-coral-500 to-amber-500 rounded-2xl transform group-hover:scale-110 transition-transform duration-500"></div>
-                        <div class="absolute inset-1 bg-navy-600 rounded-xl flex items-center justify-center">
-                            <span class="text-3xl font-display font-black text-coral-400">1</span>
-                        </div>
+                <div class="flex flex-col items-center text-center relative z-10 group">
+                    <div class="w-24 h-24 rounded-[2rem] bg-slate-50 flex items-center justify-center mb-8 border border-slate-100 group-hover:border-primary-300 group-hover:bg-primary-50 transition-all duration-300 transform group-hover:rotate-3 shadow-sm">
+                        <span class="material-symbols-outlined text-4xl text-primary-600" style="font-variation-settings: 'FILL' 1;">psychology</span>
                     </div>
-                    <h3 class="text-2xl font-jakarta font-bold text-white mb-3">Tell Us Your Vibe</h3>
-                    <p class="text-gray-400 leading-relaxed">Choose your travel style—adventure, luxury, culture, or relaxation—set your budget and duration, and let's get started.</p>
-                    <div class="mt-6 flex gap-2">
-                        <div class="w-2 h-2 rounded-full bg-coral-500"></div>
-                        <div class="w-2 h-2 rounded-full bg-coral-500/40"></div>
-                        <div class="w-2 h-2 rounded-full bg-coral-500/20"></div>
-                    </div>
+                    <div class="bg-primary-50 px-3 py-1 rounded-full text-xs font-bold text-primary-700 mb-4 uppercase tracking-widest">Step 01</div>
+                    <h3 class="text-2xl font-bold text-slate-900 mb-4">Tell us your vibe</h3>
+                    <p class="text-slate-500 text-base px-4 leading-relaxed">Input your travel style, budget, and duration. Our technology listens to your dreams.</p>
                 </div>
-
                 <!-- Step 2 -->
-                <div class="group animate-on-scroll slide-in-up" style="animation-delay: 0.2s;">
-                    <div class="mb-8 relative h-20 w-20">
-                        <div class="absolute inset-0 bg-gradient-to-br from-coral-500 to-amber-500 rounded-2xl transform group-hover:scale-110 transition-transform duration-500"></div>
-                        <div class="absolute inset-1 bg-navy-600 rounded-xl flex items-center justify-center">
-                            <span class="text-3xl font-display font-black text-coral-400">2</span>
-                        </div>
+                <div class="flex flex-col items-center text-center relative z-10 group">
+                    <div class="w-24 h-24 rounded-[2rem] bg-slate-50 flex items-center justify-center mb-8 border border-slate-100 group-hover:border-indigo-300 group-hover:bg-indigo-50 transition-all duration-300 transform group-hover:-rotate-3 shadow-sm">
+                        <span class="material-symbols-outlined text-4xl text-indigo-600" style="font-variation-settings: 'FILL' 1;">magic_button</span>
                     </div>
-                    <h3 class="text-2xl font-jakarta font-bold text-white mb-3">AI Analyzes & Creates</h3>
-                    <p class="text-gray-400 leading-relaxed">Our intelligent engine analyzes thousands of options and curates 3 personalized itineraries with handpicked destinations, hotels, and flights.</p>
-                    <div class="mt-6 flex gap-2">
-                        <div class="w-2 h-2 rounded-full bg-coral-500"></div>
-                        <div class="w-2 h-2 rounded-full bg-coral-500"></div>
-                        <div class="w-2 h-2 rounded-full bg-coral-500/20"></div>
-                    </div>
+                    <div class="bg-indigo-50 px-3 py-1 rounded-full text-xs font-bold text-indigo-700 mb-4 uppercase tracking-widest">Step 02</div>
+                    <h3 class="text-2xl font-bold text-slate-900 mb-4">Technology Crafts Magic</h3>
+                    <p class="text-slate-500 text-base px-4 leading-relaxed">Our engine builds a minute-by-minute itinerary tailored specifically to you.</p>
                 </div>
-
                 <!-- Step 3 -->
-                <div class="group animate-on-scroll slide-in-up" style="animation-delay: 0.3s;">
-                    <div class="mb-8 relative h-20 w-20">
-                        <div class="absolute inset-0 bg-gradient-to-br from-coral-500 to-amber-500 rounded-2xl transform group-hover:scale-110 transition-transform duration-500"></div>
-                        <div class="absolute inset-1 bg-navy-600 rounded-xl flex items-center justify-center">
-                            <span class="text-3xl font-display font-black text-coral-400">3</span>
-                        </div>
+                <div class="flex flex-col items-center text-center relative z-10 group">
+                    <div class="w-24 h-24 rounded-[2rem] bg-slate-50 flex items-center justify-center mb-8 border border-slate-100 group-hover:border-emerald-300 group-hover:bg-emerald-50 transition-all duration-300 transform group-hover:rotate-3 shadow-sm">
+                        <span class="material-symbols-outlined text-4xl text-emerald-600" style="font-variation-settings: 'FILL' 1;">luggage</span>
                     </div>
-                    <h3 class="text-2xl font-jakarta font-bold text-white mb-3">Confirm & Go</h3>
-                    <p class="text-gray-400 leading-relaxed">Review your options, pick your favorite, and confirm your booking. Your complete itinerary is ready for your adventure.</p>
-                    <div class="mt-6 flex gap-2">
-                        <div class="w-2 h-2 rounded-full bg-coral-500"></div>
-                        <div class="w-2 h-2 rounded-full bg-coral-500"></div>
-                        <div class="w-2 h-2 rounded-full bg-coral-500"></div>
-                    </div>
+                    <div class="bg-emerald-50 px-3 py-1 rounded-full text-xs font-bold text-emerald-700 mb-4 uppercase tracking-widest">Step 03</div>
+                    <h3 class="text-2xl font-bold text-slate-900 mb-4">Pack and Go</h3>
+                    <p class="text-slate-500 text-base px-4 leading-relaxed">Review, book, and enjoy your trip. We handle the complexity, you handle the fun.</p>
                 </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full py-16 px-8 border-t border-slate-200 bg-white">
+        <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-10">
+            <div class="text-2xl font-black text-slate-900 flex items-center gap-2">
+                <span class="material-symbols-outlined text-primary-600">explore</span>
+                Nomado
+            </div>
+            <div class="flex flex-wrap justify-center gap-8 text-sm font-semibold text-slate-500">
+                <a href="#" class="hover:text-primary-600 transition-colors">Privacy</a>
+                <a href="#" class="hover:text-primary-600 transition-colors">Terms</a>
+                <a href="#" class="hover:text-primary-600 transition-colors">Cookies</a>
+                <a href="#" class="hover:text-primary-600 transition-colors">Contact</a>
+            </div>
+            <div class="text-sm font-medium text-slate-400 tracking-tight">
+                © 2026 Nomado Travel Planner. All rights reserved.
             </div>
         </div>
-    </section>
-
-    <!-- ===== STATS SECTION ===== -->
-    <section class="relative py-24 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-6xl mx-auto">
-            <div class="glass rounded-3xl p-12 md:p-16">
-                <div class="grid grid-cols-1 md:grid-cols-4 gap-12 text-center">
-                    <!-- Stat 1 -->
-                    <div class="animate-on-scroll fade-in" style="animation-delay: 0.1s;">
-                        <div class="text-5xl md:text-6xl font-display font-black gradient-text mb-2">
-                            <span class="stat-counter" data-target="250">0</span>+
-                        </div>
-                        <p class="text-gray-400 font-jakarta">Destinations Covered</p>
-                    </div>
-
-                    <!-- Stat 2 -->
-                    <div class="animate-on-scroll fade-in" style="animation-delay: 0.2s;">
-                        <div class="text-5xl md:text-6xl font-display font-black gradient-text mb-2">
-                            <span class="stat-counter" data-target="1200">0</span>+
-                        </div>
-                        <p class="text-gray-400 font-jakarta">Luxury Hotels</p>
-                    </div>
-
-                    <!-- Stat 3 -->
-                    <div class="animate-on-scroll fade-in" style="animation-delay: 0.3s;">
-                        <div class="text-5xl md:text-6xl font-display font-black gradient-text mb-2">
-                            <span class="stat-counter" data-target="50000">0</span>+
-                        </div>
-                        <p class="text-gray-400 font-jakarta">Trips Generated</p>
-                    </div>
-
-                    <!-- Stat 4 -->
-                    <div class="animate-on-scroll fade-in" style="animation-delay: 0.4s;">
-                        <div class="text-5xl md:text-6xl font-display font-black gradient-text mb-2">
-                            <span class="stat-counter" data-target="98">0</span>%
-                        </div>
-                        <p class="text-gray-400 font-jakarta">User Satisfaction</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== FEATURES SECTION ===== -->
-    <section class="relative py-24 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-6xl mx-auto">
-            <div class="text-center mb-20 animate-on-scroll fade-in">
-                <h2 class="text-4xl md:text-5xl font-display font-black text-white mb-6">Why Choose Nomado</h2>
-                <p class="text-lg text-gray-400 max-w-2xl mx-auto">Everything you need for the perfect trip, powered by AI</p>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <!-- Feature 1 -->
-                <div class="group glass rounded-2xl p-8 hover:bg-white/12 transition-all duration-500 animate-on-scroll slide-in-up" style="animation-delay: 0.1s;">
-                    <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-coral-500 to-amber-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6 text-navy-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg>
-                    </div>
-                    <h3 class="text-xl font-jakarta font-bold text-white mb-2">Lightning Fast</h3>
-                    <p class="text-gray-400 text-sm">Get your personalized itinerary in seconds, not hours.</p>
-                </div>
-
-                <!-- Feature 2 -->
-                <div class="group glass rounded-2xl p-8 hover:bg-white/12 transition-all duration-500 animate-on-scroll slide-in-up" style="animation-delay: 0.2s;">
-                    <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-coral-500 to-amber-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6 text-navy-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </div>
-                    <h3 class="text-xl font-jakarta font-bold text-white mb-2">Budget-Friendly</h3>
-                    <p class="text-gray-400 text-sm">Full transparency with no hidden fees. Know exactly what you're paying for.</p>
-                </div>
-
-                <!-- Feature 3 -->
-                <div class="group glass rounded-2xl p-8 hover:bg-white/12 transition-all duration-500 animate-on-scroll slide-in-up" style="animation-delay: 0.3s;">
-                    <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-coral-500 to-amber-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6 text-navy-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </div>
-                    <h3 class="text-xl font-jakarta font-bold text-white mb-2">Fully Personalized</h3>
-                    <p class="text-gray-400 text-sm">AI learns your preferences and creates trips tailored just for you.</p>
-                </div>
-
-                <!-- Feature 4 -->
-                <div class="group glass rounded-2xl p-8 hover:bg-white/12 transition-all duration-500 animate-on-scroll slide-in-up" style="animation-delay: 0.4s;">
-                    <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-coral-500 to-amber-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6 text-navy-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
-                    </div>
-                    <h3 class="text-xl font-jakarta font-bold text-white mb-2">Expert Curation</h3>
-                    <p class="text-gray-400 text-sm">Hand-picked hotels and destinations from verified, top-rated providers.</p>
-                </div>
-
-                <!-- Feature 5 -->
-                <div class="group glass rounded-2xl p-8 hover:bg-white/12 transition-all duration-500 animate-on-scroll slide-in-up" style="animation-delay: 0.5s;">
-                    <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-coral-500 to-amber-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6 text-navy-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path></svg>
-                    </div>
-                    <h3 class="text-xl font-jakarta font-bold text-white mb-2">Secure Booking</h3>
-                    <p class="text-gray-400 text-sm">Your data is encrypted and secure. Travel with peace of mind.</p>
-                </div>
-
-                <!-- Feature 6 -->
-                <div class="group glass rounded-2xl p-8 hover:bg-white/12 transition-all duration-500 animate-on-scroll slide-in-up" style="animation-delay: 0.6s;">
-                    <div class="w-12 h-12 rounded-lg bg-gradient-to-br from-coral-500 to-amber-500 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
-                        <svg class="w-6 h-6 text-navy-900" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
-                    </div>
-                    <h3 class="text-xl font-jakarta font-bold text-white mb-2">24/7 Support</h3>
-                    <p class="text-gray-400 text-sm">Our team is always here to help you with any questions or changes.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- ===== CTA SECTION ===== -->
-    <section class="relative py-24 px-4 sm:px-6 lg:px-8">
-        <div class="max-w-4xl mx-auto">
-            <div class="glass rounded-3xl p-12 md:p-20 text-center overflow-hidden relative animate-on-scroll fade-in">
-                <div class="absolute top-0 right-0 w-96 h-96 bg-coral-500/10 rounded-full blur-3xl -mr-40 -mt-40"></div>
-                <div class="relative z-10">
-                    <h2 class="text-4xl md:text-5xl font-display font-black text-white mb-6">Ready to Explore?</h2>
-                    <p class="text-lg text-gray-300 mb-10 max-w-2xl mx-auto">Join thousands of travelers who've discovered their perfect journey with Nomado.</p>
-
-                    @auth
-                        <a href="{{ route('trip.index') }}" class="btn-primary text-lg px-12 py-4 inline-block animate-glow">
-                            Generate Your Trip Now
-                        </a>
-                    @else
-                        <div class="flex flex-col sm:flex-row gap-4 justify-center">
-                            <a href="{{ route('register') }}" class="btn-primary text-lg px-12 py-4 inline-block animate-glow">
-                                Get Started Free
-                            </a>
-                            <a href="{{ route('login') }}" class="btn-secondary text-lg px-12 py-4 inline-block">
-                                Sign In
-                            </a>
-                        </div>
-                    @endauth
-                </div>
-            </div>
-        </div>
-    </section>
-</div>
-
-<script>
-    // Typewriter effect
-    const typewriterText = document.getElementById('typewriter-text');
-    const phrases = ['Adventure', 'Luxury', 'Culture', 'Romance', 'Exploration'];
-    let phrasesIndex = 0;
-    let charIndex = 0;
-    let isDeleting = false;
-
-    function typewriter() {
-        const currentPhrase = phrases[phrasesIndex];
-
-        if (!isDeleting && charIndex < currentPhrase.length) {
-            typewriterText.textContent += currentPhrase[charIndex];
-            charIndex++;
-            setTimeout(typewriter, 80);
-        } else if (isDeleting && charIndex > 0) {
-            typewriterText.textContent = currentPhrase.substring(0, charIndex - 1);
-            charIndex--;
-            setTimeout(typewriter, 50);
-        } else if (!isDeleting && charIndex === currentPhrase.length) {
-            isDeleting = true;
-            setTimeout(typewriter, 2000);
-        } else if (isDeleting && charIndex === 0) {
-            isDeleting = false;
-            phrasesIndex = (phrasesIndex + 1) % phrases.length;
-            setTimeout(typewriter, 500);
-        }
-    }
-
-    typewriter();
-
-    // Animated counters
-    const observerOptions = {
-        threshold: 0.3,
-        rootMargin: '0px'
-    };
-
-    const counterObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                const counter = entry.target;
-                const target = parseInt(counter.getAttribute('data-target'));
-                const duration = 2000;
-                const increment = target / (duration / 50);
-
-                let current = 0;
-                const updateCounter = () => {
-                    current += increment;
-                    if (current < target) {
-                        counter.textContent = Math.floor(current);
-                        requestAnimationFrame(updateCounter);
-                    } else {
-                        counter.textContent = target;
-                    }
-                };
-
-                updateCounter();
-                counterObserver.unobserve(entry.target);
-            }
-        });
-    }, observerOptions);
-
-    document.querySelectorAll('.stat-counter').forEach(el => {
-        counterObserver.observe(el);
-    });
-</script>
-
-<style>
-    .animate-on-scroll {
-        opacity: 0;
-        animation-fill-mode: forwards;
-    }
-
-    .animate-on-scroll.scroll-visible {
-        animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
-    .animate-on-scroll.slide-in-up {
-        animation: none;
-    }
-
-    .animate-on-scroll.slide-in-up.scroll-visible {
-        animation: slideInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
-    .animate-on-scroll.slide-in-left {
-        animation: none;
-    }
-
-    .animate-on-scroll.slide-in-left.scroll-visible {
-        animation: slideInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
-    .animate-on-scroll.slide-in-right {
-        animation: none;
-    }
-
-    .animate-on-scroll.slide-in-right.scroll-visible {
-        animation: slideInRight 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
-    .animate-on-scroll.fade-in {
-        animation: none;
-    }
-
-    .animate-on-scroll.fade-in.scroll-visible {
-        animation: fadeIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-
-    @keyframes slideInUp {
-        from {
-            opacity: 0;
-            transform: translateY(40px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    @keyframes slideInLeft {
-        from {
-            opacity: 0;
-            transform: translateX(-40px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-
-    @keyframes slideInRight {
-        from {
-            opacity: 0;
-            transform: translateX(40px);
-        }
-        to {
-            opacity: 1;
-            transform: translateX(0);
-        }
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-        }
-        to {
-            opacity: 1;
-        }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        .animate-on-scroll {
-            animation: none !important;
-            opacity: 1;
-        }
-    }
-</style>
-@endsection
+    </footer>
+</body>
+</html>
