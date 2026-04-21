@@ -1,97 +1,147 @@
 @extends('layouts.admin')
 
-@section('category', 'Overview')
+@section('category', 'Operational Intelligence')
 @section('title', 'Admin Dashboard')
 
 @section('content')
-<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10 text-white">
+<!-- Header Stats Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 text-white">
     <!-- Stat Card: Users -->
-    <div class="bg-gradient-to-br from-indigo-600 to-indigo-800 p-6 rounded-[2rem] shadow-xl shadow-indigo-500/20">
-        <div class="flex justify-between items-start mb-4">
-            <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center border border-white/10">
-                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+    <div class="group relative overflow-hidden bg-gradient-to-br from-indigo-600 to-violet-800 p-8 rounded-xl shadow-2xl hover:translate-y-[-4px] transition-all duration-500">
+        <div class="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-1000"></div>
+        <div class="relative z-10 flex flex-col justify-between h-full">
+            <div class="flex justify-between items-start mb-6">
+                <div class="w-14 h-14 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
+                    <span class="material-symbols-outlined text-3xl">group</span>
+                </div>
+                <span class="text-[9px] font-black uppercase tracking-[0.2em] bg-white/20 px-3 py-1.5 rounded-lg backdrop-blur-md">Active Base</span>
             </div>
-            <span class="text-[10px] font-black uppercase tracking-widest bg-white/10 px-2 py-1 rounded-lg">Users</span>
+            <div>
+                <p class="text-xs font-black text-indigo-100 uppercase tracking-widest mb-1 opacity-70">Total Explorers</p>
+                <h3 class="text-5xl font-black tracking-tighter">{{ number_format($stats['total_users']) }}</h3>
+            </div>
         </div>
-        <p class="text-xs font-bold text-indigo-200">Total Travelers</p>
-        <h3 class="text-4xl font-black tracking-tighter">{{ number_format($stats['total_users']) }}</h3>
     </div>
 
     <!-- Stat Card: Bookings -->
-    <div class="bg-gradient-to-br from-primary-500 to-primary-700 p-6 rounded-[2rem] shadow-xl shadow-primary-500/20">
-        <div class="flex justify-between items-start mb-4">
-            <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center border border-white/10">
-                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path></svg>
+    <div class="group relative overflow-hidden bg-gradient-to-br from-primary-600 to-sky-800 p-8 rounded-xl shadow-2xl hover:translate-y-[-4px] transition-all duration-500">
+        <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-1000"></div>
+        <div class="relative z-10 flex flex-col justify-between h-full">
+            <div class="flex justify-between items-start mb-6">
+                <div class="w-14 h-14 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
+                    <span class="material-symbols-outlined text-3xl">confirmation_number</span>
+                </div>
+                <span class="text-[9px] font-black uppercase tracking-[0.2em] bg-white/20 px-3 py-1.5 rounded-lg backdrop-blur-md">Journeys</span>
             </div>
-            <span class="text-[10px] font-black uppercase tracking-widest bg-white/10 px-2 py-1 rounded-lg">Trips</span>
+            <div>
+                <p class="text-xs font-black text-sky-100 uppercase tracking-widest mb-1 opacity-70">Total Bookings</p>
+                <h3 class="text-5xl font-black tracking-tighter">{{ number_format($stats['total_bookings']) }}</h3>
+            </div>
         </div>
-        <p class="text-xs font-bold text-primary-100">Total Bookings</p>
-        <h3 class="text-4xl font-black tracking-tighter">{{ number_format($stats['total_bookings']) }}</h3>
     </div>
 
     <!-- Stat Card: Revenue -->
-    <div class="bg-gradient-to-br from-emerald-500 to-emerald-700 p-6 rounded-[2rem] shadow-xl shadow-emerald-500/20">
-        <div class="flex justify-between items-start mb-4">
-            <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center border border-white/10">
-                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+    <div class="group relative overflow-hidden bg-gradient-to-br from-emerald-600 to-teal-800 p-8 rounded-xl shadow-2xl hover:translate-y-[-4px] transition-all duration-500">
+        <div class="absolute -top-10 -left-10 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-1000"></div>
+        <div class="relative z-10 flex flex-col justify-between h-full">
+            <div class="flex justify-between items-start mb-6">
+                <div class="w-14 h-14 rounded-xl bg-white/10 backdrop-blur-md flex items-center justify-center border border-white/20">
+                    <span class="material-symbols-outlined text-3xl">payments</span>
+                </div>
+                <span class="text-[9px] font-black uppercase tracking-[0.2em] bg-white/20 px-3 py-1.5 rounded-lg backdrop-blur-md">Capital</span>
             </div>
-            <span class="text-[10px] font-black uppercase tracking-widest bg-white/10 px-2 py-1 rounded-lg">Revenue</span>
+            <div>
+                <p class="text-xs font-black text-emerald-100 uppercase tracking-widest mb-1 opacity-70">Total Revenue</p>
+                <div class="flex items-baseline gap-2">
+                    <h3 class="text-4xl font-black tracking-tighter">{{ number_format($stats['total_revenue'], 0) }}</h3>
+                    <span class="text-xl font-bold opacity-60">€</span>
+                </div>
+            </div>
         </div>
-        <p class="text-xs font-bold text-emerald-100">Total Earnings</p>
-        <h3 class="text-4xl font-black tracking-tighter">{{ number_format($stats['total_revenue'], 2) }} €</h3>
     </div>
 
     <!-- Stat Card: Geographical -->
-    <div class="bg-gradient-to-br from-slate-700 to-slate-900 p-6 rounded-[2rem] shadow-xl shadow-slate-900/20">
-        <div class="flex justify-between items-start mb-4">
-            <div class="w-12 h-12 rounded-2xl bg-white/10 flex items-center justify-center border border-white/10">
-                <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+    <div class="group relative overflow-hidden bg-slate-950 p-8 rounded-xl shadow-2xl hover:translate-y-[-4px] transition-all duration-500 border border-white/5">
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-primary-600/10 blur-[100px] pointer-events-none"></div>
+        <div class="relative z-10 flex flex-col justify-between h-full">
+            <div class="flex justify-between items-start mb-6">
+                <div class="w-14 h-14 rounded-xl bg-white/5 backdrop-blur-md flex items-center justify-center border border-white/10">
+                    <span class="material-symbols-outlined text-3xl text-primary-400">language</span>
+                </div>
+                <span class="text-[9px] font-black uppercase tracking-[0.2em] bg-white/10 px-3 py-1.5 rounded-lg">Destinations</span>
             </div>
-            <span class="text-[10px] font-black uppercase tracking-widest bg-white/10 px-2 py-1 rounded-lg">Destinations</span>
+            <div>
+                <p class="text-xs font-black text-slate-500 uppercase tracking-widest mb-2 opacity-70 italic">World Coverage</p>
+                <div class="flex items-center gap-3">
+                    <div class="flex flex-col">
+                        <span class="text-3xl font-black text-white leading-none">{{ $stats['total_cities'] }}</span>
+                        <span class="text-[8px] font-black uppercase tracking-tighter text-slate-500 italic mt-1">Cities</span>
+                    </div>
+                    <div class="w-px h-8 bg-slate-800"></div>
+                    <div class="flex flex-col">
+                        <span class="text-3xl font-black text-white leading-none">{{ $stats['total_countries'] }}</span>
+                        <span class="text-[8px] font-black uppercase tracking-tighter text-slate-500 italic mt-1">Nations</span>
+                    </div>
+                </div>
+            </div>
         </div>
-        <p class="text-xs font-bold text-slate-400">Cities & Countries</p>
-        <h3 class="text-4xl font-black tracking-tighter">{{ $stats['total_cities'] }} / {{ $stats['total_countries'] }}</h3>
     </div>
 </div>
 
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
     <!-- Recent Bookings Table -->
-    <div class="lg:col-span-2 bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 p-8 border border-white">
-        <div class="flex items-center justify-between mb-8">
-            <h3 class="text-2xl font-black tracking-tight text-slate-800">Latest Bookings</h3>
-            <a href="{{ route('admin.bookings.index') }}" class="text-xs font-black uppercase tracking-widest text-primary-600 hover:underline">View All &rarr;</a>
+    <div class="lg:col-span-2 glass-card rounded-xl shadow-2xl p-10 border border-white overflow-hidden relative">
+        <div class="absolute top-0 right-0 w-32 h-32 bg-primary-100/20 blur-3xl rounded-full"></div>
+        
+        <div class="flex items-center justify-between mb-10 relative z-10">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-slate-900 rounded-lg flex items-center justify-center text-white">
+                    <span class="material-symbols-outlined text-xl">list_alt</span>
+                </div>
+                <h3 class="text-2xl font-black tracking-tight text-slate-900">Recent Stream</h3>
+            </div>
+            <a href="{{ route('admin.bookings.index') }}" class="text-[10px] font-black uppercase tracking-[0.2em] text-primary-600 hover:text-indigo-600 transition-colors flex items-center gap-2">
+                Audit Trail <span class="material-symbols-outlined text-xs">arrow_forward</span>
+            </a>
         </div>
-        <div class="overflow-x-auto">
+
+        <div class="overflow-x-auto relative z-10">
             <table class="w-full text-left">
                 <thead>
-                    <tr class="text-xs font-black text-slate-400 uppercase tracking-widest">
-                        <th class="pb-4">User</th>
-                        <th class="pb-4">Destination</th>
-                        <th class="pb-4">Price</th>
-                        <th class="pb-4">Status</th>
+                    <tr class="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">
+                        <th class="pb-6">Explorer</th>
+                        <th class="pb-6">Destination</th>
+                        <th class="pb-6">Volume</th>
+                        <th class="pb-6">Status</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100">
+                <tbody class="divide-y divide-slate-50">
                     @forelse($latest_bookings as $booking)
-                        <tr class="group hover:bg-slate-50 transition-colors">
-                            <td class="py-4">
-                                <p class="text-sm font-bold text-slate-900">{{ $booking->user->name }}</p>
-                                <p class="text-[10px] text-slate-400">{{ $booking->user->email }}</p>
+                        <tr class="group hover:bg-slate-50/50 transition-all">
+                            <td class="py-6 pr-4">
+                                <p class="text-sm font-black text-slate-900 leading-none mb-1">{{ $booking->user->name }}</p>
+                                <p class="text-[10px] text-slate-400 font-bold italic">{{ $booking->user->email }}</p>
                             </td>
-                            <td class="py-4">
-                                <p class="text-sm font-bold text-slate-700">{{ $booking->city->name ?? 'N/A' }}</p>
-                                <p class="text-[10px] text-slate-400 italic">{{ $booking->trip_type }}</p>
+                            <td class="py-6 pr-4">
+                                <p class="text-sm font-black text-slate-700 leading-none mb-1 capitalize">{{ $booking->city->name ?? 'Unknown' }}</p>
+                                <p class="text-[10px] text-primary-600 font-black uppercase tracking-widest italic">{{ $booking->trip_type }}</p>
                             </td>
-                            <td class="py-4 font-black text-slate-900">{{ number_format($booking->total_price, 2) }} €</td>
-                            <td class="py-4">
-                                <span class="px-2.5 py-1 rounded-lg text-[10px] font-black uppercase tracking-tighter {{ $booking->status === 'paid' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700' }}">
+                            <td class="py-6 pr-4">
+                                <span class="font-black text-slate-950">&euro;{{ number_format($booking->total_price, 0) }}</span>
+                            </td>
+                            <td class="py-6">
+                                <span class="px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-2 w-fit {{ $booking->status === 'paid' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-amber-50 text-amber-600 border border-amber-100' }}">
+                                    <span class="w-1.5 h-1.5 rounded-full {{ $booking->status === 'paid' ? 'bg-emerald-500' : 'bg-amber-500' }}"></span>
                                     {{ $booking->status }}
                                 </span>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="py-10 text-center text-slate-400">No recent bookings.</td>
+                            <td colspan="4" class="py-20 text-center">
+                                <span class="material-symbols-outlined text-4xl text-slate-200 mb-2">inbox</span>
+                                <p class="text-slate-400 text-xs font-black uppercase tracking-widest">No Recent Activity</p>
+                            </td>
                         </tr>
                     @endforelse
                 </tbody>
@@ -100,26 +150,35 @@
     </div>
 
     <!-- Recent Users -->
-    <div class="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 p-8 border border-white">
-        <h3 class="text-2xl font-black tracking-tight text-slate-800 mb-8">New Travelers</h3>
-        <div class="space-y-6">
+    <div class="glass-card rounded-xl shadow-2xl p-10 border border-white">
+        <div class="flex items-center gap-3 mb-10">
+            <div class="w-10 h-10 bg-indigo-600 rounded-lg flex items-center justify-center text-white">
+                <span class="material-symbols-outlined text-xl">person_add</span>
+            </div>
+            <h3 class="text-2xl font-black tracking-tight text-slate-900">New Onboard</h3>
+        </div>
+
+        <div class="space-y-8">
             @forelse($recent_users as $user)
-                <div class="flex items-center gap-4 group">
-                    <div class="w-12 h-12 rounded-2xl bg-indigo-50 border border-indigo-100 flex items-center justify-center text-indigo-400 group-hover:bg-primary-500 group-hover:text-white transition-all">
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path></svg>
+                <div class="flex items-center gap-5 group">
+                    <div class="w-14 h-14 rounded-xl bg-slate-50 border border-slate-100 flex items-center justify-center text-slate-300 group-hover:bg-primary-600 group-hover:text-white group-hover:scale-105 transition-all duration-500 overflow-hidden shadow-sm">
+                        <span class="material-symbols-outlined text-3xl">account_circle</span>
                     </div>
-                    <div>
-                        <p class="text-sm font-black text-slate-900 leading-none mb-1 group-hover:text-primary-600 transition-colors">{{ $user->name }}</p>
-                        <p class="text-[10px] text-slate-400 uppercase tracking-widest font-bold">{{ $user->created_at->diffForHumans() }}</p>
+                    <div class="flex-1">
+                        <p class="text-sm font-black text-slate-900 leading-none mb-1 group-hover:text-primary-600 transition-colors uppercase tracking-tight">{{ $user->name }}</p>
+                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest italic">{{ $user->created_at->diffForHumans() }}</p>
                     </div>
+                    <div class="w-2 h-2 rounded-full bg-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </div>
             @empty
-                <p class="text-center text-slate-400 py-4 italic">No recent users.</p>
+                <p class="text-center text-slate-300 py-10 italic">No recent explorers.</p>
             @endforelse
         </div>
-        <div class="mt-10 pt-8 border-t border-slate-50">
-            <a href="{{ route('admin.users.index') }}" class="block w-full text-center py-4 bg-slate-50 hover:bg-slate-100 text-slate-600 rounded-2xl text-xs font-black uppercase tracking-widest transition-all">
-                Handle All Users
+
+        <div class="mt-12 pt-10 border-t border-slate-100">
+            <a href="{{ route('admin.users.index') }}" class="flex items-center justify-center gap-2 w-full py-5 bg-slate-950 text-white hover:bg-primary-600 rounded-xl text-[10px] font-black uppercase tracking-[0.2em] transition-all shadow-xl hover:shadow-primary-500/20 active:scale-95 group">
+                Command Users
+                <span class="material-symbols-outlined text-sm group-hover:translate-x-1 transition-transform">manage_accounts</span>
             </a>
         </div>
     </div>
