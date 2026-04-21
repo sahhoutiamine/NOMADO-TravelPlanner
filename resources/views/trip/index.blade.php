@@ -1,36 +1,127 @@
 @extends('layouts.app')
 
 @section('content')
-<div class="min-h-screen py-12 md:py-24">
-    <div class="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 w-full">
-        <!-- Page Title -->
-        <div class="mb-10 animate-on-scroll fade-in">
-            <h1 class="text-3xl font-bold text-gray-900 tracking-tight">Plan your trip</h1>
-            <p class="text-gray-500 text-sm mt-1">Define your preferences and let our engine craft the perfect escape for you.</p>
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+
+        .text-gradient {
+            background: linear-gradient(to right, #0284c7, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .bg-gradient-primary {
+            background: linear-gradient(135deg, #0284c7, #6366f1);
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        .animate-float {
+            animation: float 5s ease-in-out infinite;
+        }
+
+        @keyframes pulse-soft {
+
+            0%,
+            100% {
+                opacity: 0.2;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: 0.3;
+                transform: scale(1.1);
+            }
+        }
+
+        .animate-pulse-soft {
+            animation: pulse-soft 8s ease-in-out infinite;
+        }
+
+        .trip-type-label:hover .icon-box {
+            transform: scale(1.1) rotate(5deg);
+            background-color: rgba(2, 132, 199, 0.1);
+        }
+    </style>
+
+    <div class="flex-grow flex items-center justify-center p-6 md:p-12 relative overflow-hidden min-h-screen pt-24">
+        <!-- Atmospheric Background Elements -->
+        <div class="absolute inset-0 pointer-events-none overflow-hidden">
+            <div
+                class="absolute -top-1/4 -right-1/4 w-[800px] h-[800px] bg-primary-200/20 rounded-full blur-[120px] animate-pulse-soft">
+            </div>
+            <div class="absolute -bottom-1/4 -left-1/4 w-[600px] h-[600px] bg-indigo-200/20 rounded-full blur-[100px] animate-pulse-soft"
+                style="animation-delay: 2s;"></div>
         </div>
 
-        <!-- Form Card -->
-        <div class="bg-white rounded-2xl border border-gray-200 shadow-sm p-8 animate-on-scroll slide-in-up" style="animation-delay: 0.1s;">
-            <form action="{{ route('trip.generate') }}" method="POST" class="space-y-8">
+        <!-- The Planning Card -->
+        <div class="relative w-full max-w-4xl glass-card rounded-2xl p-8 md:p-14 shadow-2xl z-10 animate-fade-in border border-white/50">
+            <!-- Header Section -->
+            <div class="text-center mb-12">
+                <div
+                    class="inline-flex items-center gap-2 bg-primary-50 px-4 py-2 rounded-full border border-primary-100 mb-6 mx-auto">
+                    <span class="material-symbols-outlined text-primary-600 text-sm"
+                        style="font-variation-settings: 'FILL' 1;">magic_button</span>
+                    <span class="text-xs font-bold text-primary-700 uppercase tracking-widest">Concierge</span>
+                </div>
+                <h1 class="text-5xl md:text-6xl font-black tracking-tighter text-slate-900 mb-4">Plan your <span
+                        class="text-gradient">journey</span></h1>
+                <p class="text-slate-500 font-medium text-lg max-w-2xl mx-auto">Define your vibe and budget, and our
+                    Concierge will craft a bespoke itinerary tailored just for you.</p>
+            </div>
+
+            <form action="{{ route('trip.generate') }}" method="POST" class="space-y-12">
                 @csrf
 
                 <!-- Trip Type Grid -->
-                <div>
-                    <label class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Trip Type</label>
-                    <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-                        @foreach([
-                            'adventure' => 'Adventure',
-                            'culture' => 'Culture',
-                            'beach' => 'Beach',
-                            'romantic' => 'Romantic',
-                            'nature' => 'Nature',
-                            'shopping' => 'Shopping'
-                        ] as $value => $label)
-                            <label class="relative cursor-pointer animate-on-scroll fade-in" style="animation-delay: {{ 0.05 * ($loop->index + 1) }}s;">
-                                <input type="radio" name="trip_type" value="{{ $value }}" required class="sr-only peer"
-                                    {{ old('trip_type') == $value ? 'checked' : '' }}>
-                                <div class="peer-checked:border-primary-600 peer-checked:bg-primary-50 peer-checked:text-primary-700 peer-checked:font-semibold peer-checked:scale-105 border border-gray-200 bg-white text-gray-600 rounded-xl py-4 px-4 transition-all hover:border-primary-400 hover:bg-primary-50 flex items-center justify-center text-center text-sm font-medium trip-type-option">
-                                    {{ $label }}
+                <div class="space-y-6">
+                    <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-3">
+                        <span class="material-symbols-outlined text-primary-600"
+                            style="font-variation-settings: 'FILL' 1;">explore</span>
+                        What's your vibe?
+                    </h2>
+                    <div class="grid grid-cols-2 md:grid-cols-3 gap-5">
+                        @php
+                            $types = [
+                                ['value' => 'adventure', 'label' => 'Adventure', 'icon' => 'hiking'],
+                                ['value' => 'culture', 'label' => 'Culture', 'icon' => 'museum'],
+                                ['value' => 'beach', 'label' => 'Beach', 'icon' => 'beach_access'],
+                                ['value' => 'romantic', 'label' => 'Romantic', 'icon' => 'favorite'],
+                                ['value' => 'nature', 'label' => 'Nature', 'icon' => 'forest'],
+                                ['value' => 'shopping', 'label' => 'Shopping', 'icon' => 'local_mall'],
+                            ];
+                        @endphp
+
+                        @foreach($types as $type)
+                            <label class="cursor-pointer relative group trip-type-label">
+                                <input class="peer sr-only" name="trip_type" type="radio" value="{{ $type['value'] }}" required
+                                    {{ old('trip_type') == $type['value'] ? 'checked' : '' }} />
+                                <div
+                                    class="h-32 rounded-xl bg-white/50 border border-slate-100 peer-checked:bg-primary-50 peer-checked:border-primary-500 peer-checked:shadow-lg peer-checked:shadow-primary-500/10 transition-all duration-300 ease-out flex flex-col items-center justify-center gap-3 overflow-hidden group-hover:border-primary-300 group-hover:bg-white shadow-sm">
+                                    <div class="icon-box p-3 rounded-2xl transition-all duration-300">
+                                        <span
+                                            class="material-symbols-outlined text-4xl text-slate-400 group-hover:text-primary-600 peer-checked:text-primary-600 transition-colors">{{ $type['icon'] }}</span>
+                                    </div>
+                                    <span
+                                        class="font-bold text-slate-600 group-hover:text-slate-900 transition-colors">{{ $type['label'] }}</span>
+                                    <div class="absolute top-2 right-2 opacity-0 peer-checked:opacity-100 transition-opacity">
+                                        <span class="material-symbols-outlined text-primary-600 text-lg">check_circle</span>
+                                    </div>
                                 </div>
                             </label>
                         @endforeach
@@ -38,84 +129,85 @@
                     <x-input-error :messages="$errors->get('trip_type')" class="mt-2" />
                 </div>
 
-                <!-- Form Fields Grid -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Budget -->
-                    <div>
-                        <label for="budget" class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Total Budget (EUR)</label>
-                        <input id="budget" type="number" name="budget" min="100" required placeholder="e.g. 2500"
-                               class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors placeholder:text-gray-400">
-                        <x-input-error :messages="$errors->get('budget')" class="mt-2" />
-                    </div>
-
-                    <!-- Duration -->
-                    <div>
-                        <label for="duration" class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Stay Duration (Nights)</label>
-                        <input id="duration" type="number" name="duration" min="1" required placeholder="e.g. 7"
-                               class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors placeholder:text-gray-400">
-                        <x-input-error :messages="$errors->get('duration')" class="mt-2" />
-                    </div>
-
-                    <!-- Travelers -->
-                    <div class="md:col-span-2">
-                        <label for="passengers" class="block text-xs font-semibold text-gray-500 uppercase tracking-wide mb-2">Number of Travelers</label>
-                        <input id="passengers" type="number" name="passengers" min="1" required placeholder="e.g. 2"
-                               class="w-full bg-white border border-gray-200 rounded-xl px-4 py-3 text-gray-900 focus:outline-none focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-colors placeholder:text-gray-400">
-                        <x-input-error :messages="$errors->get('passengers')" class="mt-2" />
+                <!-- Logistics Inputs -->
+                <div class="space-y-6">
+                    <h2 class="text-2xl font-bold text-slate-900 flex items-center gap-3">
+                        <span class="material-symbols-outlined text-indigo-600"
+                            style="font-variation-settings: 'FILL' 1;">tune</span>
+                        The Logistics
+                    </h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <!-- Budget -->
+                        <div class="space-y-2">
+                            <label class="font-bold text-xs uppercase tracking-widest text-slate-400 block"
+                                for="budget">Budget (EUR)</label>
+                            <div class="relative group">
+                                <span
+                                    class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-600 transition-colors">euro_symbol</span>
+                                <input
+                                    class="w-full bg-slate-50/50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-slate-900 placeholder:text-slate-300 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-lg outline-none font-semibold"
+                                    id="budget" name="budget" placeholder="2500" type="number" required
+                                    value="{{ old('budget') }}" />
+                            </div>
+                            <x-input-error :messages="$errors->get('budget')" class="mt-1" />
+                        </div>
+                        <!-- Duration -->
+                        <div class="space-y-2">
+                            <label class="font-bold text-xs uppercase tracking-widest text-slate-400 block"
+                                for="duration">Duration (nights)</label>
+                            <div class="relative group">
+                                <span
+                                    class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-600 transition-colors">bed</span>
+                                <input
+                                    class="w-full bg-slate-50/50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-slate-900 placeholder:text-slate-300 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-lg outline-none font-semibold"
+                                    id="duration" name="duration" placeholder="7" type="number" required
+                                    value="{{ old('duration') }}" />
+                            </div>
+                            <x-input-error :messages="$errors->get('duration')" class="mt-1" />
+                        </div>
+                        <!-- Travelers -->
+                        <div class="space-y-2">
+                            <label class="font-bold text-xs uppercase tracking-widest text-slate-400 block"
+                                for="passengers">Travelers</label>
+                            <div class="relative group">
+                                <span
+                                    class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-600 transition-colors">group</span>
+                                <input
+                                    class="w-full bg-slate-50/50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-slate-900 placeholder:text-slate-300 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-lg outline-none font-semibold"
+                                    id="passengers" name="passengers" placeholder="2" type="number" required
+                                    value="{{ old('passengers') }}" />
+                            </div>
+                            <x-input-error :messages="$errors->get('passengers')" class="mt-1" />
+                        </div>
                     </div>
                 </div>
 
-                <!-- Submit Button -->
-                <div class="pt-4 border-t border-gray-100">
-                    <button type="submit" class="w-full py-4 bg-gray-900 text-white rounded-xl font-semibold text-base hover:bg-primary-600 transition-colors flex items-center justify-center gap-2 submit-shimmer">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
-                        Generate My Journey
+                <!-- Submit Action -->
+                <div class="pt-8">
+                    <button
+                        class="w-full bg-gradient-primary text-white rounded-[1.5rem] py-5 font-black text-xl hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3 relative overflow-hidden"
+                        type="submit">
+                        <span class="relative z-10">Generate My Journey</span>
+                        <span class="material-symbols-outlined relative z-10"
+                            style="font-variation-settings: 'FILL' 0;">auto_awesome</span>
                     </button>
                 </div>
             </form>
         </div>
     </div>
-</div>
 
-<script>
-    // Scale bounce on trip type selection
-    document.querySelectorAll('.trip-type-option').forEach(option => {
-        option.addEventListener('click', function() {
-            this.style.animation = 'scaleClick 0.3s ease-out';
+    <script>
+        // Simple page entrance animation
+        document.addEventListener('DOMContentLoaded', () => {
+            const card = document.querySelector('.glass-card');
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+
             setTimeout(() => {
-                this.style.animation = '';
-            }, 300);
+                card.style.transition = 'all 0.8s cubic-bezier(0.16, 1, 0.3, 1)';
+                card.style.opacity = '1';
+                card.style.transform = 'translateY(0)';
+            }, 100);
         });
-    });
-</script>
-
-<style>
-    @keyframes scaleClick {
-        0% { transform: scale(1); }
-        50% { transform: scale(0.95); }
-        100% { transform: scale(1.05); }
-    }
-
-    @keyframes shimmerButton {
-        0% { background-position: -1000px 0; }
-        100% { background-position: 1000px 0; }
-    }
-
-    .submit-shimmer {
-        position: relative;
-        overflow: hidden;
-    }
-
-    .submit-shimmer:hover {
-        background-image: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.3) 50%, transparent 100%);
-        background-size: 200% 100%;
-        animation: shimmerButton 0.8s ease-in-out;
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-        .trip-type-option, .submit-shimmer:hover {
-            animation: none !important;
-        }
-    }
-</style>
+    </script>
 @endsection
