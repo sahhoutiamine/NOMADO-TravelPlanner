@@ -66,15 +66,16 @@ class TripGeneratorController extends Controller
         foreach ($hotels as $hotel) {
             $hotelTotal = $hotel->price_per_night * $duration * $passengers;
             $remaining = $budgetTotal - $hotelTotal;
-            
+
             $trips[] = [
                 'city' => $hotel->city,
                 'hotel' => $hotel,
                 'duration' => $duration,
                 'passengers' => $passengers,
+                'flight_budget' => $remaining * 0.3,
                 'hotel_budget' => $hotelTotal,
-                'activities_budget' => $remaining * 0.6,
-                'misc_budget' => $remaining * 0.4,
+                'activities_budget' => $remaining * 0.5,
+                'misc_budget' => $remaining * 0.2,
                 'total_price' => $budgetTotal,
                 'budget_total' => $budgetTotal,
                 'trip_type' => $trip_type
@@ -92,6 +93,7 @@ class TripGeneratorController extends Controller
             'duration' => 'required|integer',
             'passengers' => 'required|integer',
             'budget_total' => 'required|numeric',
+            'flight_budget' => 'required|numeric',
             'hotel_budget' => 'required|numeric',
             'activities_budget' => 'required|numeric',
             'misc_budget' => 'required|numeric',
@@ -107,7 +109,7 @@ class TripGeneratorController extends Controller
             'budget_total'      => $request->budget_total,
             'duration'          => $request->duration,
             'passengers'        => $request->passengers,
-            'flight_budget'     => 0,
+            'flight_budget'     => $request->flight_budget,
             'hotel_budget'      => $request->hotel_budget,
             'activities_budget' => $request->activities_budget,
             'misc_budget'       => $request->misc_budget,
