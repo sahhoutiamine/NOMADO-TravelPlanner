@@ -203,8 +203,11 @@
                     <!-- Actions -->
                     <div class="relative z-10 space-y-4">
                         @if($booking->status === 'pending')
-                            <a href="{{ route('payment.show', $booking->id) }}" class="w-full py-5 bg-gradient-primary text-white font-black text-xl rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3 active:scale-95">
-                                Secure Payment <span class="material-symbols-outlined">payments</span>
+                            <a href="{{ route('payment.show', $booking->id) }}" class="w-full py-5 bg-slate-950 text-white font-black text-xl rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3 active:scale-95 group relative overflow-hidden">
+                                <div class="absolute inset-0 bg-primary-600 opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                                <span class="relative z-10 flex items-center justify-center gap-3">
+                                    Secure Payment <span class="material-symbols-outlined">payments</span>
+                                </span>
                             </a>
                             <form action="{{ route('bookings.destroy', $booking->id) }}" method="POST">
                                 @csrf
@@ -219,8 +222,11 @@
                                 <p class="text-emerald-900 font-black text-lg">Transaction Complete</p>
                                 <p class="text-emerald-600/70 text-xs font-bold uppercase tracking-widest mt-1">Journey Confirmed</p>
                             </div>
-                            <a href="{{ route('payment.ticket', $booking->id) }}" class="w-full py-5 bg-gradient-primary text-white font-black text-xl rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3 active:scale-95">
-                                View & Print Ticket <span class="material-symbols-outlined">confirmation_number</span>
+                            <a href="{{ route('payment.ticket', $booking->id) }}" class="w-full py-5 bg-slate-950 text-white font-black text-xl rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3 active:scale-95 group relative overflow-hidden">
+                                <div class="absolute inset-0 bg-primary-600 opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                                <span class="relative z-10 flex items-center justify-center gap-3">
+                                    View & Print Ticket <span class="material-symbols-outlined">confirmation_number</span>
+                                </span>
                             </a>
                         @endif
                     </div>
