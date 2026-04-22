@@ -126,9 +126,8 @@
         }
 
         .gradient-text {
-            background: linear-gradient(to right, #f43f5e, #f59e0b);
+            background: linear-gradient(to right, #0284c7, #6366f1);
             -webkit-background-clip: text;
-            background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
@@ -136,7 +135,7 @@
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            background: linear-gradient(to right, #f43f5e, #f59e0b);
+            background: #0f172a; /* Solid Black/Slate-900 */
             color: white;
             font-weight: 600;
             border-radius: 0.875rem;
