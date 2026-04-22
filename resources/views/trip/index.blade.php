@@ -185,8 +185,9 @@
                 <!-- Submit Action -->
                 <div class="pt-8">
                     <button
-                        class="w-full bg-gradient-primary text-white rounded-[1.5rem] py-5 font-black text-xl hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3 relative overflow-hidden"
+                        class="w-full bg-slate-950 text-white rounded-[1.5rem] py-5 font-black text-xl hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-3 relative overflow-hidden group"
                         type="submit">
+                        <div class="absolute inset-0 bg-primary-600 opacity-0 group-hover:opacity-10 transition-opacity"></div>
                         <span class="relative z-10">Generate My Journey</span>
                         <span class="material-symbols-outlined relative z-10"
                             style="font-variation-settings: 'FILL' 0;">auto_awesome</span>
