@@ -42,7 +42,7 @@
             border-right: 1px solid rgba(255, 255, 255, 0.05);
         }
         .sidebar-link-active {
-            background: linear-gradient(to right, #0284c7, #6366f1);
+            background: #0284c7;
             color: white !important;
             box-shadow: 0 10px 25px -5px rgba(2, 132, 199, 0.4);
         }
@@ -86,7 +86,7 @@
     <aside class="w-80 glass-sidebar text-white shrink-0 flex flex-col fixed inset-y-0 left-0 z-50 shadow-2xl">
         <div class="p-10">
             <div class="flex items-center gap-4 group">
-                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-primary-600 to-indigo-600 flex items-center justify-center shadow-2xl shadow-primary-500/40 group-hover:scale-110 transition-transform duration-500">
+                <div class="w-12 h-12 rounded-xl bg-slate-950 flex items-center justify-center shadow-2xl shadow-primary-500/10 group-hover:scale-110 transition-transform duration-500">
                     <span class="material-symbols-outlined text-white text-2xl" style="font-variation-settings: 'FILL' 1;">shield_person</span>
                 </div>
                 <div class="flex flex-col">
