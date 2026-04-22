@@ -67,6 +67,12 @@
             animation: slideLeft 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
+        .gradient-text {
+            background: linear-gradient(to right, #0284c7, #6366f1);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
         .budget-progress {
             width: 0;
             transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
@@ -282,7 +288,8 @@
                                 <input type="hidden" name="trip_type" value="{{ $trip['trip_type'] }}">
 
                                 <button type="submit"
-                                    class="w-full py-5 bg-gradient-primary text-white font-black text-xl rounded-lg shadow-lg hover:shadow-xl transition-all relative overflow-hidden">
+                                    class="w-full py-5 bg-slate-950 text-white font-black text-xl rounded-lg shadow-lg hover:shadow-xl transition-all relative overflow-hidden group">
+                                    <div class="absolute inset-0 bg-primary-600 opacity-0 group-hover:opacity-10 transition-opacity"></div>
                                     <span class="relative z-10 flex items-center justify-center gap-3">
                                         Confirm This Trip <span class="material-symbols-outlined">check_circle</span>
                                     </span>
