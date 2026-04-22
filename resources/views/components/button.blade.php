@@ -6,7 +6,7 @@
     $variants = [
         'primary' => 'bg-slate-900 text-white hover:bg-slate-800 hover:shadow-md hover:-translate-y-0.5 focus:ring-slate-900',
         'secondary' => 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:border-slate-300 focus:ring-slate-200',
-        'accent' => 'bg-gradient-to-r from-primary-600 to-indigo-600 text-white hover:shadow-lg hover:shadow-primary-500/25 hover:-translate-y-0.5 focus:ring-primary-500 border border-transparent',
+        'accent' => 'bg-slate-900 text-white hover:bg-slate-800 hover:shadow-lg hover:-translate-y-0.5 focus:ring-slate-900 border border-transparent',
     ];
 
     $classes = $baseClasses . ' ' . ($variants[$variant] ?? $variants['primary']) . ' ' . $class;
