@@ -295,8 +295,11 @@
                         <div id="city_error" class="error-message hidden"></div>
                     </div>
 
-                    <button onclick="goToStep(2)" class="w-full mt-6 py-4 bg-gradient-primary text-white font-black text-lg rounded-lg shadow-lg hover:shadow-xl transition-all">
-                        Next: Choose Flight <span class="material-symbols-outlined text-xl align-middle">arrow_forward</span>
+                    <button onclick="goToStep(2)" class="w-full mt-6 py-4 bg-slate-950 text-white font-black text-lg rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-2 group relative overflow-hidden">
+                        <div class="absolute inset-0 bg-primary-600 opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                        <span class="relative z-10 flex items-center justify-center gap-2">
+                            Next: Choose Flight <span class="material-symbols-outlined text-xl align-middle">arrow_forward</span>
+                        </span>
                     </button>
                 </div>
             </div>
@@ -383,8 +386,9 @@
                     <button onclick="skipFlightPayment()" class="py-4 border-2 border-slate-300 text-slate-700 font-black text-lg rounded-lg hover:bg-slate-50 transition-all">
                         Skip
                     </button>
-                    <button onclick="confirmFlightPayment()" class="py-4 bg-gradient-primary text-white font-black text-lg rounded-lg shadow-lg hover:shadow-xl transition-all">
-                        Confirm & Continue
+                    <button onclick="confirmFlightPayment()" class="py-4 bg-slate-950 text-white font-black text-lg rounded-lg shadow-lg hover:shadow-xl transition-all group relative overflow-hidden">
+                        <div class="absolute inset-0 bg-primary-600 opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                        <span class="relative z-10">Confirm & Continue</span>
                     </button>
                 </div>
             </div>
@@ -458,8 +462,9 @@
                     <button onclick="skipHotelPayment()" class="py-4 border-2 border-slate-300 text-slate-700 font-black text-lg rounded-lg hover:bg-slate-50 transition-all">
                         Skip
                     </button>
-                    <button onclick="confirmHotelPayment()" class="py-4 bg-gradient-primary text-white font-black text-lg rounded-lg shadow-lg hover:shadow-xl transition-all">
-                        Complete Booking
+                    <button onclick="confirmHotelPayment()" class="py-4 bg-slate-950 text-white font-black text-lg rounded-lg shadow-lg hover:shadow-xl transition-all group relative overflow-hidden">
+                        <div class="absolute inset-0 bg-primary-600 opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                        <span class="relative z-10">Complete Booking</span>
                     </button>
                 </div>
             </div>
