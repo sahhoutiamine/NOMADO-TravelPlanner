@@ -7,7 +7,7 @@
 <!-- Header Stats Grid -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 text-white">
     <!-- Stat Card: Users -->
-    <div class="group relative overflow-hidden bg-gradient-to-br from-indigo-600 to-violet-800 p-8 rounded-xl shadow-2xl hover:translate-y-[-4px] transition-all duration-500">
+    <div class="group relative overflow-hidden bg-slate-950 p-8 rounded-xl shadow-2xl hover:translate-y-[-4px] transition-all duration-500 border border-white/5">
         <div class="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-1000"></div>
         <div class="relative z-10 flex flex-col justify-between h-full">
             <div class="flex justify-between items-start mb-6">
@@ -24,7 +24,7 @@
     </div>
 
     <!-- Stat Card: Bookings -->
-    <div class="group relative overflow-hidden bg-gradient-to-br from-primary-600 to-sky-800 p-8 rounded-xl shadow-2xl hover:translate-y-[-4px] transition-all duration-500">
+    <div class="group relative overflow-hidden bg-primary-600 p-8 rounded-xl shadow-2xl hover:translate-y-[-4px] transition-all duration-500">
         <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-1000"></div>
         <div class="relative z-10 flex flex-col justify-between h-full">
             <div class="flex justify-between items-start mb-6">
@@ -41,7 +41,7 @@
     </div>
 
     <!-- Stat Card: Revenue -->
-    <div class="group relative overflow-hidden bg-gradient-to-br from-emerald-600 to-teal-800 p-8 rounded-xl shadow-2xl hover:translate-y-[-4px] transition-all duration-500">
+    <div class="group relative overflow-hidden bg-emerald-600 p-8 rounded-xl shadow-2xl hover:translate-y-[-4px] transition-all duration-500">
         <div class="absolute -top-10 -left-10 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-1000"></div>
         <div class="relative z-10 flex flex-col justify-between h-full">
             <div class="flex justify-between items-start mb-6">
