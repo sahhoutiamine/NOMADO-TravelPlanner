@@ -86,7 +86,7 @@
                     <a href="{{ route('dashboard') }}" class="text-sm font-semibold text-slate-600 hover:text-primary-600 transition-colors">Dashboard</a>
                 @else
                     <a href="{{ route('login') }}" class="hidden md:inline-block text-sm font-semibold text-slate-600 hover:text-primary-600 transition-colors">Sign In</a>
-                    <a href="{{ route('register') }}" class="bg-gradient-primary text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:shadow-[0_4px_20px_rgba(2,132,199,0.3)] transition-all duration-200 scale-95 hover:scale-100">Join Nomado</a>
+                    <a href="{{ route('register') }}" class="bg-slate-950 text-white px-6 py-2.5 rounded-xl text-sm font-semibold hover:shadow-[0_4px_20px_rgba(0,0,0,0.1)] transition-all duration-200 scale-95 hover:scale-100">Join Nomado</a>
                 @endauth
             </div>
         </div>
@@ -110,7 +110,7 @@
                     Stop spending hours researching. Our advanced technology crafts bespoke itineraries tailored to your exact vibe, budget, and dreams. Discover the world, effortlessly.
                 </p>
                 <div class="flex flex-col sm:flex-row gap-4 mt-4">
-                    <a href="{{ route('register') }}" class="bg-gradient-primary text-white px-8 py-4 rounded-xl font-semibold text-lg flex items-center justify-center gap-2 hover:shadow-[0_8px_30px_rgba(2,132,199,0.3)] transition-all duration-200 group">
+                    <a href="{{ route('register') }}" class="bg-slate-950 text-white px-8 py-4 rounded-xl font-semibold text-lg flex items-center justify-center gap-2 hover:shadow-[0_8px_30px_rgba(0,0,0,0.1)] transition-all duration-200 group">
                         <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform">flight_takeoff</span>
                         Start Planning
                     </a>
