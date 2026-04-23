@@ -136,7 +136,7 @@
                             style="font-variation-settings: 'FILL' 1;">tune</span>
                         The Logistics
                     </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
                         <!-- Budget -->
                         <div class="space-y-2">
                             <label class="font-bold text-xs uppercase tracking-widest text-slate-400 block"
@@ -178,6 +178,26 @@
                                     value="{{ old('passengers') }}" />
                             </div>
                             <x-input-error :messages="$errors->get('passengers')" class="mt-1" />
+                        </div>
+                        <!-- Departure City -->
+                        <div class="space-y-2">
+                            <label class="font-bold text-xs uppercase tracking-widest text-slate-400 block"
+                                for="departure_city_id">Departure City</label>
+                            <div class="relative group">
+                                <span
+                                    class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-600 transition-colors">location_on</span>
+                                <select
+                                    class="w-full bg-slate-50/50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-slate-900 placeholder:text-slate-300 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-lg outline-none font-semibold appearance-none"
+                                    id="departure_city_id" name="departure_city_id" required>
+                                    <option value="">Select departure city</option>
+                                    @foreach($cities as $city)
+                                        <option value="{{ $city->id }}" {{ old('departure_city_id') == $city->id ? 'selected' : '' }}>
+                                            {{ $city->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <x-input-error :messages="$errors->get('departure_city_id')" class="mt-1" />
                         </div>
                     </div>
                 </div>
