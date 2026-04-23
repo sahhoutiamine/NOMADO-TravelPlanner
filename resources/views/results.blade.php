@@ -60,60 +60,6 @@
             transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        .place-checkbox {
-            cursor: pointer;
-        }
-
-        .place-card {
-            transition: all 0.3s ease;
-        }
-
-        .place-card label {
-            cursor: pointer;
-        }
-
-        .warning-box {
-            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        @keyframes slideUp {
-            from {
-                transform: translateY(10px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
-        .hotel-scroll {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            scroll-behavior: smooth;
-        }
-
-        .hotel-scroll::-webkit-scrollbar {
-            height: 6px;
-        }
-
-        .hotel-scroll::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 3px;
-        }
-
-        .hotel-scroll::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-
-        .hotel-card {
-            flex-shrink: 0;
-            min-w-max;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
         .hotel-card.selected {
             ring: 2px;
             ring-color: #0284c7;
@@ -247,45 +193,6 @@
                             @endforeach
                         </div>
                     </div>
-
-                    <!-- Hotel Selection -->
-                    <div class="glass-card p-8 rounded-xl border border-white/50 shadow-xl">
-                        <h3 class="text-2xl font-black text-slate-900 mb-6">Accommodation</h3>
-                        <p class="text-slate-600 text-sm font-medium mb-4">You'll choose your hotel after booking</p>
-                        <div class="glass-card p-4 rounded-lg border border-white/50 bg-slate-50">
-                            <div class="flex items-center gap-4">
-                                <div class="w-20 h-20 rounded-md overflow-hidden shrink-0">
-                                    <img src="{{ $trip['hotel']->image }}" alt="{{ $trip['hotel']->name }}" class="w-full h-full object-cover">
-                                </div>
-                                <div class="flex-1">
-                                    <h4 class="font-bold text-slate-900">{{ $trip['hotel']->name }}</h4>
-                                    <span class="text-xs text-slate-500">{{ $trip['hotel']->getTypeLabel() }}</span>
-                                    <p class="text-primary-600 font-black text-sm mt-1">€{{ number_format($trip['hotel']->price_per_night) }}/night</p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Places Selection -->
-                    <div class="glass-card p-8 rounded-xl border border-white/50 shadow-xl">
-                        <h3 class="text-2xl font-black text-slate-900 mb-6">Must-Visit Places</h3>
-                        <p class="text-slate-600 text-sm font-medium mb-4">Select your favorites after booking</p>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            @forelse($trip['city']->places->take(4) as $place)
-                                <div class="glass-card p-4 rounded-lg border border-white/50 bg-slate-50 flex gap-3">
-                                    <div class="w-16 h-16 rounded-md overflow-hidden shrink-0">
-                                        <img src="{{ $place->image }}" alt="{{ $place->name }}" class="w-full h-full object-cover">
-                                    </div>
-                                    <div class="flex-1 min-w-0">
-                                        <h4 class="font-bold text-slate-900 text-sm truncate">{{ $place->name }}</h4>
-                                        <p class="text-xs text-slate-500 mt-1 line-clamp-1">€{{ number_format($place->min_price) }}</p>
-                                    </div>
-                                </div>
-                            @empty
-                                <p class="text-slate-400 col-span-2">No places available</p>
-                            @endforelse
-                        </div>
-                    </div>
                 </div>
 
                 <!-- RIGHT COLUMN (1/3): Sticky Budget Sidebar -->
@@ -312,48 +219,6 @@
                                 <div class="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-2">Total Budget</div>
                                 <div class="text-5xl font-black text-slate-900 tracking-tighter">€<span class="count-total-{{ $index }}"
                                         data-target="{{ $trip['total_price'] }}">0</span></div>
-                            </div>
-
-                            <!-- Progress Bars -->
-                            <div class="space-y-7 mb-12 relative z-10">
-                                <!-- Hotel -->
-                                <div class="hotel-bar-{{ $index }}">
-                                    <div class="flex justify-between items-center text-sm mb-3">
-                                        <span class="font-bold text-slate-800">Accommodation</span>
-                                        <span class="text-slate-400 font-bold italic">€<span class="hotel-cost-display-{{ $index }}">{{ number_format($trip['hotel']->price_per_night * $trip['duration'] * $trip['passengers']) }}</span></span>
-                                    </div>
-                                    <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                                        <div class="h-full bg-indigo-500 rounded-full budget-progress-{{ $index }}"
-                                            data-width="{{ ($trip['hotel_budget'] / $trip['total_price']) * 100 }}%"></div>
-                                    </div>
-                                </div>
-
-                                <!-- Places/Activities -->
-                                <div>
-                                    <div class="flex justify-between items-center text-sm mb-3">
-                                        <span class="font-bold text-slate-800">Places & Activities</span>
-                                        <span class="text-slate-400 font-bold italic">€<span class="places-cost-display-{{ $index }}">0</span></span>
-                                    </div>
-                                    <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                                        <div class="h-full bg-emerald-500 rounded-full budget-progress-places-{{ $index }}"
-                                            style="width: 0%"></div>
-                                    </div>
-                                </div>
-
-                                <!-- Flights -->
-                                <!-- Flights bar removed - selections will be made on booking page -->
-
-                                <!-- Miscellaneous -->
-                                <div>
-                                    <div class="flex justify-between items-center text-sm mb-3">
-                                        <span class="font-bold text-slate-800">Miscellaneous</span>
-                                        <span class="text-slate-400 font-bold italic">€<span class="misc-cost-display-{{ $index }}">{{ number_format($trip['misc_budget']) }}</span></span>
-                                    </div>
-                                    <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                                        <div class="h-full bg-slate-400 rounded-full budget-progress-misc-{{ $index }}"
-                                            data-width="{{ ($trip['misc_budget'] / $trip['total_price']) * 100 }}%"></div>
-                                    </div>
-                                </div>
                             </div>
 
                             <form action="{{ route('trip.confirm') }}" method="POST" id="confirm-form-{{ $index }}">
@@ -409,7 +274,6 @@
             activeBtn.classList.add('active');
             activeBtn.classList.remove('text-slate-500', 'hover:text-slate-900');
 
-            animateProgress(index);
             animateNumbers(index);
         }
 
@@ -445,20 +309,8 @@
             });
         }
 
-        function animateProgress(tripIndex) {
-            document.querySelectorAll(`.budget-progress-${tripIndex}, .budget-progress-places-${tripIndex}, .budget-progress-flight-${tripIndex}, .budget-progress-misc-${tripIndex}`).forEach(bar => {
-                const width = bar.getAttribute('data-width');
-                if (width) {
-                    bar.style.width = '0';
-                    setTimeout(() => {
-                        bar.style.width = width;
-                    }, 30);
-                }
-            });
-        }
 
         document.addEventListener('DOMContentLoaded', () => {
-            animateProgress(0);
             animateNumbers(0);
         });
 
