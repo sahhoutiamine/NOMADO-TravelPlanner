@@ -32,6 +32,80 @@
         width: 0;
         transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
     }
+    .hotel-scroll {
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scroll-behavior: smooth;
+    }
+    .hotel-scroll::-webkit-scrollbar {
+        height: 6px;
+    }
+    .hotel-scroll::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 3px;
+    }
+    .hotel-scroll::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+    }
+    .hotel-card {
+        flex-shrink: 0;
+        min-w-max;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    .hotel-card.selected {
+        ring: 2px;
+        ring-color: #0284c7;
+        box-shadow: 0 0 0 2px white, 0 0 0 4px #0284c7;
+    }
+    .toggle-switch {
+        position: relative;
+        display: inline-block;
+        width: 50px;
+        height: 26px;
+    }
+    .toggle-switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+    }
+    .toggle-slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: 0.3s;
+        border-radius: 26px;
+    }
+    .toggle-slider:before {
+        position: absolute;
+        content: "";
+        height: 20px;
+        width: 20px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.3s;
+        border-radius: 50%;
+    }
+    input:checked + .toggle-slider {
+        background-color: #0284c7;
+    }
+    input:checked + .toggle-slider:before {
+        transform: translateX(24px);
+    }
+    .place-checkbox {
+        cursor: pointer;
+    }
+    .place-card {
+        transition: all 0.3s ease;
+    }
+    .place-card label {
+        cursor: pointer;
+    }
 </style>
 
 <div class="flex-grow pt-32 pb-24 px-4 md:px-8 max-w-7xl mx-auto relative min-h-screen">
@@ -112,8 +186,64 @@
                 </script>
             </div>
 
-            <!-- Accommodation -->
-            @if($booking->hotel)
+            @if($booking->status === 'pending')
+            <!-- Hotel Selection -->
+            <div class="glass-card p-8 rounded-xl border border-white/50 shadow-xl">
+                <div class="flex items-center justify-between mb-6">
+                    <h3 class="text-2xl font-black text-slate-900">Accommodation</h3>
+                    <label class="toggle-switch">
+                        <input type="checkbox" class="hotel-toggle" checked onchange="updateTrip()">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="hotel-scroll flex gap-4 pb-2" id="hotels-container">
+                    @foreach($booking->city->hotels as $hotel)
+                        <div class="hotel-card glass-card p-4 rounded-lg border border-white/50 hover:shadow-lg w-56 {{ $booking->hotel_id === $hotel->id ? 'selected' : '' }}"
+                            onclick="selectHotel({{ $hotel->id }})" data-hotel-id="{{ $hotel->id }}" data-hotel-price="{{ $hotel->price_per_night }}">
+                            <div class="w-full h-32 rounded-md overflow-hidden mb-3">
+                                <img src="{{ $hotel->image }}" alt="{{ $hotel->name }}" class="w-full h-full object-cover">
+                            </div>
+                            <h4 class="font-bold text-slate-900 text-sm truncate">{{ $hotel->name }}</h4>
+                            <span class="text-xs text-slate-500">{{ $hotel->getTypeLabel() }}</span>
+                            <p class="text-primary-600 font-black text-lg mt-2">€{{ number_format($hotel->price_per_night) }}/night</p>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+
+            <!-- Places Selection -->
+            <div class="glass-card p-8 rounded-xl border border-white/50 shadow-xl">
+                <h3 class="text-2xl font-black text-slate-900 mb-6">Must-Visit Places</h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="places-grid">
+                    @forelse($booking->city->places->sortBy('min_price') as $place)
+                        <div class="place-card glass-card p-5 rounded-[1.5rem] border border-white/50 hover:shadow-lg transition-all">
+                            <label class="flex items-start gap-4 cursor-pointer">
+                                <input type="checkbox" class="place-checkbox mt-1 w-5 h-5 cursor-pointer"
+                                    data-place-id="{{ $place->id }}"
+                                    data-place-price="{{ $place->min_price }}"
+                                    {{ in_array($place->id, array_filter(explode(',', $booking->selected_place_ids ?? ''))) ? 'checked' : '' }}
+                                    onchange="updateTrip()">
+                                <div class="flex-1 min-w-0">
+                                    <div class="flex items-start justify-between gap-2">
+                                        <div>
+                                            <h4 class="font-bold text-slate-900 text-sm">{{ $place->name }}</h4>
+                                            <p class="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">{{ $place->description }}</p>
+                                        </div>
+                                        <span class="text-primary-600 font-black text-sm whitespace-nowrap">€{{ number_format($place->min_price) }}</span>
+                                    </div>
+                                </div>
+                            </label>
+                        </div>
+                    @empty
+                        <p class="text-slate-400 col-span-2">No places available in this city</p>
+                    @endforelse
+                </div>
+            </div>
+            @endif
+
+            <!-- Display Accommodation Section (after selections or always if paid) -->
+            @if($booking->status !== 'pending')
             <div class="glass-card p-8 rounded-xl flex flex-col sm:flex-row gap-8 items-center border border-white/50 shadow-xl group hover:shadow-2xl transition-all duration-500">
                 <div class="relative w-full sm:w-64 h-44 rounded-lg overflow-hidden shrink-0 shadow-lg">
                     <img src="{{ $booking->hotel->image ?? 'https://images.unsplash.com/photo-1566073171639-3f8b3f5e4c4b' }}" 
@@ -161,7 +291,7 @@
 
                     <div class="mb-10 relative z-10">
                         <div class="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-2">Total Amount</div>
-                        <div class="text-5xl font-black text-slate-900 tracking-tighter">&euro;<span class="count-total" data-target="{{ $booking->total_price }}">0</span></div>
+                        <div class="text-5xl font-black text-slate-900 tracking-tighter">&euro;<span class="count-total" id="total-amount" data-target="{{ $booking->total_price }}">0</span></div>
                         <div class="text-[11px] font-black text-slate-400 mt-4 uppercase tracking-[0.15em] flex items-center gap-2">
                             <span class="material-symbols-outlined text-sm">schedule</span>
                             {{ $booking->duration }} Nights &middot; {{ $booking->passengers }} Travelers
@@ -173,37 +303,54 @@
                         <div>
                             <div class="flex justify-between items-center text-sm mb-3 font-bold">
                                 <span class="text-slate-800">Accommodation</span>
-                                <span class="text-slate-400 italic">&euro;<span class="count-val" data-target="{{ $booking->hotel_budget }}">0</span></span>
+                                <span class="text-slate-400 italic">&euro;<span class="hotel-cost-display" id="hotel-cost" data-target="{{ $booking->hotel_budget }}">0</span></span>
                             </div>
                             <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
                                 @php $hotelPerc = $booking->total_price > 0 ? ($booking->hotel_budget / $booking->total_price) * 100 : 0; @endphp
-                                <div class="h-full bg-indigo-500 rounded-full budget-progress" data-width="{{ $hotelPerc }}%"></div>
+                                <div class="h-full bg-indigo-500 rounded-full budget-progress" id="hotel-bar" data-width="{{ $hotelPerc }}%"></div>
                             </div>
                         </div>
                         <div>
                             <div class="flex justify-between items-center text-sm mb-3 font-bold">
                                 <span class="text-slate-800">Experiences</span>
-                                <span class="text-slate-400 italic">&euro;<span class="count-val" data-target="{{ $booking->activities_budget }}">0</span></span>
+                                <span class="text-slate-400 italic">&euro;<span class="activities-cost-display" id="activities-cost" data-target="{{ $booking->activities_budget }}">0</span></span>
                             </div>
                             <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
                                 @php $actPerc = $booking->total_price > 0 ? ($booking->activities_budget / $booking->total_price) * 100 : 0; @endphp
-                                <div class="h-full bg-primary-500 rounded-full budget-progress" data-width="{{ $actPerc }}%"></div>
+                                <div class="h-full bg-primary-500 rounded-full budget-progress" id="activities-bar" data-width="{{ $actPerc }}%"></div>
                             </div>
                         </div>
                         <div>
                             <div class="flex justify-between items-center text-sm mb-3 font-bold">
                                 <span class="text-slate-800">Miscellaneous</span>
-                                <span class="text-slate-400 italic">&euro;<span class="count-val" data-target="{{ $booking->misc_budget }}">0</span></span>
+                                <span class="text-slate-400 italic">&euro;<span class="misc-cost-display" id="misc-cost" data-target="{{ $booking->misc_budget }}">0</span></span>
                             </div>
                             <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
                                 @php $miscPerc = $booking->total_price > 0 ? ($booking->misc_budget / $booking->total_price) * 100 : 0; @endphp
-                                <div class="h-full bg-slate-400 rounded-full budget-progress" data-width="{{ $miscPerc }}%"></div>
+                                <div class="h-full bg-slate-400 rounded-full budget-progress" id="misc-bar" data-width="{{ $miscPerc }}%"></div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Actions -->
                     <div class="relative z-10 space-y-4">
+                        @if($booking->status === 'pending')
+                            <form id="selections-form" action="{{ route('bookings.update', $booking->id) }}" method="POST" class="space-y-4">
+                                @csrf
+                                @method('PUT')
+                                <input type="hidden" name="hotel_id" id="form-hotel-id" value="{{ $booking->hotel_id }}">
+                                <input type="hidden" name="include_hotel" id="form-include-hotel" value="1">
+                                <input type="hidden" name="selected_place_ids" id="form-selected-places" value="{{ $booking->selected_place_ids }}">
+
+                                <button type="submit" class="w-full py-5 bg-gradient-primary text-white font-black text-lg rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3 active:scale-95 group relative overflow-hidden">
+                                    <div class="absolute inset-0 bg-primary-700 opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                                    <span class="relative z-10 flex items-center justify-center gap-3">
+                                        Save Selections <span class="material-symbols-outlined">save</span>
+                                    </span>
+                                </button>
+                            </form>
+                        @endif
+
                         <a href="{{ route('bookings.plan', $booking->id) }}" class="w-full py-5 bg-primary-600 text-white font-black text-lg rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3 active:scale-95 group relative overflow-hidden">
                             <div class="absolute inset-0 bg-primary-700 opacity-0 group-hover:opacity-10 transition-opacity"></div>
                             <span class="relative z-10 flex items-center justify-center gap-3">
@@ -245,30 +392,86 @@
 </div>
 
 <script>
+    const budgetTotal = {{ $booking->budget_total }};
+    const duration = {{ $booking->duration }};
+    const passengers = {{ $booking->passengers }};
+
+    function selectHotel(hotelId) {
+        const container = document.getElementById('hotels-container');
+        container.querySelectorAll('.hotel-card').forEach(card => {
+            card.classList.remove('selected');
+        });
+        event.currentTarget.classList.add('selected');
+        document.getElementById('form-hotel-id').value = hotelId;
+        updateTrip();
+    }
+
+    function updateTrip() {
+        const includeHotelCheckbox = document.querySelector('.hotel-toggle');
+        const includeHotel = includeHotelCheckbox ? includeHotelCheckbox.checked : true;
+
+        // Get selected hotel
+        const selectedHotelCard = document.querySelector('#hotels-container .hotel-card.selected');
+        const hotelPricePerNight = selectedHotelCard ? parseFloat(selectedHotelCard.dataset.hotelPrice) : 0;
+
+        // Get selected places
+        const selectedPlaces = Array.from(document.querySelectorAll('.place-checkbox:checked'));
+        const selectedPlaceIds = selectedPlaces.map(p => p.dataset.placeId).join(',');
+        const placesCost = selectedPlaces.reduce((sum, p) => sum + (parseFloat(p.dataset.placePrice) * passengers), 0);
+
+        // Calculate budgets
+        const hotelCost = includeHotel ? (hotelPricePerNight * duration * passengers) : 0;
+        const remaining = budgetTotal - hotelCost;
+        const flightBudget = remaining * 0.30;
+        const miscBudget = remaining * 0.20;
+        const activitiesBudget = remaining * 0.50;
+
+        // Update form values
+        document.getElementById('form-include-hotel').value = includeHotel ? '1' : '0';
+        document.getElementById('form-selected-places').value = selectedPlaceIds;
+
+        // Update display values with animation
+        animateNumber(document.getElementById('total-amount'), budgetTotal);
+        animateNumber(document.getElementById('hotel-cost'), Math.round(hotelCost));
+        animateNumber(document.getElementById('activities-cost'), Math.round(activitiesBudget));
+        animateNumber(document.getElementById('misc-cost'), Math.round(miscBudget));
+
+        // Update progress bars
+        const totalForPerc = budgetTotal > 0 ? budgetTotal : 1;
+        document.getElementById('hotel-bar').style.width = ((hotelCost / totalForPerc) * 100) + '%';
+        document.getElementById('activities-bar').style.width = ((activitiesBudget / totalForPerc) * 100) + '%';
+        document.getElementById('misc-bar').style.width = ((miscBudget / totalForPerc) * 100) + '%';
+    }
+
+    function animateNumber(el, target) {
+        if (!el) return;
+
+        let current = 0;
+        const duration = 600;
+        const startTime = performance.now();
+
+        function update(currentTime) {
+            const elapsed = currentTime - startTime;
+            const progress = Math.min(elapsed / duration, 1);
+            const easedProgress = 1 - Math.pow(1 - progress, 3);
+            const value = Math.floor(easedProgress * target);
+
+            el.textContent = value.toLocaleString();
+
+            if (progress < 1) {
+                requestAnimationFrame(update);
+            } else {
+                el.textContent = target.toLocaleString();
+            }
+        }
+        requestAnimationFrame(update);
+    }
+
     function animateNumbers() {
-        document.querySelectorAll('.count-total, .count-val').forEach(el => {
+        document.querySelectorAll('[data-target]').forEach(el => {
             const target = parseInt(el.getAttribute('data-target'));
             if (isNaN(target)) return;
-            
-            let current = 0;
-            const duration = 1500;
-            const startTime = performance.now();
-            
-            function update(currentTime) {
-                const elapsed = currentTime - startTime;
-                const progress = Math.min(elapsed / duration, 1);
-                const easedProgress = 1 - Math.pow(1 - progress, 3);
-                const value = Math.floor(easedProgress * target);
-                
-                el.textContent = value.toLocaleString();
-                
-                if (progress < 1) {
-                    requestAnimationFrame(update);
-                } else {
-                    el.textContent = target.toLocaleString();
-                }
-            }
-            requestAnimationFrame(update);
+            animateNumber(el, target);
         });
     }
 
@@ -282,9 +485,36 @@
         });
     }
 
+    // Handle form submission for selections
+    document.getElementById('selections-form')?.addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+        fetch('{{ route("bookings.update", $booking->id) }}', {
+            method: 'PUT',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest',
+                'Accept': 'application/json',
+            },
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Show success message and update display
+                alert('Selections saved successfully!');
+                location.reload();
+            }
+        })
+        .catch(error => console.error('Error:', error));
+    });
+
     document.addEventListener('DOMContentLoaded', () => {
         animateNumbers();
         animateProgress();
+        @if($booking->status === 'pending')
+            updateTrip();
+        @endif
     });
 </script>
 @endsection
