@@ -182,6 +182,7 @@
         }
     </style>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
+    @stack('styles')
 </head>
 <body class="antialiased min-h-screen flex flex-col font-sans bg-gray-50 text-gray-900">
     <!-- Navbar -->
@@ -319,5 +320,6 @@
             scrollObserver.observe(el);
         });
     </script>
+    @stack('scripts')
 </body>
 </html>
