@@ -538,7 +538,14 @@
                     <!-- Actions -->
                     <div class="relative z-10 space-y-4">
                         @if($booking->status === 'pending')
-                            <form id="selections-form" action="{{ route('bookings.update', $booking->id) }}" method="POST" class="space-y-4">
+                            <div class="flex items-center justify-between px-2 mb-2">
+                                <div id="save-status" class="text-[10px] font-black uppercase tracking-widest text-slate-400 flex items-center gap-2">
+                                    <span class="material-symbols-outlined text-xs">check_circle</span>
+                                    Selections Saved
+                                </div>
+                            </div>
+
+                            <form id="selections-form" action="{{ route('bookings.update', $booking->id) }}" method="POST" class="hidden">
                                 @csrf
                                 @method('PUT')
                                 <input type="hidden" name="hotel_id" id="form-hotel-id" value="{{ $booking->hotel_id }}">
@@ -548,13 +555,6 @@
                                 <input type="hidden" name="flight_duration" id="form-flight-duration" value="{{ $booking->flight_duration }}">
                                 <input type="hidden" name="flight_class" id="form-flight-class" value="{{ $booking->flight_class }}">
                                 <input type="hidden" name="flight_price" id="form-flight-price" value="{{ $booking->flight_price }}">
-
-                                <button type="submit" class="w-full py-5 bg-gradient-primary text-white font-black text-lg rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3 active:scale-95 group relative overflow-hidden">
-                                    <div class="absolute inset-0 bg-primary-700 opacity-0 group-hover:opacity-10 transition-opacity"></div>
-                                    <span class="relative z-10 flex items-center justify-center gap-3">
-                                        Save Selections <span class="material-symbols-outlined">save</span>
-                                    </span>
-                                </button>
                             </form>
                         @endif
 
@@ -742,6 +742,47 @@
             container.classList.remove('budget-over');
             warning.classList.add('hidden');
         }
+
+        // Trigger Auto-Save
+        autoSave();
+    }
+
+    let saveTimeout;
+    function autoSave() {
+        const status = document.getElementById('save-status');
+        if (!status) return;
+
+        status.innerHTML = `<span class="material-symbols-outlined text-xs animate-spin">sync</span> Saving...`;
+        status.classList.remove('text-emerald-500');
+        status.classList.add('text-slate-400');
+
+        clearTimeout(saveTimeout);
+        saveTimeout = setTimeout(() => {
+            const form = document.getElementById('selections-form');
+            const formData = new FormData(form);
+
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                },
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    status.innerHTML = `<span class="material-symbols-outlined text-xs">check_circle</span> Selections Saved`;
+                    status.classList.remove('text-slate-400');
+                    status.classList.add('text-emerald-500');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                status.innerHTML = `<span class="material-symbols-outlined text-xs">error</span> Error Saving`;
+                status.classList.add('text-red-500');
+            });
+        }, 800); // Debounce for 800ms
     }
 
     function toggleBudgetIncrease(show) {
@@ -799,19 +840,7 @@
         requestAnimationFrame(update);
     }
 
-    document.getElementById('selections-form')?.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const formData = new FormData(this);
-        fetch('{{ route("bookings.update", $booking->id) }}', {
-            method: 'PUT',
-            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
-            body: formData
-        })
-        .then(response => response.json())
-        .then(data => { if (data.success) { alert('Selections saved successfully!'); location.reload(); } })
-        .catch(error => console.error('Error:', error));
-    });
-
+    // Remove redundant submit listener
     document.addEventListener('DOMContentLoaded', () => {
         updateTrip();
     });
