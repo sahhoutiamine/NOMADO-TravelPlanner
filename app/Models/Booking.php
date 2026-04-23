@@ -14,6 +14,7 @@ class Booking extends Model
         'budget_total', 'duration', 'passengers',
         'flight_budget', 'hotel_budget', 'activities_budget', 'misc_budget',
         'total_price', 'status', 'selected_place_ids', 'include_hotel',
+        'flight_airline', 'flight_class', 'flight_price', 'flight_duration',
     ];
 
     public function user()
