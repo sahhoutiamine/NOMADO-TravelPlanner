@@ -23,22 +23,29 @@ class MyBookingsController extends Controller
         $durationMinutes = $flightDurationData['minutes_total'];
         $durationStr = $flightDurationData['duration_str'];
         
-        // Mock airlines with real duration-based pricing
-        $airlines = ['Air Nomado', 'SkyLink Express', 'Global Jet', 'TravelAir'];
+        // Real airlines with realistic duration-based pricing
+        $airlineNames = ['Emirates', 'Qatar Airways', 'Lufthansa', 'Air France', 'British Airways'];
         $flights = [];
         
-        foreach($airlines as $index => $airline) {
-            // Base price: ~0.50 EUR per minute of flight (can vary slightly per airline)
-            $basePrice = $durationMinutes * (0.45 + ($index * 0.05));
+        $startCity = $booking->departureCity->name ?? 'Home';
+        $endCity = $booking->city->name;
+
+        foreach($airlineNames as $index => $airline) {
+            // Realistic pricing: ~0.85 EUR per minute + fixed base fee
+            // Short haul (2h) -> ~150-200 EUR
+            // Long haul (10h) -> ~600-800 EUR
+            $basePrice = (100 + ($durationMinutes * 0.85)) * (1 + ($index * 0.05));
             
             $flights[] = [
                 'airline' => $airline,
                 'duration' => $durationStr,
+                'start_city' => $startCity,
+                'end_city' => $endCity,
                 'base_price' => round($basePrice, 2),
                 'classes' => [
                     'economy' => ['label' => 'Economy', 'multiplier' => 0.8, 'price' => round($basePrice * 0.8, 2)],
                     'business' => ['label' => 'Business', 'multiplier' => 1.6, 'price' => round($basePrice * 1.6, 2)],
-                    'first' => ['label' => 'First Class', 'multiplier' => 1.2, 'price' => round($basePrice * 1.2, 2)],
+                    'first' => ['label' => 'First Class', 'multiplier' => 2.4, 'price' => round($basePrice * 2.4, 2)],
                 ]
             ];
         }
