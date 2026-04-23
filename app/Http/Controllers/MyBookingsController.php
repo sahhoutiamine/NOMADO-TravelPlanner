@@ -100,56 +100,65 @@ class MyBookingsController extends Controller
 
     public function update(Request $request, $id)
     {
-        $booking = Booking::where('user_id', auth()->id())->findOrFail($id);
+        try {
+            $booking = Booking::where('user_id', auth()->id())->findOrFail($id);
 
-        if ($booking->status !== 'pending') {
-            return response()->json(['error' => 'Cannot modify paid bookings'], 403);
-        }
+            if ($booking->status !== 'pending') {
+                return response()->json(['success' => false, 'error' => 'Cannot modify paid bookings'], 403);
+            }
 
-        $request->validate([
-            'hotel_id' => 'required|exists:hotels,id',
-            'include_hotel' => 'nullable|boolean',
-            'selected_place_ids' => 'nullable|string',
-            'airline' => 'nullable|string',
-            'flight_duration' => 'nullable|string',
-            'flight_class' => 'nullable|string',
-            'flight_price' => 'nullable|numeric',
-        ]);
+            $request->validate([
+                'hotel_id' => 'nullable|exists:hotels,id',
+                'include_hotel' => 'nullable|boolean',
+                'selected_place_ids' => 'nullable|string',
+                'airline' => 'nullable|string',
+                'flight_duration' => 'nullable|string',
+                'flight_class' => 'nullable|string',
+                'flight_price' => 'nullable|numeric',
+                'budget_total' => 'nullable|numeric',
+            ]);
 
-        // Recalculate budgets based on selections
-        $hotel = Hotel::findOrFail($request->hotel_id);
-        $hotelCost = $request->include_hotel
-            ? ($hotel->price_per_night * $booking->duration * $booking->passengers)
-            : 0;
+            if ($request->budget_total && $request->budget_total > $booking->budget_total) {
+                $booking->budget_total = $request->budget_total;
+            }
 
-        $flightCost = ($request->flight_price ?? 0) * $booking->passengers;
+            // Recalculate budgets based on selections
+            $hotelCost = 0;
+            if ($request->hotel_id && ($request->include_hotel ?? true)) {
+                $hotel = Hotel::find($request->hotel_id);
+                if ($hotel) {
+                    $hotelCost = $hotel->price_per_night * $booking->duration * $booking->passengers;
+                }
+            }
 
-        $placeIds = array_filter(explode(',', $request->selected_place_ids ?? ''));
-        $places = Place::whereIn('id', $placeIds)->get();
-        $placesCost = $places->sum(fn($p) => $p->min_price * $booking->passengers);
+            $flightCost = ($request->flight_price ?? 0) * $booking->passengers;
 
-        $remaining = $booking->budget_total - $hotelCost - $flightCost;
-        
-        // Simple budget redistribution
-        $miscBudget = $remaining * 0.20;
-        $activitiesBudget = $remaining * 0.80;
+            $placeIds = array_filter(explode(',', $request->selected_place_ids ?? ''));
+            $places = Place::whereIn('id', $placeIds)->get();
+            $placesCost = $places->sum(fn($p) => $p->min_price * $booking->passengers);
 
-        // Update booking
-        $booking->update([
-            'hotel_id' => $request->hotel_id,
-            'include_hotel' => $request->include_hotel ?? true,
-            'selected_place_ids' => $request->selected_place_ids,
-            'flight_airline' => $request->airline,
-            'flight_duration' => $request->flight_duration,
-            'flight_class' => $request->flight_class,
-            'flight_price' => $request->flight_price,
-            'hotel_budget' => $hotelCost,
-            'flight_budget' => $flightCost,
-            'activities_budget' => $activitiesBudget,
-            'misc_budget' => $miscBudget,
-        ]);
+            $remaining = $booking->budget_total - $hotelCost - $flightCost;
+            
+            // Simple budget redistribution
+            $miscBudget = $remaining * 0.20;
+            $activitiesBudget = $remaining * 0.80;
 
-        if ($request->expectsJson()) {
+            // Update booking
+            $booking->update([
+                'budget_total' => $booking->budget_total,
+                'hotel_id' => $request->hotel_id,
+                'include_hotel' => $request->include_hotel ?? true,
+                'selected_place_ids' => $request->selected_place_ids,
+                'flight_airline' => $request->airline,
+                'flight_duration' => $request->flight_duration,
+                'flight_class' => $request->flight_class,
+                'flight_price' => $request->flight_price,
+                'hotel_budget' => $hotelCost,
+                'flight_budget' => $flightCost,
+                'activities_budget' => $activitiesBudget,
+                'misc_budget' => $miscBudget,
+            ]);
+
             return response()->json([
                 'success' => true,
                 'hotel_cost' => round($hotelCost),
@@ -158,9 +167,12 @@ class MyBookingsController extends Controller
                 'misc_budget' => round($miscBudget),
                 'activities_budget' => round($activitiesBudget),
             ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => $e->getMessage()
+            ], 500);
         }
-
-        return redirect()->route('bookings.show', $booking->id)->with('success', 'Journey updated!');
     }
 
     public function pay($id)
