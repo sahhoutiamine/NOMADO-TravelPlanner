@@ -555,6 +555,7 @@
                                 <input type="hidden" name="flight_duration" id="form-flight-duration" value="{{ $booking->flight_duration }}">
                                 <input type="hidden" name="flight_class" id="form-flight-class" value="{{ $booking->flight_class }}">
                                 <input type="hidden" name="flight_price" id="form-flight-price" value="{{ $booking->flight_price }}">
+                                <input type="hidden" name="budget_total" id="form-budget-total" value="{{ $booking->budget_total }}">
                             </form>
                         @endif
 
@@ -766,20 +767,24 @@
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
                     'Accept': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
                 },
                 body: formData
             })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
+            .then(async response => {
+                const data = await response.json();
+                if (response.ok && data.success) {
                     status.innerHTML = `<span class="material-symbols-outlined text-xs">check_circle</span> Selections Saved`;
                     status.classList.remove('text-slate-400');
                     status.classList.add('text-emerald-500');
+                } else {
+                    throw new Error(data.error || 'Validation Error');
                 }
             })
             .catch(error => {
-                console.error('Error:', error);
-                status.innerHTML = `<span class="material-symbols-outlined text-xs">error</span> Error Saving`;
+                console.error('Save Error:', error);
+                status.innerHTML = `<span class="material-symbols-outlined text-xs">error</span> ${error.message || 'Save Failed'}`;
+                status.classList.remove('text-slate-400');
                 status.classList.add('text-red-500');
             });
         }, 800); // Debounce for 800ms
@@ -808,6 +813,7 @@
         if (extra && !isNaN(extra) && extra > 0) {
             budgetLimit += extra;
             document.getElementById('budget-limit-display').textContent = Math.round(budgetLimit).toLocaleString();
+            document.getElementById('form-budget-total').value = budgetLimit; // Update hidden form
             updateTrip();
             toggleBudgetIncrease(false);
             
