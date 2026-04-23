@@ -23,18 +23,6 @@
             box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
         }
 
-        @keyframes countUp {
-            from {
-                transform: translateY(20px);
-                opacity: 0;
-            }
-
-            to {
-                transform: translateY(0);
-                opacity: 1;
-            }
-        }
-
         @keyframes slideRight {
             from {
                 transform: translateX(-30px);
@@ -67,15 +55,114 @@
             animation: slideLeft 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
 
-        .gradient-text {
-            background: linear-gradient(to right, #0284c7, #6366f1);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
         .budget-progress {
             width: 0;
             transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .place-checkbox {
+            cursor: pointer;
+        }
+
+        .place-card {
+            transition: all 0.3s ease;
+        }
+
+        .place-card label {
+            cursor: pointer;
+        }
+
+        .warning-box {
+            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(10px);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .hotel-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+        }
+
+        .hotel-scroll::-webkit-scrollbar {
+            height: 6px;
+        }
+
+        .hotel-scroll::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 3px;
+        }
+
+        .hotel-scroll::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+
+        .hotel-card {
+            flex-shrink: 0;
+            min-w-max;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .hotel-card.selected {
+            ring: 2px;
+            ring-color: #0284c7;
+            box-shadow: 0 0 0 2px white, 0 0 0 4px #0284c7;
+        }
+
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #0284c7;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
         }
     </style>
 
@@ -96,8 +183,8 @@
                 </a>
                 <h1 class="text-5xl md:text-6xl font-black tracking-tighter mb-2 text-slate-900">Your Perfect <span
                         class="text-gradient">Journey</span></h1>
-                <p class="text-slate-500 text-lg font-medium">We've crafted 3 incredible options for your
-                    &euro;{{ number_format($budgetTotal ?? 2000) }} budget.</p>
+                <p class="text-slate-500 text-lg font-medium">Choose from 3 incredible options for your
+                    €{{ number_format($budgetTotal ?? 2000) }} budget.</p>
             </div>
             <!-- Trip Toggles -->
             <div class="flex bg-white p-1.5 rounded-lg border border-slate-200 shadow-sm relative z-10 animate-slide-left">
@@ -150,21 +237,7 @@
                                 See More <span class="material-symbols-outlined text-sm transition-transform">expand_more</span>
                             </button>
                         </div>
-                        
-                        <script>
-                            if (typeof toggleExperience !== 'function') {
-                                function toggleExperience(id, btn) {
-                                    const el = document.getElementById(id);
-                                    if (el.classList.contains('line-clamp-2')) {
-                                        el.classList.remove('line-clamp-2');
-                                        btn.innerHTML = `See Less <span class="material-symbols-outlined text-sm rotate-180">expand_more</span>`;
-                                    } else {
-                                        el.classList.add('line-clamp-2');
-                                        btn.innerHTML = `See More <span class="material-symbols-outlined text-sm">expand_more</span>`;
-                                    }
-                                }
-                            }
-                        </script>
+
                         <div class="flex flex-wrap gap-2 mt-6">
                             @foreach($trip['city']->places->take(5) as $place)
                                 <span
@@ -175,22 +248,57 @@
                         </div>
                     </div>
 
-                    <!-- Hotel Mini-card -->
-                    <div
-                        class="glass-card p-8 rounded-xl flex flex-col sm:flex-row gap-8 items-center border border-white/50 shadow-xl group hover:shadow-2xl transition-all duration-500">
-                        <div class="relative w-full sm:w-64 h-44 rounded-lg overflow-hidden shrink-0 shadow-lg">
-                            <img src="{{ $trip['hotel']->image ?? 'https://images.unsplash.com/photo-1566073171639-3f8b3f5e4c4b?q=80&w=600&auto=format&fit=crop' }}"
-                                alt="{{ $trip['hotel']->name }}"
-                                class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    <!-- Hotel Selection -->
+                    <div class="glass-card p-8 rounded-xl border border-white/50 shadow-xl">
+                        <div class="flex items-center justify-between mb-6">
+                            <h3 class="text-2xl font-black text-slate-900">Accommodation</h3>
+                            <label class="toggle-switch">
+                                <input type="checkbox" class="hotel-toggle" data-trip="{{ $index }}" checked onchange="updateTrip({{ $index }})">
+                                <span class="toggle-slider"></span>
+                            </label>
                         </div>
-                        <div class="flex-1 text-center sm:text-left">
-                            <h4 class="text-2xl font-black text-slate-900 mb-1 tracking-tight">{{ $trip['hotel']->name }}</h4>
-                            <p class="text-slate-400 font-bold text-sm mb-6 uppercase tracking-widest italic">Luxury Stay
-                                &middot; {{ $trip['city']->name }}</p>
-                            <a class="inline-flex items-center gap-2 text-primary-600 font-black text-sm hover:text-primary-700 transition-all hover:translate-x-1"
-                                href="{{ route('hotels.show', $trip['hotel']->id) }}">
-                                View Details <span class="material-symbols-outlined text-sm">arrow_forward</span>
-                            </a>
+
+                        <div class="hotel-scroll flex gap-4 pb-2" id="hotels-container-{{ $index }}">
+                            @foreach($trip['city']->hotels as $hotel)
+                                <div class="hotel-card glass-card p-4 rounded-lg border border-white/50 hover:shadow-lg w-56 {{ $loop->first ? 'selected' : '' }}"
+                                    onclick="selectHotel({{ $index }}, {{ $hotel->id }})" data-hotel-id="{{ $hotel->id }}" data-hotel-price="{{ $hotel->price_per_night }}">
+                                    <div class="w-full h-32 rounded-md overflow-hidden mb-3">
+                                        <img src="{{ $hotel->image }}" alt="{{ $hotel->name }}" class="w-full h-full object-cover">
+                                    </div>
+                                    <h4 class="font-bold text-slate-900 text-sm truncate">{{ $hotel->name }}</h4>
+                                    <span class="text-xs text-slate-500">{{ $hotel->getTypeLabel() }}</span>
+                                    <p class="text-primary-600 font-black text-lg mt-2">€{{ number_format($hotel->price_per_night) }}/night</p>
+                                </div>
+                            @endforeach
+                        </div>
+                    </div>
+
+                    <!-- Places Selection -->
+                    <div class="glass-card p-8 rounded-xl border border-white/50 shadow-xl">
+                        <h3 class="text-2xl font-black text-slate-900 mb-6">Must-Visit Places</h3>
+                        <div id="places-warning-{{ $index }}" class="mb-6"></div>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="places-grid-{{ $index }}">
+                            @forelse($trip['city']->places->sortBy('min_price') as $place)
+                                <div class="place-card glass-card p-5 rounded-[1.5rem] border border-white/50 hover:shadow-lg transition-all">
+                                    <label class="flex items-start gap-4 cursor-pointer">
+                                        <input type="checkbox" class="place-checkbox mt-1 w-5 h-5 cursor-pointer"
+                                            data-trip="{{ $index }}" data-place-id="{{ $place->id }}"
+                                            data-place-price="{{ $place->min_price }}"
+                                            onchange="updateTrip({{ $index }})">
+                                        <div class="flex-1 min-w-0">
+                                            <div class="flex items-start justify-between gap-2">
+                                                <div>
+                                                    <h4 class="font-bold text-slate-900 text-sm">{{ $place->name }}</h4>
+                                                    <p class="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">{{ $place->description }}</p>
+                                                </div>
+                                                <span class="text-primary-600 font-black text-sm whitespace-nowrap">€{{ number_format($place->min_price) }}</span>
+                                            </div>
+                                        </div>
+                                    </label>
+                                </div>
+                            @empty
+                                <p class="text-slate-400 col-span-2">No places available in this city</p>
+                            @endforelse
                         </div>
                     </div>
                 </div>
@@ -216,76 +324,78 @@
                             </div>
 
                             <div class="mb-10 relative z-10">
-                                <div class="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-2">Total Estimated
-                                    Cost</div>
-                                <div class="text-5xl font-black text-slate-900 tracking-tighter">&euro;<span class="count-total"
+                                <div class="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-2">Total Budget</div>
+                                <div class="text-5xl font-black text-slate-900 tracking-tighter">€<span class="count-total-{{ $index }}"
                                         data-target="{{ $trip['total_price'] }}">0</span></div>
-                                @php $under = ($budgetTotal ?? 2000) - $trip['total_price']; @endphp
-                                @if($under > 0)
-                                    <div
-                                        class="text-[11px] font-black text-emerald-500 mt-4 flex items-center gap-2 uppercase tracking-widest bg-emerald-50 w-fit px-3 py-1 rounded-lg">
-                                        <span class="material-symbols-outlined text-[14px]">check_circle</span>
-                                        &euro;<span class="count-under" data-target="{{ $under }}">0</span> under budget
-                                    </div>
-                                @endif
                             </div>
 
                             <!-- Progress Bars -->
                             <div class="space-y-7 mb-12 relative z-10">
                                 <!-- Hotel -->
-                                <div>
+                                <div class="hotel-bar-{{ $index }}">
                                     <div class="flex justify-between items-center text-sm mb-3">
                                         <span class="font-bold text-slate-800">Accommodation</span>
-                                        <span
-                                            class="text-slate-400 font-bold italic">&euro;{{ number_format($trip['hotel_budget']) }}</span>
+                                        <span class="text-slate-400 font-bold italic">€<span class="hotel-cost-display-{{ $index }}">{{ number_format($trip['hotel']->price_per_night * $trip['duration'] * $trip['passengers']) }}</span></span>
                                     </div>
                                     <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                                        @php $hotelPerc = ($trip['hotel_budget'] / $trip['total_price']) * 100; @endphp
-                                        <div class="h-full bg-indigo-500 rounded-full budget-progress"
-                                            data-width="{{ $hotelPerc }}%"></div>
+                                        <div class="h-full bg-indigo-500 rounded-full budget-progress-{{ $index }}"
+                                            data-width="{{ ($trip['hotel_budget'] / $trip['total_price']) * 100 }}%"></div>
                                     </div>
                                 </div>
-                                <!-- Activities -->
+
+                                <!-- Places/Activities -->
                                 <div>
                                     <div class="flex justify-between items-center text-sm mb-3">
-                                        <span class="font-bold text-slate-800">Activities</span>
-                                        <span
-                                            class="text-slate-400 font-bold italic">&euro;{{ number_format($trip['activities_budget']) }}</span>
+                                        <span class="font-bold text-slate-800">Places & Activities</span>
+                                        <span class="text-slate-400 font-bold italic">€<span class="places-cost-display-{{ $index }}">0</span></span>
                                     </div>
                                     <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                                        @php $actPerc = ($trip['activities_budget'] / $trip['total_price']) * 100; @endphp
-                                        <div class="h-full bg-primary-500 rounded-full budget-progress"
-                                            data-width="{{ $actPerc }}%"></div>
+                                        <div class="h-full bg-emerald-500 rounded-full budget-progress-places-{{ $index }}"
+                                            style="width: 0%"></div>
                                     </div>
                                 </div>
-                                <!-- Misc -->
+
+                                <!-- Flights -->
+                                <div>
+                                    <div class="flex justify-between items-center text-sm mb-3">
+                                        <span class="font-bold text-slate-800">Flights</span>
+                                        <span class="text-slate-400 font-bold italic">€<span class="flight-cost-display-{{ $index }}">{{ number_format($trip['flight_budget']) }}</span></span>
+                                    </div>
+                                    <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-sky-500 rounded-full budget-progress-flight-{{ $index }}"
+                                            data-width="{{ ($trip['flight_budget'] / $trip['total_price']) * 100 }}%"></div>
+                                    </div>
+                                </div>
+
+                                <!-- Miscellaneous -->
                                 <div>
                                     <div class="flex justify-between items-center text-sm mb-3">
                                         <span class="font-bold text-slate-800">Miscellaneous</span>
-                                        <span
-                                            class="text-slate-400 font-bold italic">&euro;{{ number_format($trip['misc_budget']) }}</span>
+                                        <span class="text-slate-400 font-bold italic">€<span class="misc-cost-display-{{ $index }}">{{ number_format($trip['misc_budget']) }}</span></span>
                                     </div>
                                     <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                                        @php $miscPerc = ($trip['misc_budget'] / $trip['total_price']) * 100; @endphp
-                                        <div class="h-full bg-slate-400 rounded-full budget-progress"
-                                            data-width="{{ $miscPerc }}%"></div>
+                                        <div class="h-full bg-slate-400 rounded-full budget-progress-misc-{{ $index }}"
+                                            data-width="{{ ($trip['misc_budget'] / $trip['total_price']) * 100 }}%"></div>
                                     </div>
                                 </div>
                             </div>
 
-                            <form action="{{ route('trip.confirm') }}" method="POST">
+                            <form action="{{ route('trip.confirm') }}" method="POST" id="confirm-form-{{ $index }}">
                                 @csrf
-                                <input type="hidden" name="city_id" value="{{ $trip['city']->id }}">
-                                <input type="hidden" name="hotel_id" value="{{ $trip['hotel']->id }}">
-                                <input type="hidden" name="duration" value="{{ $trip['duration'] }}">
-                                <input type="hidden" name="passengers" value="{{ $trip['passengers'] }}">
-                                <input type="hidden" name="budget_total" value="{{ $trip['budget_total'] }}">
-                                <input type="hidden" name="flight_budget" value="{{ $trip['flight_budget'] }}">
-                                <input type="hidden" name="hotel_budget" value="{{ $trip['hotel_budget'] }}">
-                                <input type="hidden" name="activities_budget" value="{{ $trip['activities_budget'] }}">
-                                <input type="hidden" name="misc_budget" value="{{ $trip['misc_budget'] }}">
-                                <input type="hidden" name="total_price" value="{{ $trip['total_price'] }}">
-                                <input type="hidden" name="trip_type" value="{{ $trip['trip_type'] }}">
+                                <input type="hidden" name="city_id" value="{{ $trip['city']->id }}" class="city-id-{{ $index }}">
+                                <input type="hidden" name="hotel_id" value="{{ $trip['hotel']->id }}" class="hotel-id-{{ $index }}">
+                                <input type="hidden" name="duration" value="{{ $trip['duration'] }}" class="duration-{{ $index }}">
+                                <input type="hidden" name="passengers" value="{{ $trip['passengers'] }}" class="passengers-{{ $index }}">
+                                <input type="hidden" name="budget_total" value="{{ $trip['budget_total'] }}" class="budget-total-{{ $index }}">
+                                <input type="hidden" name="hotel_budget" value="{{ $trip['hotel_budget'] }}" class="hotel-budget-{{ $index }}">
+                                <input type="hidden" name="flight_budget" value="{{ $trip['flight_budget'] }}" class="flight-budget-{{ $index }}">
+                                <input type="hidden" name="activities_budget" value="0" class="activities-budget-{{ $index }}">
+                                <input type="hidden" name="misc_budget" value="{{ $trip['misc_budget'] }}" class="misc-budget-{{ $index }}">
+                                <input type="hidden" name="total_price" value="{{ $trip['total_price'] }}" class="total-price-{{ $index }}">
+                                <input type="hidden" name="trip_type" value="{{ $trip['trip_type'] }}" class="trip-type-{{ $index }}">
+                                <input type="hidden" name="departure_city_id" value="{{ $departure_city_id }}" class="departure-city-id-{{ $index }}">
+                                <input type="hidden" name="selected_place_ids" value="" class="selected-place-ids-{{ $index }}">
+                                <input type="hidden" name="include_hotel" value="1" class="include-hotel-{{ $index }}">
 
                                 <button type="submit"
                                     class="w-full py-5 bg-slate-950 text-white font-black text-xl rounded-lg shadow-lg hover:shadow-xl transition-all relative overflow-hidden group">
@@ -325,53 +435,149 @@
             activeBtn.classList.add('active');
             activeBtn.classList.remove('text-slate-500', 'hover:text-slate-900');
 
-            animateProgress(selectedTrip);
-            animateNumbers(selectedTrip);
+            animateProgress(index);
+            animateNumbers(index);
         }
 
-        function animateNumbers(container) {
-            container.querySelectorAll('.count-total, .count-under').forEach(el => {
+        function selectHotel(tripIndex, hotelId) {
+            const container = document.getElementById(`hotels-container-${tripIndex}`);
+            container.querySelectorAll('.hotel-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            event.currentTarget.classList.add('selected');
+
+            document.querySelector(`.hotel-id-${tripIndex}`).value = hotelId;
+            updateTrip(tripIndex);
+        }
+
+        function updateTrip(tripIndex) {
+            const budgetTotal = parseFloat(document.querySelector(`.budget-total-${tripIndex}`).value);
+            const duration = parseInt(document.querySelector(`.duration-${tripIndex}`).value);
+            const passengers = parseInt(document.querySelector(`.passengers-${tripIndex}`).value);
+            const includeHotelCheckbox = document.querySelector(`.hotel-toggle[data-trip="${tripIndex}"]`);
+            const includeHotel = includeHotelCheckbox.checked ? 1 : 0;
+
+            // Get selected hotel
+            const selectedHotelCard = document.querySelector(`#hotels-container-${tripIndex} .hotel-card.selected`);
+            const hotelPricePerNight = selectedHotelCard ? parseFloat(selectedHotelCard.dataset.hotelPrice) : 0;
+
+            // Get selected places
+            const selectedPlaces = Array.from(document.querySelectorAll(`.place-checkbox[data-trip="${tripIndex}"]:checked`));
+            const selectedPlaceIds = selectedPlaces.map(p => p.dataset.placeId).join(',');
+            const placesCost = selectedPlaces.reduce((sum, p) => sum + (parseFloat(p.dataset.placePrice) * passengers), 0);
+
+            // Calculate budgets
+            const hotelCost = includeHotel ? (hotelPricePerNight * duration * passengers) : 0;
+            const remaining = budgetTotal - hotelCost;
+            const flightBudget = remaining * 0.30;
+            const miscBudget = remaining * 0.20;
+            const activitiesBudget = remaining * 0.50;
+
+            // Update form values
+            document.querySelector(`.selected-place-ids-${tripIndex}`).value = selectedPlaceIds;
+            document.querySelector(`.include-hotel-${tripIndex}`).value = includeHotel;
+            document.querySelector(`.hotel-budget-${tripIndex}`).value = hotelCost.toFixed(2);
+            document.querySelector(`.flight-budget-${tripIndex}`).value = flightBudget.toFixed(2);
+            document.querySelector(`.activities-budget-${tripIndex}`).value = activitiesBudget.toFixed(2);
+            document.querySelector(`.misc-budget-${tripIndex}`).value = miscBudget.toFixed(2);
+
+            // Update display values with animation
+            animateNumber(document.querySelector(`.count-total-${tripIndex}`), Math.round(budgetTotal));
+            animateNumber(document.querySelector(`.hotel-cost-display-${tripIndex}`), Math.round(hotelCost));
+            animateNumber(document.querySelector(`.places-cost-display-${tripIndex}`), Math.round(placesCost));
+            animateNumber(document.querySelector(`.flight-cost-display-${tripIndex}`), Math.round(flightBudget));
+            animateNumber(document.querySelector(`.misc-cost-display-${tripIndex}`), Math.round(miscBudget));
+
+            // Update progress bars
+            const totalForPerc = budgetTotal > 0 ? budgetTotal : 1;
+            document.querySelector(`.budget-progress-${tripIndex}`).style.width = ((hotelCost / totalForPerc) * 100) + '%';
+            document.querySelector(`.budget-progress-places-${tripIndex}`).style.width = ((placesCost / totalForPerc) * 100) + '%';
+            document.querySelector(`.budget-progress-flight-${tripIndex}`).style.width = ((flightBudget / totalForPerc) * 100) + '%';
+            document.querySelector(`.budget-progress-misc-${tripIndex}`).style.width = ((miscBudget / totalForPerc) * 100) + '%';
+
+            // Show/hide hotel bar
+            const hotelBar = document.querySelector(`.hotel-bar-${tripIndex}`);
+            if (includeHotel) {
+                hotelBar.style.display = 'block';
+            } else {
+                hotelBar.style.display = 'none';
+            }
+
+            // Update warning
+            if (placesCost > activitiesBudget) {
+                const excess = placesCost - activitiesBudget;
+                document.getElementById(`places-warning-${tripIndex}`).innerHTML = `
+                    <div class="warning-box bg-amber-50 border border-amber-200 rounded-lg p-4 flex gap-3">
+                        <span class="material-symbols-outlined text-amber-600 shrink-0">warning</span>
+                        <div class="text-sm text-amber-700 font-bold">
+                            Places cost exceeds activities budget by <strong>€${Math.round(excess)}</strong>
+                        </div>
+                    </div>
+                `;
+            } else {
+                document.getElementById(`places-warning-${tripIndex}`).innerHTML = '';
+            }
+        }
+
+        function animateNumber(el, target) {
+            if (!el) return;
+
+            let current = 0;
+            const duration = 600;
+            const startTime = performance.now();
+
+            function update(currentTime) {
+                const elapsed = currentTime - startTime;
+                const progress = Math.min(elapsed / duration, 1);
+                const easedProgress = 1 - Math.pow(1 - progress, 3);
+                const value = Math.floor(easedProgress * target);
+
+                el.textContent = value.toLocaleString();
+
+                if (progress < 1) {
+                    requestAnimationFrame(update);
+                } else {
+                    el.textContent = target.toLocaleString();
+                }
+            }
+            requestAnimationFrame(update);
+        }
+
+        function animateNumbers(tripIndex) {
+            document.querySelectorAll(`.count-total-${tripIndex}`).forEach(el => {
                 const target = parseInt(el.getAttribute('data-target'));
                 if (isNaN(target)) return;
-
-                let current = 0;
-                const duration = 800; // 0.8 seconds
-                const startTime = performance.now();
-
-                function update(currentTime) {
-                    const elapsed = currentTime - startTime;
-                    const progress = Math.min(elapsed / duration, 1);
-                    const easedProgress = 1 - Math.pow(1 - progress, 3);
-                    const value = Math.floor(easedProgress * target);
-
-                    el.textContent = value.toLocaleString();
-
-                    if (progress < 1) {
-                        requestAnimationFrame(update);
-                    } else {
-                        el.textContent = target.toLocaleString();
-                    }
-                }
-                requestAnimationFrame(update);
+                animateNumber(el, target);
             });
         }
 
-        function animateProgress(container) {
-            container.querySelectorAll('.budget-progress').forEach(bar => {
+        function animateProgress(tripIndex) {
+            document.querySelectorAll(`.budget-progress-${tripIndex}, .budget-progress-places-${tripIndex}, .budget-progress-flight-${tripIndex}, .budget-progress-misc-${tripIndex}`).forEach(bar => {
                 const width = bar.getAttribute('data-width');
-                bar.style.width = '0';
-                setTimeout(() => {
-                    bar.style.width = width;
-                }, 30);
+                if (width) {
+                    bar.style.width = '0';
+                    setTimeout(() => {
+                        bar.style.width = width;
+                    }, 30);
+                }
             });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            const firstTrip = document.querySelector('.trip-content:not(.hidden)');
-            if (firstTrip) {
-                animateProgress(firstTrip);
-                animateNumbers(firstTrip);
-            }
+            animateProgress(0);
+            animateNumbers(0);
+            updateTrip(0);
         });
+
+        function toggleExperience(id, btn) {
+            const el = document.getElementById(id);
+            if (el.classList.contains('line-clamp-2')) {
+                el.classList.remove('line-clamp-2');
+                btn.innerHTML = `See Less <span class="material-symbols-outlined text-sm rotate-180">expand_more</span>`;
+            } else {
+                el.classList.add('line-clamp-2');
+                btn.innerHTML = `See More <span class="material-symbols-outlined text-sm">expand_more</span>`;
+            }
+        }
     </script>
 @endsection
