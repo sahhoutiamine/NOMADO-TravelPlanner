@@ -106,6 +106,23 @@
     .place-card label {
         cursor: pointer;
     }
+    .flight-card {
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .flight-details-expand {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.5s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.4s ease;
+        opacity: 0;
+    }
+    .flight-card.expanded .flight-details-expand {
+        max-height: 500px;
+        opacity: 1;
+    }
+    .flight-card.expanded {
+        border-color: #0284c7;
+        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
+    }
 </style>
 
 <div class="flex-grow pt-32 pb-24 px-4 md:px-8 max-w-7xl mx-auto relative min-h-screen">
@@ -186,116 +203,6 @@
                 </script>
             </div>
 
-            @if($booking->status === 'pending')
-            <!-- Hotel Selection -->
-            <div class="glass-card p-8 rounded-xl border border-white/50 shadow-xl">
-                <div class="flex items-center justify-between mb-8">
-                    <div>
-                        <h3 class="text-2xl font-black text-slate-900 tracking-tight">Accommodation</h3>
-                        <p class="text-slate-500 text-sm font-medium mt-1">Select your preferred stay</p>
-                    </div>
-                    <label class="toggle-switch">
-                        <input type="checkbox" class="hotel-toggle" {{ $booking->include_hotel ? 'checked' : '' }} onchange="updateTrip()">
-                        <span class="toggle-slider"></span>
-                    </label>
-                </div>
-
-                <div class="hotel-scroll flex gap-6 pb-6" id="hotels-container">
-                    @foreach($booking->city->hotels as $hotel)
-                        <div class="hotel-card glass-card p-4 rounded-xl border border-white/50 hover:shadow-2xl w-72 flex-shrink-0 transition-all duration-300 relative group {{ $booking->hotel_id === $hotel->id ? 'selected' : '' }}"
-                            onclick="selectHotel({{ $hotel->id }})" data-hotel-id="{{ $hotel->id }}" data-hotel-price="{{ $hotel->price_per_night }}">
-                            
-                            <div class="absolute top-4 right-4 z-20">
-                                <div class="w-6 h-6 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center transition-all group-[.selected]:bg-primary-600 group-[.selected]:border-primary-600">
-                                    <span class="material-symbols-outlined text-white text-xs scale-0 transition-transform group-[.selected]:scale-100">check</span>
-                                </div>
-                            </div>
-
-                            <div class="w-full h-44 rounded-lg overflow-hidden mb-4 relative">
-                                <img src="{{ $hotel->image }}" alt="{{ $hotel->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-                                <div class="absolute bottom-2 left-2 px-2 py-1 bg-black/50 backdrop-blur-md rounded text-[10px] font-bold text-white uppercase tracking-widest">
-                                    {{ $hotel->getTypeLabel() }}
-                                </div>
-                            </div>
-                            
-                            <div class="px-1">
-                                <h4 class="font-bold text-slate-900 text-lg truncate mb-1 tracking-tight">{{ $hotel->name }}</h4>
-                                <div class="flex items-center gap-2 mb-4">
-                                    <span class="text-primary-600 font-black text-xl">€{{ number_format($hotel->price_per_night) }}</span>
-                                    <span class="text-slate-400 text-xs font-bold uppercase italic">/ night</span>
-                                </div>
-                                
-                                <a class="inline-flex items-center gap-2 text-primary-600 font-black text-xs uppercase tracking-widest hover:text-primary-700 transition-all relative z-30" 
-                                   href="{{ route('hotels.show', $hotel->id) }}?booking_id={{ $booking->id }}" 
-                                   onclick="event.stopPropagation()">
-                                    View Details <span class="material-symbols-outlined text-sm">arrow_forward</span>
-                                </a>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-
-            <!-- Flight Selection -->
-            <div class="glass-card p-8 rounded-xl border border-white/50 shadow-xl">
-                <div class="flex items-center justify-between mb-8">
-                    <div>
-                        <h3 class="text-2xl font-black text-slate-900 tracking-tight">Available Flights</h3>
-                        <p class="text-slate-500 text-sm font-medium mt-1">Based on your destination and departure</p>
-                    </div>
-                </div>
-
-                <div class="space-y-4" id="flights-container">
-                    @foreach($flights as $flight)
-                        <div class="flight-option glass-card p-6 rounded-xl border border-white/50 hover:shadow-xl transition-all duration-300 {{ $booking->flight_airline === $flight['airline'] ? 'border-primary-500 bg-primary-50/10' : '' }}">
-                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
-                                <div class="flex items-center gap-4">
-                                    <div class="w-12 h-12 bg-slate-900 rounded-full flex items-center justify-center text-white">
-                                        <span class="material-symbols-outlined">flight_takeoff</span>
-                                    </div>
-                                    <div>
-                                        <h4 class="font-bold text-slate-900 text-lg">{{ $flight['airline'] }}</h4>
-                                        <p class="text-slate-500 text-sm font-medium flex items-center gap-1">
-                                            <span class="material-symbols-outlined text-xs">schedule</span> {{ $flight['duration'] }}
-                                        </p>
-                                    </div>
-                                </div>
-                                
-                                <div class="flex flex-wrap gap-3">
-                                    @foreach($flight['classes'] as $key => $class)
-                                        <button type="button" 
-                                            class="flight-class-btn px-4 py-3 rounded-lg border-2 border-slate-100 hover:border-primary-300 transition-all text-left min-w-[140px] {{ ($booking->flight_airline === $flight['airline'] && $booking->flight_class === $key) ? 'border-primary-600 bg-primary-50' : 'bg-white' }}"
-                                            onclick="selectFlight('{{ $flight['airline'] }}', '{{ $flight['duration'] }}', '{{ $key }}', {{ $class['price'] }}, this)">
-                                            <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">{{ $class['label'] }}</div>
-                                            <div class="font-bold text-slate-900">€{{ number_format($class['price']) }}</div>
-                                        </button>
-                                    @endforeach
-                                </div>
-                            </div>
-                        </div>
-                    @endforeach
-                </div>
-            </div>
-
-            @endif
-
-            <!-- Display Accommodation Section (after selections or always if paid) -->
-            @if($booking->status !== 'pending')
-            <div class="glass-card p-8 rounded-xl flex flex-col sm:flex-row gap-8 items-center border border-white/50 shadow-xl group hover:shadow-2xl transition-all duration-500">
-                <div class="relative w-full sm:w-64 h-44 rounded-lg overflow-hidden shrink-0 shadow-lg">
-                    <img src="{{ $booking->hotel->image ?? 'https://images.unsplash.com/photo-1566073171639-3f8b3f5e4c4b' }}" 
-                         alt="{{ $booking->hotel->name }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
-                </div>
-                <div class="flex-1 text-center sm:text-left">
-                    <h4 class="text-2xl font-black text-slate-900 mb-1 tracking-tight">{{ $booking->hotel->name }}</h4>
-                    <p class="text-slate-400 font-bold text-sm mb-6 uppercase tracking-widest italic">Luxury Stay &middot; {{ $booking->city->name }}</p>
-                    <a class="inline-flex items-center gap-2 text-primary-600 font-black text-sm hover:text-primary-700 transition-all hover:translate-x-1" href="{{ route('hotels.show', $booking->hotel->id) }}">
-                        View Details <span class="material-symbols-outlined text-sm">arrow_forward</span>
-                    </a>
-                </div>
-            </div>
-            @endif
-
             <!-- Attractions Grid -->
             <div class="space-y-6">
                 <h3 class="text-2xl font-black text-slate-900 tracking-tight ml-2">Must-Visit Spots</h3>
@@ -331,6 +238,106 @@
                     @endforeach
                 </div>
             </div>
+
+            @if($booking->status === 'pending')
+            <!-- Flight Selection -->
+            <div class="space-y-6">
+                <div class="flex items-center justify-between ml-2">
+                    <h3 class="text-2xl font-black text-slate-900 tracking-tight">Available Flights</h3>
+                    <div class="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-widest">
+                        <span class="material-symbols-outlined text-sm">flight</span>
+                        Best Matches
+                    </div>
+                </div>
+
+                <div class="space-y-4" id="flights-container">
+                    @foreach($flights as $index => $flight)
+                        <div class="flight-card glass-card rounded-xl border border-white/50 hover:border-primary-300 transition-all overflow-hidden {{ $booking->flight_airline === $flight['airline'] ? 'expanded border-primary-500' : '' }}" 
+                             id="flight-card-{{ $index }}">
+                            <!-- Main Row -->
+                            <div class="p-6 cursor-pointer flex flex-col md:flex-row items-center gap-8" 
+                                 onclick="toggleFlightExpansion({{ $index }})">
+                                
+                                <!-- Airline -->
+                                <div class="w-full md:w-48 flex items-center gap-4">
+                                    <div class="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-primary-600 shadow-inner">
+                                        <span class="material-symbols-outlined">airline_stops</span>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-slate-900 leading-tight">{{ $flight['airline'] }}</h4>
+                                        <p class="text-[10px] font-black text-slate-400 uppercase tracking-tighter">Certified Carrier</p>
+                                    </div>
+                                </div>
+
+                                <!-- Journey -->
+                                <div class="flex-1 flex items-center justify-center gap-10">
+                                    <div class="text-center">
+                                        <div class="text-xl font-black text-slate-900 leading-none mb-1">{{ strtoupper(substr($flight['start_city'], 0, 3)) }}</div>
+                                        <div class="text-[10px] font-bold text-slate-400 uppercase">{{ $flight['start_city'] }}</div>
+                                    </div>
+
+                                    <div class="flex-1 max-w-[150px] relative">
+                                        <div class="absolute inset-0 flex items-center">
+                                            <div class="w-full border-t-2 border-dashed border-slate-200"></div>
+                                        </div>
+                                        <div class="relative flex justify-center">
+                                            <div class="bg-white px-2 text-[10px] font-black text-primary-500 uppercase tracking-widest flex items-center gap-1">
+                                                <span class="material-symbols-outlined text-xs">schedule</span> {{ $flight['duration'] }}
+                                            </div>
+                                        </div>
+                                        <div class="absolute -right-1 top-1/2 -translate-y-1/2">
+                                            <span class="material-symbols-outlined text-primary-500 text-sm rotate-90">flight</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="text-center">
+                                        <div class="text-xl font-black text-slate-900 leading-none mb-1">{{ strtoupper(substr($flight['end_city'], 0, 3)) }}</div>
+                                        <div class="text-[10px] font-bold text-slate-400 uppercase">{{ $flight['end_city'] }}</div>
+                                    </div>
+                                </div>
+
+                                <!-- Pricing Info -->
+                                <div class="flex items-center gap-6">
+                                    <div class="text-right">
+                                        <div class="text-[10px] font-bold text-slate-400 uppercase mb-1">Starting from</div>
+                                        <div class="text-2xl font-black text-primary-600">€{{ number_format($flight['base_price'] * 0.8) }}</div>
+                                    </div>
+                                    <button class="w-10 h-10 rounded-full border border-slate-200 flex items-center justify-center text-slate-400 hover:text-primary-600 transition-colors">
+                                        <span class="material-symbols-outlined expand-icon transition-transform {{ $booking->flight_airline === $flight['airline'] ? 'rotate-180' : '' }}">expand_more</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Expandable Classes -->
+                            <div class="flight-details-expand bg-slate-50/50 border-t border-slate-100">
+                                <div class="p-6">
+                                    <p class="text-xs font-black text-slate-400 uppercase tracking-widest mb-4">Choose your experience</p>
+                                    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                        @foreach($flight['classes'] as $key => $class)
+                                            <div class="flight-class-option relative cursor-pointer group"
+                                                 onclick="selectFlight('{{ $flight['airline'] }}', '{{ $flight['duration'] }}', '{{ $key }}', {{ $class['price'] }}, this)">
+                                                <div class="p-4 rounded-xl border-2 transition-all duration-300 {{ ($booking->flight_airline === $flight['airline'] && $booking->flight_class === $key) ? 'border-primary-600 bg-white shadow-lg' : 'border-slate-100 bg-white/50 hover:border-primary-200' }}">
+                                                    <div class="flex items-start justify-between mb-3">
+                                                        <span class="text-[10px] font-black uppercase tracking-widest {{ ($booking->flight_airline === $flight['airline'] && $booking->flight_class === $key) ? 'text-primary-600' : 'text-slate-400' }}">
+                                                            {{ $class['label'] }}
+                                                        </span>
+                                                        <div class="w-4 h-4 rounded-full border-2 border-slate-200 flex items-center justify-center transition-all {{ ($booking->flight_airline === $flight['airline'] && $booking->flight_class === $key) ? 'bg-primary-600 border-primary-600' : '' }}">
+                                                            <div class="w-1.5 h-1.5 rounded-full bg-white scale-0 transition-transform {{ ($booking->flight_airline === $flight['airline'] && $booking->flight_class === $key) ? 'scale-100' : '' }}"></div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="text-xl font-black text-slate-900 mb-1">€{{ number_format($class['price']) }}</div>
+                                                    <div class="text-[10px] text-slate-400 font-bold italic">Round trip per person</div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+            @endif
         </div>
 
         <!-- RIGHT COLUMN: Budget & Actions Sidebar -->
@@ -472,23 +479,55 @@
         updateTrip();
     }
 
-    function selectFlight(airline, durationStr, className, price, btn) {
+    function toggleFlightExpansion(index) {
+        const card = document.getElementById(`flight-card-${index}`);
+        const icon = card.querySelector('.expand-icon');
+        
+        const isExpanded = card.classList.contains('expanded');
+        
+        // Close others
+        document.querySelectorAll('.flight-card').forEach(c => {
+            if (c !== card) {
+                c.classList.remove('expanded');
+                c.querySelector('.expand-icon')?.classList.remove('rotate-180');
+            }
+        });
+
+        if (isExpanded) {
+            card.classList.remove('expanded');
+            icon.classList.remove('rotate-180');
+        } else {
+            card.classList.add('expanded');
+            icon.classList.add('rotate-180');
+        }
+    }
+
+    function selectFlight(airline, durationStr, className, price, element) {
+        event.stopPropagation(); // Prevent card expansion toggle
+
         // Update hidden fields
         document.getElementById('form-airline').value = airline;
         document.getElementById('form-flight-duration').value = durationStr;
         document.getElementById('form-flight-class').value = className;
         document.getElementById('form-flight-price').value = price;
 
-        // Visual updates
-        document.querySelectorAll('.flight-class-btn').forEach(b => {
-            b.classList.remove('border-primary-600', 'bg-primary-50');
-            b.classList.add('bg-white');
+        // Visual updates for classes
+        const card = element.closest('.flight-card');
+        card.querySelectorAll('.p-4').forEach(b => {
+            b.classList.remove('border-primary-600', 'bg-white', 'shadow-lg');
+            b.classList.add('border-slate-100', 'bg-white/50');
+            b.querySelector('.text-[10px]').classList.remove('text-primary-600');
+            b.querySelector('.text-[10px]').classList.add('text-slate-400');
+            b.querySelector('.w-4').classList.remove('bg-primary-600', 'border-primary-600');
+            b.querySelector('.w-1.5').classList.remove('scale-100');
         });
-        btn.classList.add('border-primary-600', 'bg-primary-50');
-        btn.classList.remove('bg-white');
 
-        document.querySelectorAll('.flight-option').forEach(opt => opt.classList.remove('border-primary-500', 'bg-primary-50/10'));
-        btn.closest('.flight-option').classList.add('border-primary-500', 'bg-primary-50/10');
+        element.querySelector('.p-4').classList.add('border-primary-600', 'bg-white', 'shadow-lg');
+        element.querySelector('.p-4').classList.remove('border-slate-100', 'bg-white/50');
+        element.querySelector('.text-[10px]').classList.add('text-primary-600');
+        element.querySelector('.text-[10px]').classList.remove('text-slate-400');
+        element.querySelector('.w-4').classList.add('bg-primary-600', 'border-primary-600');
+        element.querySelector('.w-1.5').classList.add('scale-100');
 
         updateTrip();
     }
