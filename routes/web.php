@@ -5,6 +5,7 @@ use App\Http\Controllers\TripGeneratorController;
 use App\Http\Controllers\MyBookingsController;
 use App\Http\Controllers\HotelShowController;
 use App\Http\Controllers\PaymentController;
+use App\Http\Controllers\TripPlanController;
 use App\Http\Controllers\Admin\CountryController;
 use App\Http\Controllers\Admin\HotelController;
 use App\Http\Controllers\Admin\BookingController;
@@ -34,6 +35,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/my-bookings', [MyBookingsController::class, 'index'])->name('bookings.index');
     Route::get('/my-bookings/{id}', [MyBookingsController::class, 'show'])->name('bookings.show');
     Route::delete('/my-bookings/{id}', [MyBookingsController::class, 'destroy'])->name('bookings.destroy');
+    Route::get('/my-bookings/{id}/plan', [TripPlanController::class, 'show'])->name('bookings.plan');
 
     Route::get('/my-bookings/{id}/payment', [PaymentController::class, 'show'])->name('payment.show');
     Route::post('/my-bookings/{id}/payment', [PaymentController::class, 'store'])->name('payment.store');
