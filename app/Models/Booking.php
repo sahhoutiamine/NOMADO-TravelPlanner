@@ -10,10 +10,10 @@ class Booking extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'city_id', 'hotel_id', 'trip_type',
+        'user_id', 'city_id', 'hotel_id', 'trip_type', 'departure_city_id',
         'budget_total', 'duration', 'passengers',
         'flight_budget', 'hotel_budget', 'activities_budget', 'misc_budget',
-        'total_price', 'status',
+        'total_price', 'status', 'selected_place_ids', 'include_hotel',
     ];
 
     public function user()
@@ -24,6 +24,11 @@ class Booking extends Model
     public function city()
     {
         return $this->belongsTo(City::class);
+    }
+
+    public function departureCity()
+    {
+        return $this->belongsTo(City::class, 'departure_city_id');
     }
 
     public function hotel()
