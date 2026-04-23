@@ -123,6 +123,30 @@
         border-color: #0284c7;
         box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1);
     }
+    .flight-class-option {
+        transform: translateY(10px);
+        opacity: 0;
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .flight-card.expanded .flight-class-option {
+        transform: translateY(0);
+        opacity: 1;
+    }
+    .flight-card.expanded .flight-class-option:nth-child(1) { transition-delay: 0.1s; }
+    .flight-card.expanded .flight-class-option:nth-child(2) { transition-delay: 0.2s; }
+    .flight-card.expanded .flight-class-option:nth-child(3) { transition-delay: 0.3s; }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-5px); }
+        75% { transform: translateX(5px); }
+    }
+    .shake {
+        animation: shake 0.2s ease-in-out 0s 2;
+    }
+    .budget-over {
+        color: #ef4444 !important;
+    }
 </style>
 
 <div class="flex-grow pt-32 pb-24 px-4 md:px-8 max-w-7xl mx-auto relative min-h-screen">
@@ -202,6 +226,71 @@
                     }
                 </script>
             </div>
+
+            <!-- Accommodation Section -->
+            @if($booking->status === 'pending')
+            <div class="glass-card p-8 rounded-xl border border-white/50 shadow-xl">
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h3 class="text-2xl font-black text-slate-900 tracking-tight">Accommodation</h3>
+                        <p class="text-slate-500 text-sm font-medium mt-1">Select your preferred stay</p>
+                    </div>
+                    <label class="toggle-switch">
+                        <input type="checkbox" class="hotel-toggle" {{ $booking->include_hotel ? 'checked' : '' }} onchange="updateTrip()">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+
+                <div class="hotel-scroll flex gap-6 pb-6" id="hotels-container">
+                    @foreach($booking->city->hotels as $hotel)
+                        <div class="hotel-card glass-card p-4 rounded-xl border border-white/50 hover:shadow-2xl w-72 flex-shrink-0 transition-all duration-300 relative group {{ $booking->hotel_id === $hotel->id ? 'selected' : '' }}"
+                            onclick="selectHotel({{ $hotel->id }})" data-hotel-id="{{ $hotel->id }}" data-hotel-price="{{ $hotel->price_per_night }}">
+                            
+                            <div class="absolute top-4 right-4 z-20">
+                                <div class="w-6 h-6 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center transition-all group-[.selected]:bg-primary-600 group-[.selected]:border-primary-600">
+                                    <span class="material-symbols-outlined text-white text-xs scale-0 transition-transform group-[.selected]:scale-100">check</span>
+                                </div>
+                            </div>
+
+                            <div class="w-full h-44 rounded-lg overflow-hidden mb-4 relative">
+                                <img src="{{ $hotel->image }}" alt="{{ $hotel->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                                <div class="absolute bottom-2 left-2 px-2 py-1 bg-black/50 backdrop-blur-md rounded text-[10px] font-bold text-white uppercase tracking-widest">
+                                    {{ $hotel->getTypeLabel() }}
+                                </div>
+                            </div>
+                            
+                            <div class="px-1">
+                                <h4 class="font-bold text-slate-900 text-lg truncate mb-1 tracking-tight">{{ $hotel->name }}</h4>
+                                <div class="flex items-center gap-2 mb-4">
+                                    <span class="text-primary-600 font-black text-xl">€{{ number_format($hotel->price_per_night) }}</span>
+                                    <span class="text-slate-400 text-xs font-bold uppercase italic">/ night</span>
+                                </div>
+                                
+                                <a class="inline-flex items-center gap-2 text-primary-600 font-black text-xs uppercase tracking-widest hover:text-primary-700 transition-all relative z-30" 
+                                   href="{{ route('hotels.show', $hotel->id) }}?booking_id={{ $booking->id }}" 
+                                   onclick="event.stopPropagation()">
+                                    View Details <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                                </a>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+            @else
+            <div class="glass-card p-8 rounded-xl flex flex-col sm:flex-row gap-8 items-center border border-white/50 shadow-xl group hover:shadow-2xl transition-all duration-500">
+                <div class="relative w-full sm:w-64 h-44 rounded-lg overflow-hidden shrink-0 shadow-lg">
+                    <img src="{{ $booking->hotel->image ?? 'https://images.unsplash.com/photo-1566073171639-3f8b3f5e4c4b' }}" 
+                         alt="{{ $booking->hotel->name }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                </div>
+                <div class="flex-1 text-center sm:text-left">
+                    <h4 class="text-2xl font-black text-slate-900 mb-1 tracking-tight">{{ $booking->hotel->name }}</h4>
+                    <p class="text-slate-400 font-bold text-sm mb-6 uppercase tracking-widest italic">Luxury Stay &middot; {{ $booking->city->name }}</p>
+                    <a class="inline-flex items-center gap-2 text-primary-600 font-black text-sm hover:text-primary-700 transition-all hover:translate-x-1" href="{{ route('hotels.show', $booking->hotel->id) }}">
+                        View Hotel Details <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                    </a>
+                </div>
+            </div>
+            @endif
 
             <!-- Attractions Grid -->
             <div class="space-y-6">
@@ -315,8 +404,8 @@
                                     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                         @foreach($flight['classes'] as $key => $class)
                                             <div class="flight-class-option relative cursor-pointer group"
-                                                 onclick="selectFlight('{{ $flight['airline'] }}', '{{ $flight['duration'] }}', '{{ $key }}', {{ $class['price'] }}, this)">
-                                                <div class="p-4 rounded-xl border-2 transition-all duration-300 {{ ($booking->flight_airline === $flight['airline'] && $booking->flight_class === $key) ? 'border-primary-600 bg-white shadow-lg' : 'border-slate-100 bg-white/50 hover:border-primary-200' }}">
+                                                 onclick="selectFlight(event, '{{ $flight['airline'] }}', '{{ $flight['duration'] }}', '{{ $key }}', {{ $class['price'] }}, this)">
+                                                <div class="p-4 rounded-xl border-2 transition-all duration-300 {{ ($booking->flight_airline === $flight['airline'] && $booking->flight_class === $key) ? 'border-primary-600 bg-white shadow-lg scale-105' : 'border-slate-100 bg-white/50 hover:border-primary-200 hover:scale-105' }}">
                                                     <div class="flex items-start justify-between mb-3">
                                                         <span class="text-[10px] font-black uppercase tracking-widest {{ ($booking->flight_airline === $flight['airline'] && $booking->flight_class === $key) ? 'text-primary-600' : 'text-slate-400' }}">
                                                             {{ $class['label'] }}
@@ -349,54 +438,82 @@
                     <h3 class="text-2xl font-black text-slate-900 tracking-tight mb-8 relative z-10">Trip Summary</h3>
 
                     <div class="mb-10 relative z-10">
-                        <div class="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-2">Total Amount</div>
-                        <div class="text-5xl font-black text-slate-900 tracking-tighter">&euro;<span class="count-total" id="total-amount" data-target="{{ $booking->total_price }}">0</span></div>
-                        <div class="text-[11px] font-black text-slate-400 mt-4 uppercase tracking-[0.15em] flex items-center gap-2">
+                        <div class="flex justify-between items-end mb-2">
+                            <div class="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">Live Total Cost</div>
+                            <div class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Limit: €<span id="budget-limit-display">{{ number_format($booking->budget_total) }}</span></div>
+                        </div>
+                        <div class="text-5xl font-black text-slate-900 tracking-tighter transition-colors duration-300" id="total-amount-container">
+                            &euro;<span class="count-total" id="total-amount">0</span>
+                        </div>
+                        
+                        <div id="budget-warning" class="mt-4 p-3 bg-red-50 border border-red-100 rounded-lg text-red-600 text-[10px] font-bold uppercase tracking-widest hidden animate-pulse">
+                            Budget Limit Exceeded!
+                        </div>
+
+                        <button onclick="increaseBudget()" class="mt-4 w-full py-2 border-2 border-dashed border-slate-200 rounded-lg text-[10px] font-black text-slate-400 uppercase tracking-widest hover:border-primary-400 hover:text-primary-600 transition-all flex items-center justify-center gap-2">
+                            <span class="material-symbols-outlined text-sm">add_circle</span> Increase My Budget
+                        </button>
+
+                        <div class="text-[11px] font-black text-slate-400 mt-6 uppercase tracking-[0.15em] flex items-center gap-2 border-t border-slate-100 pt-4">
                             <span class="material-symbols-outlined text-sm">schedule</span>
                             {{ $booking->duration }} Nights &middot; {{ $booking->passengers }} Travelers
                         </div>
                     </div>
 
                     <!-- Progress Bars -->
-                    <div class="space-y-7 mb-12 relative z-10">
+                    <div class="space-y-6 mb-12 relative z-10">
+                        <!-- Flight -->
                         <div>
-                            <div class="flex justify-between items-center text-sm mb-3 font-bold">
-                                <span class="text-slate-800">Flight</span>
-                                <span class="text-slate-400 italic">&euro;<span class="flight-cost-display" id="flight-cost" data-target="{{ $booking->flight_budget }}">0</span></span>
+                            <div class="flex justify-between items-center text-[10px] mb-2 font-black uppercase tracking-widest">
+                                <span class="text-slate-500">Flight</span>
+                                <span class="text-slate-900">&euro;<span id="flight-cost-display">0</span></span>
                             </div>
                             <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                                @php $flightPerc = $booking->total_price > 0 ? ($booking->flight_budget / $booking->total_price) * 100 : 0; @endphp
-                                <div class="h-full bg-blue-500 rounded-full budget-progress" id="flight-bar" data-width="{{ $flightPerc }}%"></div>
+                                <div class="h-full bg-blue-500 rounded-full budget-progress transition-all duration-500" id="flight-bar" style="width: 0%"></div>
                             </div>
                         </div>
+
+                        <!-- Accommodation -->
                         <div>
-                            <div class="flex justify-between items-center text-sm mb-3 font-bold">
-                                <span class="text-slate-800">Accommodation</span>
-                                <span class="text-slate-400 italic">&euro;<span class="hotel-cost-display" id="hotel-cost" data-target="{{ $booking->hotel_budget }}">0</span></span>
+                            <div class="flex justify-between items-center text-[10px] mb-2 font-black uppercase tracking-widest">
+                                <span class="text-slate-500">Accommodation</span>
+                                <span class="text-slate-900">&euro;<span id="hotel-cost-display">0</span></span>
                             </div>
                             <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                                @php $hotelPerc = $booking->total_price > 0 ? ($booking->hotel_budget / $booking->total_price) * 100 : 0; @endphp
-                                <div class="h-full bg-indigo-500 rounded-full budget-progress" id="hotel-bar" data-width="{{ $hotelPerc }}%"></div>
+                                <div class="h-full bg-indigo-500 rounded-full budget-progress transition-all duration-500" id="hotel-bar" style="width: 0%"></div>
                             </div>
                         </div>
+
+                        <!-- Places & Activities -->
                         <div>
-                            <div class="flex justify-between items-center text-sm mb-3 font-bold">
-                                <span class="text-slate-800">Experiences</span>
-                                <span class="text-slate-400 italic">&euro;<span class="activities-cost-display" id="activities-cost" data-target="{{ $booking->activities_budget }}">0</span></span>
+                            <div class="flex justify-between items-center text-[10px] mb-2 font-black uppercase tracking-widest">
+                                <span class="text-slate-500">Places & Activities</span>
+                                <span class="text-slate-900">&euro;<span id="places-cost-display">0</span></span>
                             </div>
                             <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                                @php $actPerc = $booking->total_price > 0 ? ($booking->activities_budget / $booking->total_price) * 100 : 0; @endphp
-                                <div class="h-full bg-primary-500 rounded-full budget-progress" id="activities-bar" data-width="{{ $actPerc }}%"></div>
+                                <div class="h-full bg-emerald-500 rounded-full budget-progress transition-all duration-500" id="places-bar" style="width: 0%"></div>
                             </div>
                         </div>
+
+                        <!-- Experiences -->
                         <div>
-                            <div class="flex justify-between items-center text-sm mb-3 font-bold">
-                                <span class="text-slate-800">Miscellaneous</span>
-                                <span class="text-slate-400 italic">&euro;<span class="misc-cost-display" id="misc-cost" data-target="{{ $booking->misc_budget }}">0</span></span>
+                            <div class="flex justify-between items-center text-[10px] mb-2 font-black uppercase tracking-widest">
+                                <span class="text-slate-500">Experiences</span>
+                                <span class="text-slate-900">&euro;<span id="activities-cost-display">0</span></span>
                             </div>
                             <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                                @php $miscPerc = $booking->total_price > 0 ? ($booking->misc_budget / $booking->total_price) * 100 : 0; @endphp
-                                <div class="h-full bg-slate-400 rounded-full budget-progress" id="misc-bar" data-width="{{ $miscPerc }}%"></div>
+                                <div class="h-full bg-primary-500 rounded-full budget-progress transition-all duration-500" id="activities-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <!-- Miscellaneous -->
+                        <div>
+                            <div class="flex justify-between items-center text-[10px] mb-2 font-black uppercase tracking-widest">
+                                <span class="text-slate-500">Miscellaneous</span>
+                                <span class="text-slate-900">&euro;<span id="misc-cost-display">0</span></span>
+                            </div>
+                            <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                                <div class="h-full bg-slate-400 rounded-full budget-progress transition-all duration-500" id="misc-bar" style="width: 0%"></div>
                             </div>
                         </div>
                     </div>
@@ -465,9 +582,13 @@
 </div>
 
 <script>
-    const budgetTotal = {{ $booking->budget_total }};
+    let budgetLimit = {{ $booking->budget_total }};
     const duration = {{ $booking->duration }};
     const passengers = {{ $booking->passengers }};
+
+    // Minimum budgets for Experiences and Misc
+    const MIN_EXPERIENCES = 150 * passengers; 
+    const MIN_MISC = 50 * passengers;
 
     function selectHotel(hotelId) {
         const container = document.getElementById('hotels-container');
@@ -502,8 +623,8 @@
         }
     }
 
-    function selectFlight(airline, durationStr, className, price, element) {
-        event.stopPropagation(); // Prevent card expansion toggle
+    function selectFlight(e, airline, durationStr, className, price, element) {
+        if (e) e.stopPropagation();
 
         // Update hidden fields
         document.getElementById('form-airline').value = airline;
@@ -511,23 +632,27 @@
         document.getElementById('form-flight-class').value = className;
         document.getElementById('form-flight-price').value = price;
 
-        // Visual updates for classes
-        const card = element.closest('.flight-card');
-        card.querySelectorAll('.p-4').forEach(b => {
-            b.classList.remove('border-primary-600', 'bg-white', 'shadow-lg');
+        // Visual updates
+        document.querySelectorAll('.flight-class-option .p-4').forEach(b => {
+            b.classList.remove('border-primary-600', 'bg-white', 'shadow-lg', 'scale-105');
             b.classList.add('border-slate-100', 'bg-white/50');
-            b.querySelector('.text-[10px]').classList.remove('text-primary-600');
-            b.querySelector('.text-[10px]').classList.add('text-slate-400');
-            b.querySelector('.w-4').classList.remove('bg-primary-600', 'border-primary-600');
-            b.querySelector('.w-1.5').classList.remove('scale-100');
+            const label = b.querySelector('.text-\\[10px\\]');
+            if (label) { label.classList.remove('text-primary-600'); label.classList.add('text-slate-400'); }
+            const circle = b.querySelector('.w-4');
+            if (circle) circle.classList.remove('bg-primary-600', 'border-primary-600');
+            const dot = b.querySelector('.w-1\\.5');
+            if (dot) dot.classList.remove('scale-100');
         });
 
-        element.querySelector('.p-4').classList.add('border-primary-600', 'bg-white', 'shadow-lg');
-        element.querySelector('.p-4').classList.remove('border-slate-100', 'bg-white/50');
-        element.querySelector('.text-[10px]').classList.add('text-primary-600');
-        element.querySelector('.text-[10px]').classList.remove('text-slate-400');
-        element.querySelector('.w-4').classList.add('bg-primary-600', 'border-primary-600');
-        element.querySelector('.w-1.5').classList.add('scale-100');
+        const activeBox = element.querySelector('.p-4');
+        activeBox.classList.add('border-primary-600', 'bg-white', 'shadow-lg', 'scale-105');
+        activeBox.classList.remove('border-slate-100', 'bg-white/50');
+        const activeLabel = activeBox.querySelector('.text-\\[10px\\]');
+        if (activeLabel) { activeLabel.classList.add('text-primary-600'); activeLabel.classList.remove('text-slate-400'); }
+        const activeCircle = activeBox.querySelector('.w-4');
+        if (activeCircle) activeCircle.classList.add('bg-primary-600', 'border-primary-600');
+        const activeDot = activeBox.querySelector('.w-1\\.5');
+        if (activeDot) activeDot.classList.add('scale-100');
 
         updateTrip();
     }
@@ -536,48 +661,84 @@
         const includeHotelCheckbox = document.querySelector('.hotel-toggle');
         const includeHotel = includeHotelCheckbox ? includeHotelCheckbox.checked : true;
 
-        // Get selected hotel
+        // 1. Accommodation Cost (Starts at 0)
         const selectedHotelCard = document.querySelector('#hotels-container .hotel-card.selected');
         const hotelPricePerNight = selectedHotelCard ? parseFloat(selectedHotelCard.dataset.hotelPrice) : 0;
+        const hotelCost = includeHotel ? (hotelPricePerNight * duration * passengers) : 0;
 
-        // Get selected places
+        // 2. Flight Cost (Starts at 0)
+        const flightPrice = parseFloat(document.getElementById('form-flight-price').value) || 0;
+        const flightCost = flightPrice * passengers;
+
+        // 3. Places & Activities Cost (Starts at 0)
         const selectedPlaces = Array.from(document.querySelectorAll('.place-checkbox:checked'));
         const selectedPlaceIds = selectedPlaces.map(p => p.dataset.placeId).join(',');
         const placesCost = selectedPlaces.reduce((sum, p) => sum + (parseFloat(p.dataset.placePrice) * passengers), 0);
 
-        // Get selected flight
-        const flightPrice = parseFloat(document.getElementById('form-flight-price').value) || 0;
-        const flightCost = flightPrice * passengers;
+        // 4. Experiences & Miscellaneous (Minimum base)
+        let experiencesBudget = MIN_EXPERIENCES;
+        let miscBudget = MIN_MISC;
 
-        // Calculate budgets
-        const hotelCost = includeHotel ? (hotelPricePerNight * duration * passengers) : 0;
-        const remaining = budgetTotal - hotelCost - flightCost;
-        const miscBudget = remaining * 0.20;
-        const activitiesBudget = remaining * 0.80;
+        // Current real spent
+        const realSpent = hotelCost + flightCost + placesCost;
+        
+        // Distribution of leftovers if within initial budget
+        const totalCalculated = realSpent + experiencesBudget + miscBudget;
+        
+        if (totalCalculated < budgetLimit) {
+            const leftover = budgetLimit - totalCalculated;
+            experiencesBudget += leftover * 0.7;
+            miscBudget += leftover * 0.3;
+        }
 
-        // Update form values
+        const finalTotal = realSpent + experiencesBudget + miscBudget;
+
+        // Update Form
         document.getElementById('form-include-hotel').value = includeHotel ? '1' : '0';
         document.getElementById('form-selected-places').value = selectedPlaceIds;
 
-        // Update display values with animation
-        animateNumber(document.getElementById('total-amount'), budgetTotal);
-        animateNumber(document.getElementById('hotel-cost'), Math.round(hotelCost));
-        animateNumber(document.getElementById('flight-cost'), Math.round(flightCost));
-        animateNumber(document.getElementById('activities-cost'), Math.round(activitiesBudget));
-        animateNumber(document.getElementById('misc-cost'), Math.round(miscBudget));
+        // Update Display
+        animateNumber(document.getElementById('total-amount'), Math.round(finalTotal));
+        document.getElementById('flight-cost-display').textContent = Math.round(flightCost).toLocaleString();
+        document.getElementById('hotel-cost-display').textContent = Math.round(hotelCost).toLocaleString();
+        document.getElementById('places-cost-display').textContent = Math.round(placesCost).toLocaleString();
+        document.getElementById('activities-cost-display').textContent = Math.round(experiencesBudget).toLocaleString();
+        document.getElementById('misc-cost-display').textContent = Math.round(miscBudget).toLocaleString();
 
-        // Update progress bars
-        const totalForPerc = budgetTotal > 0 ? budgetTotal : 1;
-        document.getElementById('hotel-bar').style.width = ((hotelCost / totalForPerc) * 100) + '%';
-        document.getElementById('flight-bar').style.width = ((flightCost / totalForPerc) * 100) + '%';
-        document.getElementById('activities-bar').style.width = ((activitiesBudget / totalForPerc) * 100) + '%';
-        document.getElementById('misc-bar').style.width = ((miscBudget / totalForPerc) * 100) + '%';
+        // Update Progress Bars
+        const max = Math.max(finalTotal, budgetLimit);
+        document.getElementById('flight-bar').style.width = ((flightCost / max) * 100) + '%';
+        document.getElementById('hotel-bar').style.width = ((hotelCost / max) * 100) + '%';
+        document.getElementById('places-bar').style.width = ((placesCost / max) * 100) + '%';
+        document.getElementById('activities-bar').style.width = ((experiencesBudget / max) * 100) + '%';
+        document.getElementById('misc-bar').style.width = ((miscBudget / max) * 100) + '%';
+
+        // Budget Over Logic
+        const container = document.getElementById('total-amount-container');
+        const warning = document.getElementById('budget-warning');
+        
+        if (finalTotal > budgetLimit) {
+            container.classList.add('budget-over', 'shake');
+            warning.classList.remove('hidden');
+            setTimeout(() => container.classList.remove('shake'), 500);
+        } else {
+            container.classList.remove('budget-over');
+            warning.classList.add('hidden');
+        }
+    }
+
+    function increaseBudget() {
+        const extra = prompt("How much would you like to add to your budget? (€)", "500");
+        if (extra && !isNaN(extra)) {
+            budgetLimit += parseFloat(extra);
+            document.getElementById('budget-limit-display').textContent = Math.round(budgetLimit).toLocaleString();
+            updateTrip();
+        }
     }
 
     function animateNumber(el, target) {
         if (!el) return;
-
-        let current = 0;
+        const current = parseInt(el.textContent.replace(/,/g, '')) || 0;
         const duration = 600;
         const startTime = performance.now();
 
@@ -585,67 +746,29 @@
             const elapsed = currentTime - startTime;
             const progress = Math.min(elapsed / duration, 1);
             const easedProgress = 1 - Math.pow(1 - progress, 3);
-            const value = Math.floor(easedProgress * target);
-
+            const value = Math.floor(current + easedProgress * (target - current));
             el.textContent = value.toLocaleString();
-
-            if (progress < 1) {
-                requestAnimationFrame(update);
-            } else {
-                el.textContent = target.toLocaleString();
-            }
+            if (progress < 1) requestAnimationFrame(update);
+            else el.textContent = target.toLocaleString();
         }
         requestAnimationFrame(update);
     }
 
-    function animateNumbers() {
-        document.querySelectorAll('[data-target]').forEach(el => {
-            const target = parseInt(el.getAttribute('data-target'));
-            if (isNaN(target)) return;
-            animateNumber(el, target);
-        });
-    }
-
-    function animateProgress() {
-        document.querySelectorAll('.budget-progress').forEach(bar => {
-            const width = bar.getAttribute('data-width');
-            bar.style.width = '0';
-            setTimeout(() => {
-                bar.style.width = width;
-            }, 50);
-        });
-    }
-
-    // Handle form submission for selections
     document.getElementById('selections-form')?.addEventListener('submit', function(e) {
         e.preventDefault();
-
         const formData = new FormData(this);
         fetch('{{ route("bookings.update", $booking->id) }}', {
             method: 'PUT',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json',
-            },
+            headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
             body: formData
         })
         .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                // Show success message and update display
-                alert('Selections saved successfully!');
-                location.reload();
-            }
-        })
+        .then(data => { if (data.success) { alert('Selections saved successfully!'); location.reload(); } })
         .catch(error => console.error('Error:', error));
     });
 
     document.addEventListener('DOMContentLoaded', () => {
-        animateNumbers();
-        animateProgress();
-        @if($booking->status === 'pending')
-            updateTrip();
-        @endif
+        updateTrip();
     });
 </script>
 @endsection
