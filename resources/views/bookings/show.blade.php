@@ -113,6 +113,7 @@
             </div>
 
             <!-- Accommodation -->
+            @if($booking->hotel)
             <div class="glass-card p-8 rounded-xl flex flex-col sm:flex-row gap-8 items-center border border-white/50 shadow-xl group hover:shadow-2xl transition-all duration-500">
                 <div class="relative w-full sm:w-64 h-44 rounded-lg overflow-hidden shrink-0 shadow-lg">
                     <img src="{{ $booking->hotel->image ?? 'https://images.unsplash.com/photo-1566073171639-3f8b3f5e4c4b' }}" 
@@ -126,6 +127,7 @@
                     </a>
                 </div>
             </div>
+            @endif
 
             <!-- Attractions Grid -->
             <div class="space-y-6">
@@ -174,7 +176,7 @@
                                 <span class="text-slate-400 italic">&euro;<span class="count-val" data-target="{{ $booking->hotel_budget }}">0</span></span>
                             </div>
                             <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                                @php $hotelPerc = ($booking->hotel_budget / $booking->total_price) * 100; @endphp
+                                @php $hotelPerc = $booking->total_price > 0 ? ($booking->hotel_budget / $booking->total_price) * 100 : 0; @endphp
                                 <div class="h-full bg-indigo-500 rounded-full budget-progress" data-width="{{ $hotelPerc }}%"></div>
                             </div>
                         </div>
@@ -184,7 +186,7 @@
                                 <span class="text-slate-400 italic">&euro;<span class="count-val" data-target="{{ $booking->activities_budget }}">0</span></span>
                             </div>
                             <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                                @php $actPerc = ($booking->activities_budget / $booking->total_price) * 100; @endphp
+                                @php $actPerc = $booking->total_price > 0 ? ($booking->activities_budget / $booking->total_price) * 100 : 0; @endphp
                                 <div class="h-full bg-primary-500 rounded-full budget-progress" data-width="{{ $actPerc }}%"></div>
                             </div>
                         </div>
@@ -194,7 +196,7 @@
                                 <span class="text-slate-400 italic">&euro;<span class="count-val" data-target="{{ $booking->misc_budget }}">0</span></span>
                             </div>
                             <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                                @php $miscPerc = ($booking->misc_budget / $booking->total_price) * 100; @endphp
+                                @php $miscPerc = $booking->total_price > 0 ? ($booking->misc_budget / $booking->total_price) * 100 : 0; @endphp
                                 <div class="h-full bg-slate-400 rounded-full budget-progress" data-width="{{ $miscPerc }}%"></div>
                             </div>
                         </div>
@@ -202,6 +204,12 @@
 
                     <!-- Actions -->
                     <div class="relative z-10 space-y-4">
+                        <a href="{{ route('bookings.plan', $booking->id) }}" class="w-full py-5 bg-primary-600 text-white font-black text-lg rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3 active:scale-95 group relative overflow-hidden">
+                            <div class="absolute inset-0 bg-primary-700 opacity-0 group-hover:opacity-10 transition-opacity"></div>
+                            <span class="relative z-10 flex items-center justify-center gap-3">
+                                View Trip Plan <span class="material-symbols-outlined">route</span>
+                            </span>
+                        </a>
                         @if($booking->status === 'pending')
                             <a href="{{ route('payment.show', $booking->id) }}" class="w-full py-5 bg-slate-950 text-white font-black text-xl rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3 active:scale-95 group relative overflow-hidden">
                                 <div class="absolute inset-0 bg-primary-600 opacity-0 group-hover:opacity-10 transition-opacity"></div>
