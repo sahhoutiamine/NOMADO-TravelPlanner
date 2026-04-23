@@ -12,7 +12,8 @@ class TripGeneratorController extends Controller
 {
     public function index()
     {
-        return view('trip.index');
+        $cities = City::orderBy('name')->get();
+        return view('trip.index', compact('cities'));
     }
 
     public function generate(Request $request)
@@ -22,15 +23,19 @@ class TripGeneratorController extends Controller
             'budget'    => 'required|numeric|min:100',
             'duration'  => 'required|integer|min:1',
             'passengers' => 'required|integer|min:1',
+            'departure_city_id' => 'required|exists:cities,id',
         ]);
 
         $budgetTotal = $request->budget;
         $trip_type = $request->trip_type;
         $duration = $request->duration;
         $passengers = $request->passengers;
+        $departure_city_id = $request->departure_city_id;
 
-        // Find cities matching trip type
-        $cities = City::where('trip_type', $trip_type)->get();
+        // Find cities matching trip type (excluding departure city)
+        $cities = City::where('trip_type', $trip_type)
+            ->where('id', '!=', $departure_city_id)
+            ->get();
 
         if ($cities->isEmpty()) {
             return back()->with('error', 'Aucune ville trouvée pour ce type de voyage.');
@@ -82,7 +87,7 @@ class TripGeneratorController extends Controller
             ];
         }
 
-        return view('results', compact('trips', 'budgetTotal'));
+        return view('results', compact('trips', 'budgetTotal', 'departure_city_id'));
     }
 
     public function confirm(Request $request)
@@ -99,6 +104,9 @@ class TripGeneratorController extends Controller
             'misc_budget' => 'required|numeric',
             'total_price' => 'required|numeric',
             'trip_type' => 'required',
+            'departure_city_id' => 'required|exists:cities,id',
+            'selected_place_ids' => 'nullable|string',
+            'include_hotel' => 'nullable|boolean',
         ]);
 
         $booking = Booking::create([
@@ -114,6 +122,9 @@ class TripGeneratorController extends Controller
             'activities_budget' => $request->activities_budget,
             'misc_budget'       => $request->misc_budget,
             'total_price'       => $request->total_price,
+            'departure_city_id' => $request->departure_city_id,
+            'selected_place_ids' => $request->selected_place_ids,
+            'include_hotel'     => $request->include_hotel ?? true,
             'status'            => 'pending',
         ]);
 
