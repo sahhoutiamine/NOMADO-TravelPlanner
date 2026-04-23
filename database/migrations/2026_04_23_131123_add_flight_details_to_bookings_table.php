@@ -9,10 +9,18 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('bookings', function (Blueprint $table) {
-            $table->string('flight_airline')->nullable()->after('departure_city_id');
-            $table->string('flight_class')->nullable()->after('flight_airline');
-            $table->decimal('flight_price', 10, 2)->nullable()->after('flight_class');
-            $table->string('flight_duration')->nullable()->after('flight_price');
+            if (!Schema::hasColumn('bookings', 'flight_airline')) {
+                $table->string('flight_airline')->nullable()->after('departure_city_id');
+            }
+            if (!Schema::hasColumn('bookings', 'flight_class')) {
+                $table->string('flight_class')->nullable()->after('flight_airline');
+            }
+            if (!Schema::hasColumn('bookings', 'flight_price')) {
+                $table->decimal('flight_price', 10, 2)->nullable()->after('flight_class');
+            }
+            if (!Schema::hasColumn('bookings', 'flight_duration')) {
+                $table->string('flight_duration')->nullable()->after('flight_price');
+            }
         });
     }
 
