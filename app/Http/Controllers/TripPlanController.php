@@ -34,6 +34,10 @@ class TripPlanController extends Controller
 
     private function calculateFlightDuration(Booking $booking): string
     {
+        if (!empty($booking->flight_duration)) {
+            return $booking->flight_duration;
+        }
+
         $destinationCity = $booking->city;
         $departureCity = $booking->departureCity ?? City::find($booking->departure_city_id);
 
@@ -62,134 +66,111 @@ class TripPlanController extends Controller
     {
         $destinationCity = $booking->city;
         $departureCity = $booking->departureCity ?? City::find($booking->departure_city_id);
-        $duration = $booking->duration;
+        $duration = $booking->duration; // User's total duration (e.g. 7)
         $flightDuration = $this->calculateFlightDuration($booking);
 
         // Get places sorted by price
         $places = $destinationCity->places->sortBy('min_price')->values();
 
-        // Get selected place IDs
-        $selectedPlaceIds = [];
+        // Get selected place IDs - only show what user chose
         if ($booking->selected_place_ids) {
             $selectedPlaceIds = array_map('intval', explode(',', $booking->selected_place_ids));
-            $places = $places->filter(fn($p) => in_array($p->id, $selectedPlaceIds));
+            $places = $places->filter(fn($p) => in_array($p->id, $selectedPlaceIds))->values();
+        } else {
+            $places = collect();
         }
 
         $plan = [];
-
         $departureCityName = $departureCity ? $departureCity->name : 'home';
         $departureCountry = $departureCity && $departureCity->country ? $departureCity->country->name : '';
 
-        // Day 1: Travel Day
+        // Day 1: Arrival & Welcome
+        $hotelInfo = "";
+        if ($booking->include_hotel && $booking->hotel) {
+            $hotelInfo = ". Upon arrival in {$destinationCity->name}, check-in at {$booking->hotel->name} and relax after your journey";
+        } else {
+            $hotelInfo = ". Upon arrival, take some time to settle in and explore your surroundings";
+        }
+
         $plan[] = [
             'day' => 1,
-            'icon' => '✈️',
-            'title' => "Flight to {$destinationCity->name}",
-            'description' => "Departure from {$departureCityName}" . ($departureCountry ? ", {$departureCountry}" : "") . " — Flight duration: {$flightDuration}",
+            'icon' => 'flight_land',
+            'title' => "Travel Day & Welcome",
+            'description' => "Flight from {$departureCityName}" . ($departureCountry ? ", {$departureCountry}" : "") . " ({$flightDuration}){$hotelInfo}.",
             'type' => 'travel',
             'color' => 'blue',
         ];
 
-        if ($duration <= 1) {
-            // If only 1 day, add last day right after
+        if ($duration > 1) {
+            $activityDays = $duration - 2; // Middle days
+            $placeIndex = 0;
+            $totalPlaces = count($places);
+            
+            // Calculate how many places per day to ensure ALL are shown
+            $placesPerDay = $activityDays > 0 ? ceil($totalPlaces / $activityDays) : $totalPlaces;
+            $placesPerDay = max(1, $placesPerDay);
+
+            // Fill activity days
+            for ($d = 1; $d <= max(0, $activityDays); $d++) {
+                $currentDay = $d + 1;
+                $dayPlaces = [];
+
+                for ($i = 0; $i < $placesPerDay && $placeIndex < $totalPlaces; $i++) {
+                    $dayPlaces[] = $places[$placeIndex];
+                    $placeIndex++;
+                }
+
+                if (count($dayPlaces) > 0) {
+                    $titles = [];
+                    $descriptions = [];
+                    foreach ($dayPlaces as $p) {
+                        $titles[] = $p->name;
+                        $descSnippet = substr($p->description, 0, 100);
+                        if (strlen($p->description) > 100) $descSnippet .= '...';
+                        $descriptions[] = "{$p->name}: {$descSnippet} (€{$p->min_price})";
+                    }
+
+                    $plan[] = [
+                        'day' => $currentDay,
+                        'icon' => 'location_on',
+                        'title' => implode(' & ', $titles),
+                        'description' => implode(' ', $descriptions),
+                        'type' => 'place',
+                        'color' => 'emerald',
+                    ];
+                } else {
+                    // Free exploration day
+                    $plan[] = [
+                        'day' => $currentDay,
+                        'icon' => 'explore',
+                        'title' => "Free Exploration in {$destinationCity->name}",
+                        'description' => "Take this day to discover hidden gems, visit local markets, or simply soak in the atmosphere of the city at your own pace.",
+                        'type' => 'free',
+                        'color' => 'slate',
+                    ];
+                }
+            }
+
+            // If there are still places left (e.g. duration is small), add them to the last activity day or arrival
+            if ($placeIndex < $totalPlaces && count($plan) > 0) {
+                $remainingPlaces = $places->slice($placeIndex);
+                $extraDesc = [];
+                foreach ($remainingPlaces as $p) {
+                    $extraDesc[] = "{$p->name} (€{$p->min_price})";
+                }
+                $plan[count($plan)-1]['description'] .= " Also consider visiting: " . implode(', ', $extraDesc) . ".";
+            }
+
+            // Last Day: Return Home (only if duration > 1)
             $plan[] = [
                 'day' => $duration,
-                'icon' => '🛬',
-                'title' => "Return Flight",
-                'description' => "Flight back to {$departureCityName} — Flight duration: {$flightDuration}",
+                'icon' => 'flight_takeoff',
+                'title' => "Final Day & Departure",
+                'description' => "Enjoy your last breakfast in {$destinationCity->name}, complete your souvenir shopping, and head to the airport for your return flight to {$departureCityName} ({$flightDuration}).",
                 'type' => 'travel',
                 'color' => 'blue',
             ];
-            return $plan;
         }
-
-        // Day 2: Hotel check-in
-        if ($booking->include_hotel && $booking->hotel) {
-            $plan[] = [
-                'day' => 2,
-                'icon' => '🏨',
-                'title' => "Check-in at {$booking->hotel->name}",
-                'description' => "Rest & settle in. Explore the local neighborhood.",
-                'type' => 'hotel',
-                'color' => 'amber',
-            ];
-        }
-
-        // Days 3 to duration-1: Places and free exploration
-        $dayCounter = $booking->include_hotel && $booking->hotel ? 3 : 2;
-        $placeIndex = 0;
-
-        while ($dayCounter < $duration && $placeIndex < count($places)) {
-            $placesPerDay = 2;  // Try to fit 2 places per day
-            $dayPlaces = [];
-
-            for ($i = 0; $i < $placesPerDay && $placeIndex < count($places); $i++) {
-                $dayPlaces[] = $places[$placeIndex];
-                $placeIndex++;
-            }
-
-            if (count($dayPlaces) > 0) {
-                $place = $dayPlaces[0];
-                $descSnippet = substr($place->description, 0, 100);
-                if (strlen($place->description) > 100) {
-                    $descSnippet .= '...';
-                }
-
-                $plan[] = [
-                    'day' => $dayCounter,
-                    'icon' => '📍',
-                    'title' => $place->name,
-                    'description' => "{$descSnippet} — From €{$place->min_price}",
-                    'type' => 'place',
-                    'color' => 'emerald',
-                ];
-
-                // If 2 places per day, add second place to same day description
-                if (count($dayPlaces) > 1) {
-                    $place2 = $dayPlaces[1];
-                    $descSnippet2 = substr($place2->description, 0, 60);
-                    if (strlen($place2->description) > 60) {
-                        $descSnippet2 .= '...';
-                    }
-                    $plan[count($plan) - 1]['description'] .= " & {$place2->name} — €{$place2->min_price}";
-                }
-            } else {
-                // Free exploration day
-                $plan[] = [
-                    'day' => $dayCounter,
-                    'icon' => '🗺️',
-                    'title' => "Free Exploration",
-                    'description' => "Discover hidden gems in {$destinationCity->name}",
-                    'type' => 'free',
-                    'color' => 'slate',
-                ];
-            }
-
-            $dayCounter++;
-        }
-
-        // Fill remaining days with free exploration
-        while ($dayCounter < $duration) {
-            $plan[] = [
-                'day' => $dayCounter,
-                'icon' => '🗺️',
-                'title' => "Free Exploration",
-                'description' => "Discover hidden gems in {$destinationCity->name}",
-                'type' => 'free',
-                'color' => 'slate',
-            ];
-            $dayCounter++;
-        }
-
-        // Last day: Return Home
-        $plan[] = [
-            'day' => $duration,
-            'icon' => '🛬',
-            'title' => "Return Flight",
-            'description' => "Flight back to {$departureCityName}" . ($departureCountry ? ", {$departureCountry}" : "") . " — Flight duration: {$flightDuration}",
-            'type' => 'travel',
-            'color' => 'blue',
-        ];
 
         return $plan;
     }
