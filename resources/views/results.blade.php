@@ -250,54 +250,39 @@
 
                     <!-- Hotel Selection -->
                     <div class="glass-card p-8 rounded-xl border border-white/50 shadow-xl">
-                        <div class="flex items-center justify-between mb-6">
-                            <h3 class="text-2xl font-black text-slate-900">Accommodation</h3>
-                            <label class="toggle-switch">
-                                <input type="checkbox" class="hotel-toggle" data-trip="{{ $index }}" checked onchange="updateTrip({{ $index }})">
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-
-                        <div class="hotel-scroll flex gap-4 pb-2" id="hotels-container-{{ $index }}">
-                            @foreach($trip['city']->hotels as $hotel)
-                                <div class="hotel-card glass-card p-4 rounded-lg border border-white/50 hover:shadow-lg w-56 {{ $loop->first ? 'selected' : '' }}"
-                                    onclick="selectHotel({{ $index }}, {{ $hotel->id }})" data-hotel-id="{{ $hotel->id }}" data-hotel-price="{{ $hotel->price_per_night }}">
-                                    <div class="w-full h-32 rounded-md overflow-hidden mb-3">
-                                        <img src="{{ $hotel->image }}" alt="{{ $hotel->name }}" class="w-full h-full object-cover">
-                                    </div>
-                                    <h4 class="font-bold text-slate-900 text-sm truncate">{{ $hotel->name }}</h4>
-                                    <span class="text-xs text-slate-500">{{ $hotel->getTypeLabel() }}</span>
-                                    <p class="text-primary-600 font-black text-lg mt-2">€{{ number_format($hotel->price_per_night) }}/night</p>
+                        <h3 class="text-2xl font-black text-slate-900 mb-6">Accommodation</h3>
+                        <p class="text-slate-600 text-sm font-medium mb-4">You'll choose your hotel after booking</p>
+                        <div class="glass-card p-4 rounded-lg border border-white/50 bg-slate-50">
+                            <div class="flex items-center gap-4">
+                                <div class="w-20 h-20 rounded-md overflow-hidden shrink-0">
+                                    <img src="{{ $trip['hotel']->image }}" alt="{{ $trip['hotel']->name }}" class="w-full h-full object-cover">
                                 </div>
-                            @endforeach
+                                <div class="flex-1">
+                                    <h4 class="font-bold text-slate-900">{{ $trip['hotel']->name }}</h4>
+                                    <span class="text-xs text-slate-500">{{ $trip['hotel']->getTypeLabel() }}</span>
+                                    <p class="text-primary-600 font-black text-sm mt-1">€{{ number_format($trip['hotel']->price_per_night) }}/night</p>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Places Selection -->
                     <div class="glass-card p-8 rounded-xl border border-white/50 shadow-xl">
                         <h3 class="text-2xl font-black text-slate-900 mb-6">Must-Visit Places</h3>
-                        <div id="places-warning-{{ $index }}" class="mb-6"></div>
-                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="places-grid-{{ $index }}">
-                            @forelse($trip['city']->places->sortBy('min_price') as $place)
-                                <div class="place-card glass-card p-5 rounded-[1.5rem] border border-white/50 hover:shadow-lg transition-all">
-                                    <label class="flex items-start gap-4 cursor-pointer">
-                                        <input type="checkbox" class="place-checkbox mt-1 w-5 h-5 cursor-pointer"
-                                            data-trip="{{ $index }}" data-place-id="{{ $place->id }}"
-                                            data-place-price="{{ $place->min_price }}"
-                                            onchange="updateTrip({{ $index }})">
-                                        <div class="flex-1 min-w-0">
-                                            <div class="flex items-start justify-between gap-2">
-                                                <div>
-                                                    <h4 class="font-bold text-slate-900 text-sm">{{ $place->name }}</h4>
-                                                    <p class="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">{{ $place->description }}</p>
-                                                </div>
-                                                <span class="text-primary-600 font-black text-sm whitespace-nowrap">€{{ number_format($place->min_price) }}</span>
-                                            </div>
-                                        </div>
-                                    </label>
+                        <p class="text-slate-600 text-sm font-medium mb-4">Select your favorites after booking</p>
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            @forelse($trip['city']->places->take(4) as $place)
+                                <div class="glass-card p-4 rounded-lg border border-white/50 bg-slate-50 flex gap-3">
+                                    <div class="w-16 h-16 rounded-md overflow-hidden shrink-0">
+                                        <img src="{{ $place->image }}" alt="{{ $place->name }}" class="w-full h-full object-cover">
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <h4 class="font-bold text-slate-900 text-sm truncate">{{ $place->name }}</h4>
+                                        <p class="text-xs text-slate-500 mt-1 line-clamp-1">€{{ number_format($place->min_price) }}</p>
+                                    </div>
                                 </div>
                             @empty
-                                <p class="text-slate-400 col-span-2">No places available in this city</p>
+                                <p class="text-slate-400 col-span-2">No places available</p>
                             @endforelse
                         </div>
                     </div>
@@ -356,16 +341,7 @@
                                 </div>
 
                                 <!-- Flights -->
-                                <div>
-                                    <div class="flex justify-between items-center text-sm mb-3">
-                                        <span class="font-bold text-slate-800">Flights</span>
-                                        <span class="text-slate-400 font-bold italic">€<span class="flight-cost-display-{{ $index }}">{{ number_format($trip['flight_budget']) }}</span></span>
-                                    </div>
-                                    <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                                        <div class="h-full bg-sky-500 rounded-full budget-progress-flight-{{ $index }}"
-                                            data-width="{{ ($trip['flight_budget'] / $trip['total_price']) * 100 }}%"></div>
-                                    </div>
-                                </div>
+                                <!-- Flights bar removed - selections will be made on booking page -->
 
                                 <!-- Miscellaneous -->
                                 <div>
@@ -389,13 +365,11 @@
                                 <input type="hidden" name="budget_total" value="{{ $trip['budget_total'] }}" class="budget-total-{{ $index }}">
                                 <input type="hidden" name="hotel_budget" value="{{ $trip['hotel_budget'] }}" class="hotel-budget-{{ $index }}">
                                 <input type="hidden" name="flight_budget" value="{{ $trip['flight_budget'] }}" class="flight-budget-{{ $index }}">
-                                <input type="hidden" name="activities_budget" value="0" class="activities-budget-{{ $index }}">
+                                <input type="hidden" name="activities_budget" value="{{ $trip['activities_budget'] }}" class="activities-budget-{{ $index }}">
                                 <input type="hidden" name="misc_budget" value="{{ $trip['misc_budget'] }}" class="misc-budget-{{ $index }}">
                                 <input type="hidden" name="total_price" value="{{ $trip['total_price'] }}" class="total-price-{{ $index }}">
                                 <input type="hidden" name="trip_type" value="{{ $trip['trip_type'] }}" class="trip-type-{{ $index }}">
                                 <input type="hidden" name="departure_city_id" value="{{ $departure_city_id }}" class="departure-city-id-{{ $index }}">
-                                <input type="hidden" name="selected_place_ids" value="" class="selected-place-ids-{{ $index }}">
-                                <input type="hidden" name="include_hotel" value="1" class="include-hotel-{{ $index }}">
 
                                 <button type="submit"
                                     class="w-full py-5 bg-slate-950 text-white font-black text-xl rounded-lg shadow-lg hover:shadow-xl transition-all relative overflow-hidden group">
@@ -437,86 +411,6 @@
 
             animateProgress(index);
             animateNumbers(index);
-        }
-
-        function selectHotel(tripIndex, hotelId) {
-            const container = document.getElementById(`hotels-container-${tripIndex}`);
-            container.querySelectorAll('.hotel-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            event.currentTarget.classList.add('selected');
-
-            document.querySelector(`.hotel-id-${tripIndex}`).value = hotelId;
-            updateTrip(tripIndex);
-        }
-
-        function updateTrip(tripIndex) {
-            const budgetTotal = parseFloat(document.querySelector(`.budget-total-${tripIndex}`).value);
-            const duration = parseInt(document.querySelector(`.duration-${tripIndex}`).value);
-            const passengers = parseInt(document.querySelector(`.passengers-${tripIndex}`).value);
-            const includeHotelCheckbox = document.querySelector(`.hotel-toggle[data-trip="${tripIndex}"]`);
-            const includeHotel = includeHotelCheckbox.checked ? 1 : 0;
-
-            // Get selected hotel
-            const selectedHotelCard = document.querySelector(`#hotels-container-${tripIndex} .hotel-card.selected`);
-            const hotelPricePerNight = selectedHotelCard ? parseFloat(selectedHotelCard.dataset.hotelPrice) : 0;
-
-            // Get selected places
-            const selectedPlaces = Array.from(document.querySelectorAll(`.place-checkbox[data-trip="${tripIndex}"]:checked`));
-            const selectedPlaceIds = selectedPlaces.map(p => p.dataset.placeId).join(',');
-            const placesCost = selectedPlaces.reduce((sum, p) => sum + (parseFloat(p.dataset.placePrice) * passengers), 0);
-
-            // Calculate budgets
-            const hotelCost = includeHotel ? (hotelPricePerNight * duration * passengers) : 0;
-            const remaining = budgetTotal - hotelCost;
-            const flightBudget = remaining * 0.30;
-            const miscBudget = remaining * 0.20;
-            const activitiesBudget = remaining * 0.50;
-
-            // Update form values
-            document.querySelector(`.selected-place-ids-${tripIndex}`).value = selectedPlaceIds;
-            document.querySelector(`.include-hotel-${tripIndex}`).value = includeHotel;
-            document.querySelector(`.hotel-budget-${tripIndex}`).value = hotelCost.toFixed(2);
-            document.querySelector(`.flight-budget-${tripIndex}`).value = flightBudget.toFixed(2);
-            document.querySelector(`.activities-budget-${tripIndex}`).value = activitiesBudget.toFixed(2);
-            document.querySelector(`.misc-budget-${tripIndex}`).value = miscBudget.toFixed(2);
-
-            // Update display values with animation
-            animateNumber(document.querySelector(`.count-total-${tripIndex}`), Math.round(budgetTotal));
-            animateNumber(document.querySelector(`.hotel-cost-display-${tripIndex}`), Math.round(hotelCost));
-            animateNumber(document.querySelector(`.places-cost-display-${tripIndex}`), Math.round(placesCost));
-            animateNumber(document.querySelector(`.flight-cost-display-${tripIndex}`), Math.round(flightBudget));
-            animateNumber(document.querySelector(`.misc-cost-display-${tripIndex}`), Math.round(miscBudget));
-
-            // Update progress bars
-            const totalForPerc = budgetTotal > 0 ? budgetTotal : 1;
-            document.querySelector(`.budget-progress-${tripIndex}`).style.width = ((hotelCost / totalForPerc) * 100) + '%';
-            document.querySelector(`.budget-progress-places-${tripIndex}`).style.width = ((placesCost / totalForPerc) * 100) + '%';
-            document.querySelector(`.budget-progress-flight-${tripIndex}`).style.width = ((flightBudget / totalForPerc) * 100) + '%';
-            document.querySelector(`.budget-progress-misc-${tripIndex}`).style.width = ((miscBudget / totalForPerc) * 100) + '%';
-
-            // Show/hide hotel bar
-            const hotelBar = document.querySelector(`.hotel-bar-${tripIndex}`);
-            if (includeHotel) {
-                hotelBar.style.display = 'block';
-            } else {
-                hotelBar.style.display = 'none';
-            }
-
-            // Update warning
-            if (placesCost > activitiesBudget) {
-                const excess = placesCost - activitiesBudget;
-                document.getElementById(`places-warning-${tripIndex}`).innerHTML = `
-                    <div class="warning-box bg-amber-50 border border-amber-200 rounded-lg p-4 flex gap-3">
-                        <span class="material-symbols-outlined text-amber-600 shrink-0">warning</span>
-                        <div class="text-sm text-amber-700 font-bold">
-                            Places cost exceeds activities budget by <strong>€${Math.round(excess)}</strong>
-                        </div>
-                    </div>
-                `;
-            } else {
-                document.getElementById(`places-warning-${tripIndex}`).innerHTML = '';
-            }
         }
 
         function animateNumber(el, target) {
@@ -566,7 +460,6 @@
         document.addEventListener('DOMContentLoaded', () => {
             animateProgress(0);
             animateNumbers(0);
-            updateTrip(0);
         });
 
         function toggleExperience(id, btn) {
