@@ -54,9 +54,9 @@
         transition: all 0.3s ease;
     }
     .hotel-card.selected {
-        ring: 2px;
-        ring-color: #0284c7;
-        box-shadow: 0 0 0 2px white, 0 0 0 4px #0284c7;
+        border-color: #0284c7;
+        background: rgba(2, 132, 199, 0.05);
+        box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
     }
     .toggle-switch {
         position: relative;
@@ -189,57 +189,94 @@
             @if($booking->status === 'pending')
             <!-- Hotel Selection -->
             <div class="glass-card p-8 rounded-xl border border-white/50 shadow-xl">
-                <div class="flex items-center justify-between mb-6">
-                    <h3 class="text-2xl font-black text-slate-900">Accommodation</h3>
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h3 class="text-2xl font-black text-slate-900 tracking-tight">Accommodation</h3>
+                        <p class="text-slate-500 text-sm font-medium mt-1">Select your preferred stay</p>
+                    </div>
                     <label class="toggle-switch">
-                        <input type="checkbox" class="hotel-toggle" checked onchange="updateTrip()">
+                        <input type="checkbox" class="hotel-toggle" {{ $booking->include_hotel ? 'checked' : '' }} onchange="updateTrip()">
                         <span class="toggle-slider"></span>
                     </label>
                 </div>
 
-                <div class="hotel-scroll flex gap-4 pb-2" id="hotels-container">
+                <div class="hotel-scroll flex gap-6 pb-6" id="hotels-container">
                     @foreach($booking->city->hotels as $hotel)
-                        <div class="hotel-card glass-card p-4 rounded-lg border border-white/50 hover:shadow-lg w-56 {{ $booking->hotel_id === $hotel->id ? 'selected' : '' }}"
+                        <div class="hotel-card glass-card p-4 rounded-xl border border-white/50 hover:shadow-2xl w-72 flex-shrink-0 transition-all duration-300 relative group {{ $booking->hotel_id === $hotel->id ? 'selected' : '' }}"
                             onclick="selectHotel({{ $hotel->id }})" data-hotel-id="{{ $hotel->id }}" data-hotel-price="{{ $hotel->price_per_night }}">
-                            <div class="w-full h-32 rounded-md overflow-hidden mb-3">
-                                <img src="{{ $hotel->image }}" alt="{{ $hotel->name }}" class="w-full h-full object-cover">
+                            
+                            <div class="absolute top-4 right-4 z-20">
+                                <div class="w-6 h-6 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center transition-all group-[.selected]:bg-primary-600 group-[.selected]:border-primary-600">
+                                    <span class="material-symbols-outlined text-white text-xs scale-0 transition-transform group-[.selected]:scale-100">check</span>
+                                </div>
                             </div>
-                            <h4 class="font-bold text-slate-900 text-sm truncate">{{ $hotel->name }}</h4>
-                            <span class="text-xs text-slate-500">{{ $hotel->getTypeLabel() }}</span>
-                            <p class="text-primary-600 font-black text-lg mt-2">€{{ number_format($hotel->price_per_night) }}/night</p>
+
+                            <div class="w-full h-44 rounded-lg overflow-hidden mb-4 relative">
+                                <img src="{{ $hotel->image }}" alt="{{ $hotel->name }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                                <div class="absolute bottom-2 left-2 px-2 py-1 bg-black/50 backdrop-blur-md rounded text-[10px] font-bold text-white uppercase tracking-widest">
+                                    {{ $hotel->getTypeLabel() }}
+                                </div>
+                            </div>
+                            
+                            <div class="px-1">
+                                <h4 class="font-bold text-slate-900 text-lg truncate mb-1 tracking-tight">{{ $hotel->name }}</h4>
+                                <div class="flex items-center gap-2 mb-4">
+                                    <span class="text-primary-600 font-black text-xl">€{{ number_format($hotel->price_per_night) }}</span>
+                                    <span class="text-slate-400 text-xs font-bold uppercase italic">/ night</span>
+                                </div>
+                                
+                                <a class="inline-flex items-center gap-2 text-primary-600 font-black text-xs uppercase tracking-widest hover:text-primary-700 transition-all relative z-30" 
+                                   href="{{ route('hotels.show', $hotel->id) }}?booking_id={{ $booking->id }}" 
+                                   onclick="event.stopPropagation()">
+                                    View Details <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                                </a>
+                            </div>
                         </div>
                     @endforeach
                 </div>
             </div>
 
-            <!-- Places Selection -->
+            <!-- Flight Selection -->
             <div class="glass-card p-8 rounded-xl border border-white/50 shadow-xl">
-                <h3 class="text-2xl font-black text-slate-900 mb-6">Must-Visit Places</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="places-grid">
-                    @forelse($booking->city->places->sortBy('min_price') as $place)
-                        <div class="place-card glass-card p-5 rounded-[1.5rem] border border-white/50 hover:shadow-lg transition-all">
-                            <label class="flex items-start gap-4 cursor-pointer">
-                                <input type="checkbox" class="place-checkbox mt-1 w-5 h-5 cursor-pointer"
-                                    data-place-id="{{ $place->id }}"
-                                    data-place-price="{{ $place->min_price }}"
-                                    {{ in_array($place->id, array_filter(explode(',', $booking->selected_place_ids ?? ''))) ? 'checked' : '' }}
-                                    onchange="updateTrip()">
-                                <div class="flex-1 min-w-0">
-                                    <div class="flex items-start justify-between gap-2">
-                                        <div>
-                                            <h4 class="font-bold text-slate-900 text-sm">{{ $place->name }}</h4>
-                                            <p class="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">{{ $place->description }}</p>
-                                        </div>
-                                        <span class="text-primary-600 font-black text-sm whitespace-nowrap">€{{ number_format($place->min_price) }}</span>
+                <div class="flex items-center justify-between mb-8">
+                    <div>
+                        <h3 class="text-2xl font-black text-slate-900 tracking-tight">Available Flights</h3>
+                        <p class="text-slate-500 text-sm font-medium mt-1">Based on your destination and departure</p>
+                    </div>
+                </div>
+
+                <div class="space-y-4" id="flights-container">
+                    @foreach($flights as $flight)
+                        <div class="flight-option glass-card p-6 rounded-xl border border-white/50 hover:shadow-xl transition-all duration-300 {{ $booking->flight_airline === $flight['airline'] ? 'border-primary-500 bg-primary-50/10' : '' }}">
+                            <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+                                <div class="flex items-center gap-4">
+                                    <div class="w-12 h-12 bg-slate-900 rounded-full flex items-center justify-center text-white">
+                                        <span class="material-symbols-outlined">flight_takeoff</span>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-slate-900 text-lg">{{ $flight['airline'] }}</h4>
+                                        <p class="text-slate-500 text-sm font-medium flex items-center gap-1">
+                                            <span class="material-symbols-outlined text-xs">schedule</span> {{ $flight['duration'] }}
+                                        </p>
                                     </div>
                                 </div>
-                            </label>
+                                
+                                <div class="flex flex-wrap gap-3">
+                                    @foreach($flight['classes'] as $key => $class)
+                                        <button type="button" 
+                                            class="flight-class-btn px-4 py-3 rounded-lg border-2 border-slate-100 hover:border-primary-300 transition-all text-left min-w-[140px] {{ ($booking->flight_airline === $flight['airline'] && $booking->flight_class === $key) ? 'border-primary-600 bg-primary-50' : 'bg-white' }}"
+                                            onclick="selectFlight('{{ $flight['airline'] }}', '{{ $flight['duration'] }}', '{{ $key }}', {{ $class['price'] }}, this)">
+                                            <div class="text-[10px] font-black uppercase tracking-widest text-slate-400">{{ $class['label'] }}</div>
+                                            <div class="font-bold text-slate-900">€{{ number_format($class['price']) }}</div>
+                                        </button>
+                                    @endforeach
+                                </div>
+                            </div>
                         </div>
-                    @empty
-                        <p class="text-slate-400 col-span-2">No places available in this city</p>
-                    @endforelse
+                    @endforeach
                 </div>
             </div>
+
             @endif
 
             <!-- Display Accommodation Section (after selections or always if paid) -->
@@ -262,18 +299,33 @@
             <!-- Attractions Grid -->
             <div class="space-y-6">
                 <h3 class="text-2xl font-black text-slate-900 tracking-tight ml-2">Must-Visit Spots</h3>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    @foreach($booking->city->places as $place)
-                    <div class="glass-card p-5 rounded-[1.5rem] flex gap-5 border border-white/50 hover:shadow-lg transition-all group">
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="places-grid">
+                    @foreach($booking->city->places->sortBy('min_price') as $place)
+                    <div class="place-card glass-card p-5 rounded-xl flex gap-5 border border-white/50 hover:shadow-lg transition-all group relative {{ $booking->status === 'pending' ? 'cursor-pointer' : '' }}">
+                        @if($booking->status === 'pending')
+                        <input type="checkbox" class="place-checkbox absolute top-4 right-4 w-5 h-5 cursor-pointer z-20"
+                            data-place-id="{{ $place->id }}"
+                            data-place-price="{{ $place->min_price }}"
+                            {{ in_array($place->id, array_filter(explode(',', $booking->selected_place_ids ?? ''))) ? 'checked' : '' }}
+                            onchange="updateTrip()">
+                        @endif
+                        
                         <div class="w-24 h-24 rounded-lg overflow-hidden shrink-0 shadow-sm">
                             <img src="{{ $place->image }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
                         </div>
-                        <div class="flex flex-col justify-center min-w-0">
-                            <h4 class="font-bold text-slate-900 truncate tracking-tight">{{ $place->name }}</h4>
-                            <p class="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">{{ $place->description }}</p>
-                            <a class="text-[10px] font-black text-primary-600 uppercase tracking-widest mt-2 flex items-center gap-1 hover:text-primary-700" href="{{ route('places.show', $place->id) }}?booking_id={{ $booking->id }}">
-                                Explore <span class="material-symbols-outlined text-[12px]">arrow_forward</span>
-                            </a>
+                        <div class="flex-1 flex flex-col justify-between min-w-0">
+                            <div>
+                                <h4 class="font-bold text-slate-900 truncate tracking-tight pr-8">{{ $place->name }}</h4>
+                                <p class="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">{{ $place->description }}</p>
+                            </div>
+                            <div class="flex items-center justify-between mt-3">
+                                <a class="text-[10px] font-black text-primary-600 uppercase tracking-widest flex items-center gap-1 hover:text-primary-700 w-fit relative z-30" href="{{ route('places.show', $place->id) }}?booking_id={{ $booking->id }}">
+                                    Explore <span class="material-symbols-outlined text-[12px]">arrow_forward</span>
+                                </a>
+                                <span class="px-3 py-1 bg-primary-50 text-primary-600 font-black text-xs rounded-full border border-primary-100">
+                                    €{{ number_format($place->min_price) }}
+                                </span>
+                            </div>
                         </div>
                     </div>
                     @endforeach
@@ -300,6 +352,16 @@
 
                     <!-- Progress Bars -->
                     <div class="space-y-7 mb-12 relative z-10">
+                        <div>
+                            <div class="flex justify-between items-center text-sm mb-3 font-bold">
+                                <span class="text-slate-800">Flight</span>
+                                <span class="text-slate-400 italic">&euro;<span class="flight-cost-display" id="flight-cost" data-target="{{ $booking->flight_budget }}">0</span></span>
+                            </div>
+                            <div class="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
+                                @php $flightPerc = $booking->total_price > 0 ? ($booking->flight_budget / $booking->total_price) * 100 : 0; @endphp
+                                <div class="h-full bg-blue-500 rounded-full budget-progress" id="flight-bar" data-width="{{ $flightPerc }}%"></div>
+                            </div>
+                        </div>
                         <div>
                             <div class="flex justify-between items-center text-sm mb-3 font-bold">
                                 <span class="text-slate-800">Accommodation</span>
@@ -339,8 +401,12 @@
                                 @csrf
                                 @method('PUT')
                                 <input type="hidden" name="hotel_id" id="form-hotel-id" value="{{ $booking->hotel_id }}">
-                                <input type="hidden" name="include_hotel" id="form-include-hotel" value="1">
+                                <input type="hidden" name="include_hotel" id="form-include-hotel" value="{{ $booking->include_hotel ? '1' : '0' }}">
                                 <input type="hidden" name="selected_place_ids" id="form-selected-places" value="{{ $booking->selected_place_ids }}">
+                                <input type="hidden" name="airline" id="form-airline" value="{{ $booking->flight_airline }}">
+                                <input type="hidden" name="flight_duration" id="form-flight-duration" value="{{ $booking->flight_duration }}">
+                                <input type="hidden" name="flight_class" id="form-flight-class" value="{{ $booking->flight_class }}">
+                                <input type="hidden" name="flight_price" id="form-flight-price" value="{{ $booking->flight_price }}">
 
                                 <button type="submit" class="w-full py-5 bg-gradient-primary text-white font-black text-lg rounded-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3 active:scale-95 group relative overflow-hidden">
                                     <div class="absolute inset-0 bg-primary-700 opacity-0 group-hover:opacity-10 transition-opacity"></div>
@@ -406,6 +472,27 @@
         updateTrip();
     }
 
+    function selectFlight(airline, durationStr, className, price, btn) {
+        // Update hidden fields
+        document.getElementById('form-airline').value = airline;
+        document.getElementById('form-flight-duration').value = durationStr;
+        document.getElementById('form-flight-class').value = className;
+        document.getElementById('form-flight-price').value = price;
+
+        // Visual updates
+        document.querySelectorAll('.flight-class-btn').forEach(b => {
+            b.classList.remove('border-primary-600', 'bg-primary-50');
+            b.classList.add('bg-white');
+        });
+        btn.classList.add('border-primary-600', 'bg-primary-50');
+        btn.classList.remove('bg-white');
+
+        document.querySelectorAll('.flight-option').forEach(opt => opt.classList.remove('border-primary-500', 'bg-primary-50/10'));
+        btn.closest('.flight-option').classList.add('border-primary-500', 'bg-primary-50/10');
+
+        updateTrip();
+    }
+
     function updateTrip() {
         const includeHotelCheckbox = document.querySelector('.hotel-toggle');
         const includeHotel = includeHotelCheckbox ? includeHotelCheckbox.checked : true;
@@ -419,12 +506,15 @@
         const selectedPlaceIds = selectedPlaces.map(p => p.dataset.placeId).join(',');
         const placesCost = selectedPlaces.reduce((sum, p) => sum + (parseFloat(p.dataset.placePrice) * passengers), 0);
 
+        // Get selected flight
+        const flightPrice = parseFloat(document.getElementById('form-flight-price').value) || 0;
+        const flightCost = flightPrice * passengers;
+
         // Calculate budgets
         const hotelCost = includeHotel ? (hotelPricePerNight * duration * passengers) : 0;
-        const remaining = budgetTotal - hotelCost;
-        const flightBudget = remaining * 0.30;
+        const remaining = budgetTotal - hotelCost - flightCost;
         const miscBudget = remaining * 0.20;
-        const activitiesBudget = remaining * 0.50;
+        const activitiesBudget = remaining * 0.80;
 
         // Update form values
         document.getElementById('form-include-hotel').value = includeHotel ? '1' : '0';
@@ -433,12 +523,14 @@
         // Update display values with animation
         animateNumber(document.getElementById('total-amount'), budgetTotal);
         animateNumber(document.getElementById('hotel-cost'), Math.round(hotelCost));
+        animateNumber(document.getElementById('flight-cost'), Math.round(flightCost));
         animateNumber(document.getElementById('activities-cost'), Math.round(activitiesBudget));
         animateNumber(document.getElementById('misc-cost'), Math.round(miscBudget));
 
         // Update progress bars
         const totalForPerc = budgetTotal > 0 ? budgetTotal : 1;
         document.getElementById('hotel-bar').style.width = ((hotelCost / totalForPerc) * 100) + '%';
+        document.getElementById('flight-bar').style.width = ((flightCost / totalForPerc) * 100) + '%';
         document.getElementById('activities-bar').style.width = ((activitiesBudget / totalForPerc) * 100) + '%';
         document.getElementById('misc-bar').style.width = ((miscBudget / totalForPerc) * 100) + '%';
     }
