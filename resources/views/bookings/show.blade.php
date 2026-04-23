@@ -450,7 +450,24 @@
                             Budget Limit Exceeded!
                         </div>
 
-                        <button onclick="increaseBudget()" class="mt-4 w-full py-2 border-2 border-dashed border-slate-200 rounded-lg text-[10px] font-black text-slate-400 uppercase tracking-widest hover:border-primary-400 hover:text-primary-600 transition-all flex items-center justify-center gap-2">
+                        <div id="budget-increment-view" class="mt-4 hidden animate-slide-up">
+                            <div class="flex items-center gap-2">
+                                <div class="relative flex-1">
+                                    <span class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 font-bold text-xs">€</span>
+                                    <input type="number" id="budget-add-input" 
+                                           class="w-full pl-7 pr-3 py-2 bg-slate-50 border-2 border-slate-200 rounded-lg text-sm font-bold focus:border-primary-500 focus:outline-none transition-all" 
+                                           placeholder="Amount to add">
+                                </div>
+                                <button onclick="applyBudgetIncrease()" class="px-4 py-2 bg-primary-600 text-white rounded-lg font-black text-[10px] uppercase tracking-widest hover:bg-primary-700 transition-all">
+                                    Add
+                                </button>
+                                <button onclick="toggleBudgetIncrease(false)" class="p-2 text-slate-400 hover:text-slate-600">
+                                    <span class="material-symbols-outlined text-sm">close</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <button id="increase-budget-btn" onclick="toggleBudgetIncrease(true)" class="mt-4 w-full py-2 border-2 border-dashed border-slate-200 rounded-lg text-[10px] font-black text-slate-400 uppercase tracking-widest hover:border-primary-400 hover:text-primary-600 transition-all flex items-center justify-center gap-2">
                             <span class="material-symbols-outlined text-sm">add_circle</span> Increase My Budget
                         </button>
 
@@ -727,13 +744,41 @@
         }
     }
 
-    function increaseBudget() {
-        const extra = prompt("How much would you like to add to your budget? (€)", "500");
-        if (extra && !isNaN(extra)) {
-            budgetLimit += parseFloat(extra);
+    function toggleBudgetIncrease(show) {
+        const btn = document.getElementById('increase-budget-btn');
+        const view = document.getElementById('budget-increment-view');
+        const input = document.getElementById('budget-add-input');
+        
+        if (show) {
+            btn.classList.add('hidden');
+            view.classList.remove('hidden');
+            input.focus();
+        } else {
+            btn.classList.remove('hidden');
+            view.classList.add('hidden');
+            input.value = '';
+        }
+    }
+
+    function applyBudgetIncrease() {
+        const input = document.getElementById('budget-add-input');
+        const extra = parseFloat(input.value);
+        
+        if (extra && !isNaN(extra) && extra > 0) {
+            budgetLimit += extra;
             document.getElementById('budget-limit-display').textContent = Math.round(budgetLimit).toLocaleString();
             updateTrip();
+            toggleBudgetIncrease(false);
+            
+            // Success flash
+            const limitDisplay = document.getElementById('budget-limit-display').parentElement;
+            limitDisplay.classList.add('text-primary-600', 'scale-110');
+            setTimeout(() => limitDisplay.classList.remove('text-primary-600', 'scale-110'), 1000);
         }
+    }
+
+    function increaseBudget() {
+        // Redundant - replaced by inline toggle
     }
 
     function animateNumber(el, target) {
