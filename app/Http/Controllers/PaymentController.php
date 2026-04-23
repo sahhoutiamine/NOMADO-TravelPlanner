@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Booking;
+use App\Models\Hotel;
 use App\Models\Payment;
 use Illuminate\Http\Request;
 
@@ -16,14 +17,9 @@ class PaymentController extends Controller
             return redirect()->route('bookings.show', $id)->with('error', 'This booking is already paid.');
         }
 
-        $flights = [
-            ['airline' => 'Air France', 'duration' => '2h 30m', 'departure' => '06:00', 'arrival' => '08:30', 'price' => 189],
-            ['airline' => 'Lufthansa', 'duration' => '3h 10m', 'departure' => '09:15', 'arrival' => '12:25', 'price' => 234],
-            ['airline' => 'EasyJet', 'duration' => '2h 50m', 'departure' => '14:00', 'arrival' => '16:50', 'price' => 149],
-            ['airline' => 'Emirates', 'duration' => '4h 00m', 'departure' => '20:30', 'arrival' => '00:30', 'price' => 312],
-        ];
+        $hotels = Hotel::where('city_id', $booking->city_id)->get();
 
-        return view('payment.show', compact('booking', 'flights'));
+        return view('payment.show', compact('booking', 'hotels'));
     }
 
     public function store(Request $request, $id)
@@ -34,29 +30,34 @@ class PaymentController extends Controller
             'start_date' => 'required|date|after_or_equal:today',
             'departure_country' => 'required|string|max:100',
             'departure_city' => 'required|string|max:100',
-            'is_flight_paid' => 'required|boolean',
+            'hotel_id' => 'required|exists:hotels,id',
             'is_hotel_paid' => 'required|boolean',
-            'airline' => 'nullable|string|max:100',
-            'flight_departure' => 'nullable|string|max:10',
-            'flight_arrival' => 'nullable|string|max:10',
-            'flight_duration' => 'nullable|string|max:50',
         ]);
 
+        // Verify hotel belongs to the booking's city
+        $hotel = Hotel::where('id', $validated['hotel_id'])
+            ->where('city_id', $booking->city_id)
+            ->firstOrFail();
+
+        // Calculate hotel budget based on selected hotel and booking duration/passengers
+        $hotelBudget = $hotel->price_per_night * $booking->duration * $booking->passengers;
+
+        // Create payment record
         $payment = Payment::create([
             'user_id' => auth()->id(),
             'booking_id' => $booking->id,
             'start_date' => $validated['start_date'],
             'departure_country' => $validated['departure_country'],
             'departure_city' => $validated['departure_city'],
-            'is_flight_paid' => $validated['is_flight_paid'],
             'is_hotel_paid' => $validated['is_hotel_paid'],
-            'airline' => $validated['airline'],
-            'flight_departure' => $validated['flight_departure'],
-            'flight_arrival' => $validated['flight_arrival'],
-            'flight_duration' => $validated['flight_duration'],
         ]);
 
-        $booking->update(['status' => 'paid']);
+        // Update booking with selected hotel and calculated hotel budget
+        $booking->update([
+            'hotel_id' => $validated['hotel_id'],
+            'hotel_budget' => $hotelBudget,
+            'status' => 'paid',
+        ]);
 
         return redirect()->route('payment.ticket', $booking->id);
     }
@@ -70,3 +71,4 @@ class PaymentController extends Controller
         return view('payment.ticket', compact('payment'));
     }
 }
+
