@@ -34,6 +34,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/my-bookings', [MyBookingsController::class, 'index'])->name('bookings.index');
     Route::get('/my-bookings/{id}', [MyBookingsController::class, 'show'])->name('bookings.show');
+    Route::put('/my-bookings/{id}', [MyBookingsController::class, 'update'])->name('bookings.update');
     Route::delete('/my-bookings/{id}', [MyBookingsController::class, 'destroy'])->name('bookings.destroy');
     Route::get('/my-bookings/{id}/plan', [TripPlanController::class, 'show'])->name('bookings.plan');
 
