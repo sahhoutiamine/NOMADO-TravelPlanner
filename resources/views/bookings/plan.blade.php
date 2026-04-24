@@ -196,7 +196,7 @@
                 </div>
                 <div class="glass-card p-6 rounded-2xl text-center border-white/80">
                     <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Budget</p>
-                    <p class="text-2xl font-black text-emerald-600">€{{ number_format($booking->total_price) }}</p>
+                    <p class="text-2xl font-black text-emerald-600">€{{ number_format($booking->budget_total) }}</p>
                 </div>
                 <div class="glass-card p-6 rounded-2xl text-center border-white/80">
                     <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Flight</p>
