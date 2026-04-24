@@ -18,7 +18,7 @@ class DashboardController extends Controller
         $stats = [
             'total_users' => User::count(),
             'total_bookings' => Booking::count(),
-            'total_revenue' => Booking::where('status', 'paid')->sum('total_price'),
+            'total_revenue' => Booking::where('status', 'paid')->sum('budget_total'),
             'total_countries' => Country::count(),
             'total_cities' => City::count(),
             'total_hotels' => Hotel::count(),
