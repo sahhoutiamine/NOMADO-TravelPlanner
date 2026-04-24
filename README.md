@@ -238,7 +238,7 @@ Prix total = Prix hôtel + Prix vol
 - hotel_budget (40% du budget total - pour l'hôtel)
 - activities_budget (20% du budget total)
 - misc_budget (10% du budget total)
-- total_price (prix final calculé)
+- budget_total (budget final total)
 - status (ENUM: 'pending', 'paid')
   → 'pending' = en attente de paiement
   → 'paid' = voyage payé et confirmé
