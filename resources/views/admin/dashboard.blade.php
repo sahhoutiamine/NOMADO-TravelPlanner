@@ -127,7 +127,7 @@
                                 <p class="text-[10px] text-primary-600 font-black uppercase tracking-widest italic">{{ $booking->trip_type }}</p>
                             </td>
                             <td class="py-6 pr-4">
-                                <span class="font-black text-slate-950">&euro;{{ number_format($booking->total_price, 0) }}</span>
+                                <span class="font-black text-slate-950">&euro;{{ number_format($booking->budget_total, 0) }}</span>
                             </td>
                             <td class="py-6">
                                 <span class="px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-2 w-fit {{ $booking->status === 'paid' ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-amber-50 text-amber-600 border border-amber-100' }}">
