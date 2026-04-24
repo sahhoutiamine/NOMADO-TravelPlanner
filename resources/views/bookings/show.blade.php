@@ -554,7 +554,7 @@
                                 <input type="hidden" name="airline" id="form-airline" value="{{ $booking->flight_airline }}">
                                 <input type="hidden" name="flight_duration" id="form-flight-duration" value="{{ $booking->flight_duration }}">
                                 <input type="hidden" name="flight_class" id="form-flight-class" value="{{ $booking->flight_class }}">
-                                <input type="hidden" name="flight_price" id="form-flight-price" value="{{ $booking->flight_price }}">
+                                <input type="hidden" name="flight_budget" id="form-flight-price" value="{{ $booking->passengers > 0 ? $booking->flight_budget / $booking->passengers : 0 }}">
                                 <input type="hidden" name="budget_total" id="form-budget-total" value="{{ $booking->budget_total }}">
                             </form>
                         @endif
