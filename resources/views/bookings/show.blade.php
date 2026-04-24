@@ -554,7 +554,7 @@
                                 <input type="hidden" name="airline" id="form-airline" value="{{ $booking->flight_airline }}">
                                 <input type="hidden" name="flight_duration" id="form-flight-duration" value="{{ $booking->flight_duration }}">
                                 <input type="hidden" name="flight_class" id="form-flight-class" value="{{ $booking->flight_class }}">
-                                <input type="hidden" name="flight_budget" id="form-flight-price" value="{{ $booking->passengers > 0 ? $booking->flight_budget / $booking->passengers : 0 }}">
+                                <input type="hidden" name="flight_budget" id="form-flight-price" value="{{ $booking->flight_airline ? ($booking->passengers > 0 ? $booking->flight_budget / $booking->passengers : 0) : 0 }}">
                                 <input type="hidden" name="budget_total" id="form-budget-total" value="{{ $booking->budget_total }}">
                             </form>
                         @endif
@@ -610,19 +610,17 @@
 
     function selectHotel(hotelId) {
         const card = event.currentTarget;
-        const isCurrentlySelected = card.classList.contains('selected');
         const container = document.getElementById('hotels-container');
         
+        // Remove selection from all cards
         container.querySelectorAll('.hotel-card').forEach(c => {
             c.classList.remove('selected');
         });
 
-        if (isCurrentlySelected) {
-            document.getElementById('form-hotel-id').value = '';
-        } else {
-            card.classList.add('selected');
-            document.getElementById('form-hotel-id').value = hotelId;
-        }
+        // Always select the clicked hotel
+        card.classList.add('selected');
+        document.getElementById('form-hotel-id').value = hotelId;
+        
         updateTrip();
     }
 
