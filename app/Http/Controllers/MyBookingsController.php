@@ -114,7 +114,7 @@ class MyBookingsController extends Controller
                 'airline' => 'nullable|string',
                 'flight_duration' => 'nullable|string',
                 'flight_class' => 'nullable|string',
-                'flight_price' => 'nullable|numeric',
+                'flight_budget' => 'nullable|numeric',
                 'budget_total' => 'nullable|numeric',
             ]);
 
@@ -131,7 +131,7 @@ class MyBookingsController extends Controller
                 }
             }
 
-            $flightCost = ($request->flight_price ?? 0) * $booking->passengers;
+            $flightCost = ($request->flight_budget ?? 0) * $booking->passengers;
 
             $placeIds = array_filter(explode(',', $request->selected_place_ids ?? ''));
             $places = Place::whereIn('id', $placeIds)->get();
@@ -152,7 +152,6 @@ class MyBookingsController extends Controller
                 'flight_airline' => $request->airline,
                 'flight_duration' => $request->flight_duration,
                 'flight_class' => $request->flight_class,
-                'flight_price' => $request->flight_price,
                 'hotel_budget' => $hotelCost,
                 'flight_budget' => $flightCost,
                 'activities_budget' => $activitiesBudget,
