@@ -444,7 +444,7 @@
                         </div>
                         <div class="ticket-info-item">
                             <div class="ticket-info-label">Total Price</div>
-                            <div class="ticket-info-value" style="color: #0284c7; font-size: 1.375rem;">€{{ number_format($payment->booking->total_price, 0) }}</div>
+                            <div class="ticket-info-value" style="color: #0284c7; font-size: 1.375rem;">€{{ number_format($payment->booking->budget_total, 0) }}</div>
                         </div>
                     </div>
                 </div>
