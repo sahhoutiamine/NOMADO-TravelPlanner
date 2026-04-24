@@ -218,7 +218,7 @@
                             <div class="mb-10 relative z-10">
                                 <div class="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-2">Total Budget</div>
                                 <div class="text-5xl font-black text-slate-900 tracking-tighter">€<span class="count-total-{{ $index }}"
-                                        data-target="{{ $trip['total_price'] }}">0</span></div>
+                                        data-target="{{ $trip['budget_total'] }}">0</span></div>
                             </div>
 
                             <form action="{{ route('trip.confirm') }}" method="POST" id="confirm-form-{{ $index }}">
@@ -232,7 +232,6 @@
                                 <input type="hidden" name="flight_budget" value="{{ $trip['flight_budget'] }}" class="flight-budget-{{ $index }}">
                                 <input type="hidden" name="activities_budget" value="{{ $trip['activities_budget'] }}" class="activities-budget-{{ $index }}">
                                 <input type="hidden" name="misc_budget" value="{{ $trip['misc_budget'] }}" class="misc-budget-{{ $index }}">
-                                <input type="hidden" name="total_price" value="{{ $trip['total_price'] }}" class="total-price-{{ $index }}">
                                 <input type="hidden" name="trip_type" value="{{ $trip['trip_type'] }}" class="trip-type-{{ $index }}">
                                 <input type="hidden" name="departure_city_id" value="{{ $departure_city_id }}" class="departure-city-id-{{ $index }}">
 
