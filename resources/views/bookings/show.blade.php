@@ -609,12 +609,20 @@
     const MIN_MISC = 50 * passengers;
 
     function selectHotel(hotelId) {
+        const card = event.currentTarget;
+        const isCurrentlySelected = card.classList.contains('selected');
         const container = document.getElementById('hotels-container');
-        container.querySelectorAll('.hotel-card').forEach(card => {
-            card.classList.remove('selected');
+        
+        container.querySelectorAll('.hotel-card').forEach(c => {
+            c.classList.remove('selected');
         });
-        event.currentTarget.classList.add('selected');
-        document.getElementById('form-hotel-id').value = hotelId;
+
+        if (isCurrentlySelected) {
+            document.getElementById('form-hotel-id').value = '';
+        } else {
+            card.classList.add('selected');
+            document.getElementById('form-hotel-id').value = hotelId;
+        }
         updateTrip();
     }
 
@@ -644,33 +652,71 @@
     function selectFlight(e, airline, durationStr, className, price, element) {
         if (e) e.stopPropagation();
 
-        // Update hidden fields
-        document.getElementById('form-airline').value = airline;
-        document.getElementById('form-flight-duration').value = durationStr;
-        document.getElementById('form-flight-class').value = className;
-        document.getElementById('form-flight-price').value = price;
+        const airlineInput = document.getElementById('form-airline');
+        const classInput = document.getElementById('form-flight-class');
+        
+        const isCurrentlySelected = (airlineInput.value === airline && classInput.value === className);
 
-        // Visual updates
-        document.querySelectorAll('.flight-class-option .p-4').forEach(b => {
-            b.classList.remove('border-primary-600', 'bg-white', 'shadow-lg', 'scale-105');
-            b.classList.add('border-slate-100', 'bg-white/50');
-            const label = b.querySelector('.text-\\[10px\\]');
-            if (label) { label.classList.remove('text-primary-600'); label.classList.add('text-slate-400'); }
-            const circle = b.querySelector('.w-4');
-            if (circle) circle.classList.remove('bg-primary-600', 'border-primary-600');
-            const dot = b.querySelector('.w-1\\.5');
-            if (dot) dot.classList.remove('scale-100');
-        });
+        if (isCurrentlySelected) {
+            // Deselect everything
+            airlineInput.value = '';
+            document.getElementById('form-flight-duration').value = '';
+            classInput.value = '';
+            document.getElementById('form-flight-price').value = 0;
 
-        const activeBox = element.querySelector('.p-4');
-        activeBox.classList.add('border-primary-600', 'bg-white', 'shadow-lg', 'scale-105');
-        activeBox.classList.remove('border-slate-100', 'bg-white/50');
-        const activeLabel = activeBox.querySelector('.text-\\[10px\\]');
-        if (activeLabel) { activeLabel.classList.add('text-primary-600'); activeLabel.classList.remove('text-slate-400'); }
-        const activeCircle = activeBox.querySelector('.w-4');
-        if (activeCircle) activeCircle.classList.add('bg-primary-600', 'border-primary-600');
-        const activeDot = activeBox.querySelector('.w-1\\.5');
-        if (activeDot) activeDot.classList.add('scale-100');
+            // Remove visual selection from all options
+            document.querySelectorAll('.flight-class-option .p-4').forEach(b => {
+                b.classList.remove('border-primary-600', 'bg-white', 'shadow-lg', 'scale-105');
+                b.classList.add('border-slate-100', 'bg-white/50');
+                const label = b.querySelector('.text-\\[10px\\]');
+                if (label) { label.classList.remove('text-primary-600'); label.classList.add('text-slate-400'); }
+                const circle = b.querySelector('.w-4');
+                if (circle) circle.classList.remove('bg-primary-600', 'border-primary-600');
+                const dot = b.querySelector('.w-1\\.5');
+                if (dot) dot.classList.remove('scale-100');
+            });
+
+            // Remove the highlighted border from all flight cards
+            document.querySelectorAll('.flight-card').forEach(card => {
+                card.classList.remove('border-primary-500');
+            });
+        } else {
+            // Select new flight
+            airlineInput.value = airline;
+            document.getElementById('form-flight-duration').value = durationStr;
+            classInput.value = className;
+            document.getElementById('form-flight-price').value = price;
+
+            // Clear previous visual selections
+            document.querySelectorAll('.flight-class-option .p-4').forEach(b => {
+                b.classList.remove('border-primary-600', 'bg-white', 'shadow-lg', 'scale-105');
+                b.classList.add('border-slate-100', 'bg-white/50');
+                const label = b.querySelector('.text-\\[10px\\]');
+                if (label) { label.classList.remove('text-primary-600'); label.classList.add('text-slate-400'); }
+                const circle = b.querySelector('.w-4');
+                if (circle) circle.classList.remove('bg-primary-600', 'border-primary-600');
+                const dot = b.querySelector('.w-1\\.5');
+                if (dot) dot.classList.remove('scale-100');
+            });
+
+            // Apply visual selection to current option
+            const activeBox = element.querySelector('.p-4');
+            activeBox.classList.add('border-primary-600', 'bg-white', 'shadow-lg', 'scale-105');
+            activeBox.classList.remove('border-slate-100', 'bg-white/50');
+            const activeLabel = activeBox.querySelector('.text-\\[10px\\]');
+            if (activeLabel) { activeLabel.classList.add('text-primary-600'); activeLabel.classList.remove('text-slate-400'); }
+            const activeCircle = activeBox.querySelector('.w-4');
+            if (activeCircle) activeCircle.classList.add('bg-primary-600', 'border-primary-600');
+            const activeDot = activeBox.querySelector('.w-1\\.5');
+            if (activeDot) activeDot.classList.add('scale-100');
+            
+            // Highlight the current flight card
+            document.querySelectorAll('.flight-card').forEach(card => {
+                card.classList.remove('border-primary-500');
+            });
+            const card = element.closest('.flight-card');
+            if (card) card.classList.add('border-primary-500');
+        }
 
         updateTrip();
     }
