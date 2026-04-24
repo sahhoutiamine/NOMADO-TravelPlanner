@@ -77,10 +77,10 @@ class TripGeneratorController extends Controller
                 'hotel' => $hotel,
                 'duration' => $duration,
                 'passengers' => $passengers,
-                'flight_budget' => $remaining * 0.3,
+                'flight_budget' => 0,
                 'hotel_budget' => $hotelTotal,
-                'activities_budget' => $remaining * 0.5,
-                'misc_budget' => $remaining * 0.2,
+                'activities_budget' => $remaining * 0.7,
+                'misc_budget' => $remaining * 0.3,
                 'budget_total' => $budgetTotal,
                 'trip_type' => $trip_type
             ];
