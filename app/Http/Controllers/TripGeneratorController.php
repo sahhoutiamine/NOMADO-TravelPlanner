@@ -81,7 +81,6 @@ class TripGeneratorController extends Controller
                 'hotel_budget' => $hotelTotal,
                 'activities_budget' => $remaining * 0.5,
                 'misc_budget' => $remaining * 0.2,
-                'total_price' => $budgetTotal,
                 'budget_total' => $budgetTotal,
                 'trip_type' => $trip_type
             ];
@@ -102,7 +101,6 @@ class TripGeneratorController extends Controller
             'hotel_budget' => 'required|numeric',
             'activities_budget' => 'required|numeric',
             'misc_budget' => 'required|numeric',
-            'total_price' => 'required|numeric',
             'trip_type' => 'required',
             'departure_city_id' => 'required|exists:cities,id',
             'selected_place_ids' => 'nullable|string',
@@ -121,7 +119,6 @@ class TripGeneratorController extends Controller
             'hotel_budget'      => $request->hotel_budget,
             'activities_budget' => $request->activities_budget,
             'misc_budget'       => $request->misc_budget,
-            'total_price'       => $request->total_price,
             'departure_city_id' => $request->departure_city_id,
             'selected_place_ids' => $request->selected_place_ids,
             'include_hotel'     => $request->include_hotel ?? true,
