@@ -138,7 +138,7 @@
                                 <div class="mb-4">
                                     <p class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 mb-1">Total Budget
                                     </p>
-                                    <div class="text-2xl font-black text-slate-900">&euro;{{ number_format($booking->total_price) }}
+                                    <div class="text-2xl font-black text-slate-900">&euro;{{ number_format($booking->budget_total) }}
                                     </div>
                                 </div>
 
