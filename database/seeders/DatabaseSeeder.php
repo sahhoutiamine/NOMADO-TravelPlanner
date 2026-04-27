@@ -26,6 +26,13 @@ class DatabaseSeeder extends Seeder
             'role' => 'user',
         ]);
 
+        User::factory()->create([
+            'name' => 'Travel Admin',
+            'email' => 'travel@nomado.com',
+            'password' => bcrypt('password'),
+            'role' => 'travlerAdmin',
+        ]);
+
         $this->call([
             CountrySeeder::class,
             CitySeeder::class,
