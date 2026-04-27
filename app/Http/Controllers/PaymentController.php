@@ -11,51 +11,50 @@ class PaymentController extends Controller
 {
     public function show($id)
     {
-        $booking = Booking::with(['city.country', 'hotel'])->where('user_id', auth()->id())->findOrFail($id);
+        $booking = Booking::with(['city.country', 'hotel', 'departureCity'])->where('user_id', auth()->id())->findOrFail($id);
 
         if ($booking->status === 'paid') {
             return redirect()->route('bookings.show', $id)->with('error', 'This booking is already paid.');
         }
 
-        $hotels = Hotel::where('city_id', $booking->city_id)->get();
-
-        return view('payment.show', compact('booking', 'hotels'));
+        return view('payment.show', compact('booking'));
     }
 
     public function store(Request $request, $id)
     {
         $booking = Booking::where('user_id', auth()->id())->findOrFail($id);
 
-        $validated = $request->validate([
+        $request->validate([
             'start_date' => 'required|date|after_or_equal:today',
-            'departure_country' => 'required|string|max:100',
-            'departure_city' => 'required|string|max:100',
-            'hotel_id' => 'required|exists:hotels,id',
-            'is_hotel_paid' => 'required|boolean',
         ]);
 
-        // Verify hotel belongs to the booking's city
-        $hotel = Hotel::where('id', $validated['hotel_id'])
-            ->where('city_id', $booking->city_id)
-            ->firstOrFail();
+        // Determine if flight and hotel should be marked as paid
+        $isFlightPaid = !empty($booking->flight_airline);
+        $isHotelPaid = (bool) $booking->include_hotel && !empty($booking->hotel_id);
 
-        // Calculate hotel budget based on selected hotel and booking duration/passengers
-        $hotelBudget = $hotel->price_per_night * $booking->duration * $booking->passengers;
+        // Calculate total amount paid (flight + hotel)
+        $totalAmount = 0;
+        if ($isFlightPaid) $totalAmount += $booking->flight_budget;
+        if ($isHotelPaid) $totalAmount += $booking->hotel_budget;
 
-        // Create payment record
+        // Create payment record with flight details
         $payment = Payment::create([
             'user_id' => auth()->id(),
             'booking_id' => $booking->id,
-            'start_date' => $validated['start_date'],
-            'departure_country' => $validated['departure_country'],
-            'departure_city' => $validated['departure_city'],
-            'is_hotel_paid' => $validated['is_hotel_paid'],
+            'start_date' => $request->start_date,
+            'departure_country' => $booking->departureCity->country->name ?? null,
+            'departure_city' => $booking->departureCity->name ?? null,
+            'total_amount' => $totalAmount,
+            'is_flight_paid' => $isFlightPaid,
+            'is_hotel_paid' => $isHotelPaid,
+            'airline' => $booking->flight_airline,
+            'flight_duration' => $booking->flight_duration,
+            'flight_departure' => $isFlightPaid ? '10:30' : null,
+            'flight_arrival' => $isFlightPaid ? '14:45' : null,
         ]);
 
-        // Update booking with selected hotel and calculated hotel budget
+        // Update booking status
         $booking->update([
-            'hotel_id' => $validated['hotel_id'],
-            'hotel_budget' => $hotelBudget,
             'status' => 'paid',
         ]);
 
