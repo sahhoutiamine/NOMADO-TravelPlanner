@@ -437,6 +437,7 @@
 
                     <h3 class="text-2xl font-black text-slate-900 tracking-tight mb-8 relative z-10">Trip Summary</h3>
 
+                    @if($booking->status === 'pending')
                     <div class="mb-10 relative z-10">
                         <div class="flex justify-between items-end mb-2">
                             <div class="text-xs font-bold text-slate-400 uppercase tracking-[0.2em]">Live Total Cost</div>
@@ -476,7 +477,20 @@
                             {{ $booking->duration }} Nights &middot; {{ $booking->passengers }} Travelers
                         </div>
                     </div>
+                    @else
+                    <div class="mb-10 relative z-10 border-t border-slate-100 pt-6">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-[0.2em] mb-1">Total Amount Paid</div>
+                        <div class="text-6xl font-black text-slate-900 tracking-tighter mb-6">
+                            &euro;<span id="final-amount-paid" data-target="{{ $booking->budget_total }}">0</span>
+                        </div>
+                        <div class="text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] flex items-center gap-2 pt-4 border-t border-slate-100">
+                            <span class="material-symbols-outlined text-sm">schedule</span>
+                            {{ $booking->duration }} Nights &middot; {{ $booking->passengers }} Travelers
+                        </div>
+                    </div>
+                    @endif
 
+                    @if($booking->status === 'pending')
                     <!-- Progress Bars -->
                     <div class="space-y-6 mb-12 relative z-10">
                         <!-- Flight -->
@@ -534,6 +548,7 @@
                             </div>
                         </div>
                     </div>
+                    @endif
 
                     <!-- Actions -->
                     <div class="relative z-10 space-y-4">
@@ -892,7 +907,14 @@
 
     // Remove redundant submit listener
     document.addEventListener('DOMContentLoaded', () => {
-        updateTrip();
+        @if($booking->status === 'pending')
+            updateTrip();
+        @else
+            const finalAmountEl = document.getElementById('final-amount-paid');
+            if (finalAmountEl) {
+                animateNumber(finalAmountEl, parseInt(finalAmountEl.dataset.target));
+            }
+        @endif
     });
 </script>
 @endsection
