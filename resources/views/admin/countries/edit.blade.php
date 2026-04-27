@@ -6,7 +6,7 @@
 @section('content')
 <div class="max-w-4xl">
     <div class="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 p-10 border border-white fade-in">
-        <form action="{{ route('admin.countries.update', $country->id) }}" method="POST" class="space-y-8">
+        <form action="{{ route('admin.countries.update', $country->id) }}" method="POST" enctype="multipart/form-data" class="space-y-8">
             @csrf
             @method('PATCH')
             
@@ -18,11 +18,9 @@
                     <x-input-error :messages="$errors->get('name')" />
                 </div>
 
-                <div class="space-y-2">
-                    <label for="image" class="block text-xs font-black uppercase tracking-widest text-slate-400">Media URL</label>
-                    <input type="url" name="image" id="image" value="{{ old('image', $country->image) }}"
-                           class="w-full bg-slate-50 border-none rounded-2xl py-4 px-6 text-lg font-bold text-slate-900 focus:ring-4 focus:ring-primary-500/10 transition-all">
-                    <x-input-error :messages="$errors->get('image')" />
+                <div class="space-y-3">
+                    <label class="block text-xs font-black uppercase tracking-widest text-slate-400">Media</label>
+                    @include('admin.partials.image-upload', ['currentImage' => $country->image])
                 </div>
             </div>
 
