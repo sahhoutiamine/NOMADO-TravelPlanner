@@ -1,11 +1,12 @@
 @extends('layouts.admin')
 
 @section('category', 'Operational Intelligence')
-@section('title', 'Admin Dashboard')
+@section('title', auth()->user()->isTravlerAdmin() ? 'Traveler Curation' : 'Admin Dashboard')
 
 @section('content')
 <!-- Header Stats Grid -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12 text-white">
+    @if(auth()->user()->isAdmin())
     <!-- Stat Card: Users -->
     <div class="group relative overflow-hidden bg-slate-950 p-8 rounded-xl shadow-2xl hover:translate-y-[-4px] transition-all duration-500 border border-white/5">
         <div class="absolute -top-10 -right-10 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-1000"></div>
@@ -18,7 +19,7 @@
             </div>
             <div>
                 <p class="text-xs font-black text-indigo-100 uppercase tracking-widest mb-1 opacity-70">Total Explorers</p>
-                <h3 class="text-5xl font-black tracking-tighter">{{ number_format($stats['total_users']) }}</h3>
+                <h3 class="text-5xl font-black tracking-tighter">{{ number_format($stats['total_users'] ?? 0) }}</h3>
             </div>
         </div>
     </div>
@@ -35,7 +36,7 @@
             </div>
             <div>
                 <p class="text-xs font-black text-sky-100 uppercase tracking-widest mb-1 opacity-70">Total Bookings</p>
-                <h3 class="text-5xl font-black tracking-tighter">{{ number_format($stats['total_bookings']) }}</h3>
+                <h3 class="text-5xl font-black tracking-tighter">{{ number_format($stats['total_bookings'] ?? 0) }}</h3>
             </div>
         </div>
     </div>
@@ -53,12 +54,13 @@
             <div>
                 <p class="text-xs font-black text-emerald-100 uppercase tracking-widest mb-1 opacity-70">Total Revenue</p>
                 <div class="flex items-baseline gap-2">
-                    <h3 class="text-4xl font-black tracking-tighter">{{ number_format($stats['total_revenue'], 0) }}</h3>
+                    <h3 class="text-4xl font-black tracking-tighter">{{ number_format($stats['total_revenue'] ?? 0, 0) }}</h3>
                     <span class="text-xl font-bold opacity-60">€</span>
                 </div>
             </div>
         </div>
     </div>
+    @endif
 
     <!-- Stat Card: Geographical -->
     <div class="group relative overflow-hidden bg-slate-950 p-8 rounded-xl shadow-2xl hover:translate-y-[-4px] transition-all duration-500 border border-white/5">
@@ -88,6 +90,7 @@
     </div>
 </div>
 
+@if(auth()->user()->isAdmin())
 <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
     <!-- Recent Bookings Table -->
     <div class="lg:col-span-2 glass-card rounded-xl shadow-2xl p-10 border border-white overflow-hidden relative">
@@ -183,4 +186,35 @@
         </div>
     </div>
 </div>
+@endif
+
+@if(auth()->user()->isTravlerAdmin())
+<div class="grid grid-cols-1 md:grid-cols-2 gap-8 mt-12">
+    <div class="glass-card p-10 rounded-2xl border border-white shadow-xl relative overflow-hidden">
+        <div class="absolute -top-10 -right-10 w-32 h-32 bg-primary-100/20 blur-3xl rounded-full"></div>
+        <h3 class="text-2xl font-black text-slate-900 mb-6 flex items-center gap-3">
+            <span class="material-symbols-outlined text-primary-600">public</span>
+            Territory Management
+        </h3>
+        <p class="text-slate-500 mb-8 font-medium">Manage global nations and their distinct regional hubs.</p>
+        <div class="flex gap-4">
+            <a href="{{ route('admin.countries.index') }}" class="px-6 py-3 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-primary-600 transition-all">Nations</a>
+            <a href="{{ route('admin.cities.index') }}" class="px-6 py-3 bg-white border border-slate-200 text-slate-900 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all">Cities</a>
+        </div>
+    </div>
+    
+    <div class="glass-card p-10 rounded-2xl border border-white shadow-xl relative overflow-hidden">
+        <div class="absolute -top-10 -right-10 w-32 h-32 bg-emerald-100/20 blur-3xl rounded-full"></div>
+        <h3 class="text-2xl font-black text-slate-900 mb-6 flex items-center gap-3">
+            <span class="material-symbols-outlined text-emerald-600">explore</span>
+            Experience Curation
+        </h3>
+        <p class="text-slate-500 mb-8 font-medium">Establish landmarks and luxury sanctuaries for travelers.</p>
+        <div class="flex gap-4">
+            <a href="{{ route('admin.places.index') }}" class="px-6 py-3 bg-slate-900 text-white rounded-xl text-xs font-black uppercase tracking-widest hover:bg-emerald-600 transition-all">Landmarks</a>
+            <a href="{{ route('admin.hotels.index') }}" class="px-6 py-3 bg-white border border-slate-200 text-slate-900 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-slate-50 transition-all">Sanctuaries</a>
+        </div>
+    </div>
+</div>
+@endif
 @endsection
