@@ -202,5 +202,7 @@
         </section>
     </main>
 
+    @stack('styles')
+    @stack('scripts')
 </body>
 </html>
