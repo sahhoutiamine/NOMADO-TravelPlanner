@@ -28,6 +28,7 @@
                     <th class="px-10 py-8">Point of Interest</th>
                     <th class="px-10 py-8">Locale Station</th>
                     <th class="px-10 py-8">Archetype</th>
+                    <th class="px-10 py-8">Price Baseline</th>
                     <th class="px-10 py-8 text-right">Governing Control</th>
                 </tr>
             </thead>
@@ -55,6 +56,9 @@
                             <span class="px-4 py-1.5 bg-primary-50 text-primary-600 rounded-lg text-[9px] font-black uppercase tracking-widest border border-primary-100 italic">
                                 {{ $place->trip_type }} Sector
                             </span>
+                        </td>
+                        <td class="px-10 py-8">
+                            <span class="text-sm font-black text-slate-900 tracking-tighter">€{{ number_format($place->min_price, 2) }}</span>
                         </td>
                         <td class="px-10 py-8 text-right">
                             <div class="flex items-center justify-end gap-3 transition-all duration-300">
