@@ -16,8 +16,9 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('booking_id')->constrained()->onDelete('cascade');
             $table->date('start_date');
-            $table->string('departure_country');
-            $table->string('departure_city');
+            $table->string('departure_country')->nullable();
+            $table->string('departure_city')->nullable();
+            $table->decimal('total_amount', 10, 2)->default(0);
             $table->boolean('is_flight_paid')->default(false);
             $table->boolean('is_hotel_paid')->default(false);
             $table->timestamps();
