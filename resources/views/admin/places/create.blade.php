@@ -6,7 +6,7 @@
 @section('content')
 <div class="max-w-5xl">
     <div class="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 p-10 border border-white fade-in">
-        <form action="{{ route('admin.places.store') }}" method="POST" class="space-y-8">
+        <form action="{{ route('admin.places.store') }}" method="POST" enctype="multipart/form-data" class="space-y-8">
             @csrf
             
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -29,21 +29,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="space-y-2">
-                    <label for="trip_type" class="block text-xs font-black uppercase tracking-widest text-slate-400">Experience Archetype</label>
-                    <select name="trip_type" id="trip_type" required class="w-full bg-slate-50 border-none rounded-2xl py-4 px-6 text-lg font-bold text-slate-900 focus:ring-4 focus:ring-primary-500/10 transition-all appearance-none cursor-pointer">
-                        <option value="" disabled selected>Select Vibe...</option>
-                        <option value="adventure">🏔️ Adventure</option>
-                        <option value="culture">🏛️ Culture</option>
-                        <option value="beach">🏖️ Beach</option>
-                        <option value="romantic">💍 Romantic</option>
-                        <option value="nature">🌿 Nature</option>
-                        <option value="shopping">🛍️ Shopping</option>
-                    </select>
-                    <x-input-error :messages="$errors->get('trip_type')" />
-                </div>
-
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div class="space-y-2">
                     <label for="min_price" class="block text-xs font-black uppercase tracking-widest text-slate-400">Place Price (€)</label>
                     <input type="number" step="0.01" name="min_price" id="min_price" min="0" value="{{ old('min_price', 150.00) }}"
@@ -59,20 +45,16 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="space-y-2">
-                    <label for="image" class="block text-xs font-black uppercase tracking-widest text-slate-400">Hero Image URL</label>
-                    <input type="url" name="image" id="image" value="{{ old('image') }}" placeholder="https://..."
-                           class="w-full bg-slate-50 border-none rounded-2xl py-4 px-6 text-lg font-bold text-slate-900 focus:ring-4 focus:ring-primary-500/10 transition-all">
-                    <x-input-error :messages="$errors->get('image')" />
-                </div>
-                
-                <div class="space-y-2">
-                    <label for="description" class="block text-xs font-black uppercase tracking-widest text-slate-400">Experiential Summary</label>
-                    <textarea name="description" id="description" rows="2" placeholder="Sensory details of the location..."
-                              class="w-full bg-slate-50 border-none rounded-2xl py-4 px-6 text-lg font-medium text-slate-900 focus:ring-4 focus:ring-primary-500/10 transition-all">{{ old('description') }}</textarea>
-                    <x-input-error :messages="$errors->get('description')" />
-                </div>
+            <div class="space-y-3">
+                <label class="block text-xs font-black uppercase tracking-widest text-slate-400">Hero Image</label>
+                @include('admin.partials.image-upload', ['currentImage' => null])
+            </div>
+
+            <div class="space-y-2">
+                <label for="description" class="block text-xs font-black uppercase tracking-widest text-slate-400">Experiential Summary</label>
+                <textarea name="description" id="description" rows="2" placeholder="Sensory details of the location..."
+                          class="w-full bg-slate-50 border-none rounded-2xl py-4 px-6 text-lg font-medium text-slate-900 focus:ring-4 focus:ring-primary-500/10 transition-all">{{ old('description') }}</textarea>
+                <x-input-error :messages="$errors->get('description')" />
             </div>
 
             <div class="pt-6 flex justify-end gap-4 border-t border-slate-50">
