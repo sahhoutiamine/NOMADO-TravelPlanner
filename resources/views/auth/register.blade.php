@@ -60,61 +60,76 @@
             from { opacity: 0; transform: translateX(-20px); }
             to { opacity: 1; transform: translateX(0); }
         }
+        @keyframes slowZoom {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
+        }
         .animate-fade-in {
             animation: fadeIn 0.8s ease-out forwards;
+        }
+        .animate-slow-zoom {
+            animation: slowZoom 20s linear infinite alternate;
+        }
+        .text-glow {
+            text-shadow: 0 0 15px rgba(255, 255, 255, 0.4);
+        }
+        .glass-panel-premium {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .input-premium {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .input-premium:focus {
+            background: #ffffff;
+            border-color: #0ea5e9;
+            box-shadow: 0 0 0 5px rgba(14, 165, 233, 0.1);
+            transform: translateY(-1px);
         }
     </style>
 </head>
 <body class="bg-white text-slate-900 font-sans min-h-screen flex selection:bg-primary-100 selection:text-primary-900">
     <div class="flex w-full min-h-screen relative overflow-hidden">
         <!-- Left Half: Atmospheric Identity -->
-        <div class="hidden lg:flex w-1/2 relative flex-col justify-between p-16 overflow-hidden bg-slate-50 border-r border-slate-100">
-            <!-- Decorative Gradients -->
-            <div class="absolute top-[-10%] left-[-10%] w-96 h-96 bg-primary-200/20 rounded-full blur-[100px] pointer-events-none"></div>
-            <div class="absolute bottom-[-10%] right-[-10%] w-96 h-96 bg-emerald-100/30 rounded-full blur-[100px] pointer-events-none"></div>
+        <div class="hidden lg:flex w-1/2 relative flex-col justify-between p-16 overflow-hidden bg-slate-900">
+            <!-- Background Image -->
+            <div class="absolute inset-0 z-0 overflow-hidden">
+                <img src="/images/auth-bg.png" alt="Travel Background" class="w-full h-full object-cover opacity-60 animate-slow-zoom">
+                <div class="absolute inset-0 bg-gradient-to-br from-slate-900/60 via-transparent to-slate-900/80"></div>
+            </div>
             
             <div class="relative z-10">
                 <a class="inline-flex items-center gap-2" href="/">
-                    <span class="material-symbols-outlined text-primary-600 text-3xl" style="font-variation-settings: 'FILL' 1;">explore</span>
-                    <span class="font-black text-2xl tracking-tighter text-slate-900">Nomado</span>
+                    <span class="material-symbols-outlined text-white text-3xl" style="font-variation-settings: 'FILL' 1;">explore</span>
+                    <span class="font-black text-2xl tracking-tighter text-white">Nomado</span>
                 </a>
             </div>
 
             <div class="relative z-10 max-w-lg mb-24 animate-fade-in">
-                <h1 class="font-black text-6xl leading-[1.1] tracking-tighter mb-6 text-slate-900">
-                    Start your<br/>
-                    <span class="gradient-text">journey today.</span>
-                </h1>
-                <p class="text-lg text-slate-500 font-medium leading-relaxed">
-                    Join thousands of travelers who use Nomado to discover hidden gems and create unforgettable memories effortlessly.
-                </p>
+                <div class="glass-panel-premium p-12 rounded-[3rem]">
+                    <h1 class="font-black text-6xl leading-[1.1] tracking-tighter mb-6 text-white text-glow">
+                        Your next great<br/>
+                        <span class="text-primary-400">adventure awaits.</span>
+                    </h1>
+                    <p class="text-xl text-slate-100 font-medium leading-relaxed opacity-90">
+                        AI-powered itineraries, seamless booking, and bespoke recommendations tailored to your unique travel style.
+                    </p>
+                </div>
             </div>
 
-            <!-- Floating Glass Cards -->
-            <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/4 w-[120%] h-[80%] pointer-events-none flex flex-col gap-6 opacity-90">
+            <!-- Floating Glass Cards (Subtle hints of destinations) -->
+            <div class="absolute right-0 top-1/2 -translate-y-1/2 translate-x-1/4 w-[120%] h-[80%] pointer-events-none flex flex-col gap-6 opacity-40">
                 <div class="flex gap-6 translate-x-12">
-                    <div class="glass-panel rounded-3xl w-64 h-80 overflow-hidden relative shadow-2xl">
+                    <div class="glass-panel rounded-3xl w-64 h-80 overflow-hidden relative shadow-2xl scale-90 blur-[1px]">
                         <img src="https://images.unsplash.com/photo-1518548419970-58e3b4079ab2?q=80&w=1000&auto=format&fit=crop" alt="Bali" class="absolute inset-0 w-full h-full object-cover">
-                        <div class="absolute bottom-0 left-0 p-6 w-full bg-gradient-to-t from-black/80 to-transparent">
-                            <h3 class="font-bold text-xl text-white">Bali, ID</h3>
-                            <p class="text-sm text-slate-200 mt-1">7 Days Adventure</p>
-                        </div>
                     </div>
-                    <div class="glass-panel rounded-3xl w-72 h-48 overflow-hidden relative mt-16 shadow-2xl">
+                    <div class="glass-panel rounded-3xl w-72 h-48 overflow-hidden relative mt-16 shadow-2xl scale-90 blur-[2px]">
                         <img src="https://images.unsplash.com/photo-1540959733332-eab4deabeeaf?q=80&w=1000&auto=format&fit=crop" alt="Tokyo" class="absolute inset-0 w-full h-full object-cover">
-                        <div class="absolute bottom-0 left-0 p-6 w-full bg-gradient-to-t from-black/80 to-transparent">
-                            <h3 class="font-bold text-xl text-white">Shibuya, JP</h3>
-                            <p class="text-sm text-slate-200 mt-1">Cyberpunk Vibes</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="flex gap-6 -translate-x-8">
-                    <div class="glass-panel rounded-3xl w-80 h-56 overflow-hidden relative shadow-2xl">
-                        <img src="https://images.unsplash.com/photo-1533105079780-92b9be482077?q=80&w=1000&auto=format&fit=crop" alt="Santorini" class="absolute inset-0 w-full h-full object-cover">
-                        <div class="absolute bottom-0 left-0 p-6 w-full bg-gradient-to-t from-black/80 to-transparent">
-                            <h3 class="font-bold text-xl text-white">Santorini, GR</h3>
-                            <p class="text-sm text-slate-200 mt-1">Romantic Getaway</p>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -124,7 +139,7 @@
         <div class="w-full lg:w-1/2 flex items-center justify-center p-8 sm:p-12 lg:p-24 bg-white z-20">
             <div class="w-full max-w-md">
                 <!-- Mobile Header -->
-                <div class="lg:hidden mb-12 text-center">
+                <div class="lg:hidden mb-12 text-center bg-slate-50 p-8 rounded-[2rem] border border-slate-100 shadow-sm">
                     <a class="inline-flex items-center gap-2 justify-center mb-6" href="/">
                         <span class="material-symbols-outlined text-primary-600 text-3xl" style="font-variation-settings: 'FILL' 1;">explore</span>
                         <span class="font-black text-3xl tracking-tighter text-slate-900">Nomado</span>
@@ -147,7 +162,7 @@
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
                                 <span class="material-symbols-outlined text-[20px]">person</span>
                             </span>
-                            <input class="w-full bg-slate-50 border border-slate-100 rounded-xl py-3.5 pl-12 pr-4 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-base outline-none @error('name') border-red-300 @enderror" 
+                            <input class="w-full input-premium rounded-xl py-3.5 pl-12 pr-4 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-base outline-none @error('name') border-red-300 @enderror" 
                                    id="name" type="text" name="name" value="{{ old('name') }}" placeholder="John Doe" required autofocus />
                         </div>
                         @error('name') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
@@ -160,7 +175,7 @@
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
                                 <span class="material-symbols-outlined text-[20px]">mail</span>
                             </span>
-                            <input class="w-full bg-slate-50 border border-slate-100 rounded-xl py-3.5 pl-12 pr-4 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-base outline-none @error('email') border-red-300 @enderror" 
+                            <input class="w-full input-premium rounded-xl py-3.5 pl-12 pr-4 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-base outline-none @error('email') border-red-300 @enderror" 
                                    id="email" type="email" name="email" value="{{ old('email') }}" placeholder="hello@nomado.ai" required />
                         </div>
                         @error('email') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
@@ -173,7 +188,7 @@
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
                                 <span class="material-symbols-outlined text-[20px]">lock</span>
                             </span>
-                            <input class="w-full bg-slate-50 border border-slate-100 rounded-xl py-3.5 pl-12 pr-4 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-base outline-none @error('password') border-red-300 @enderror" 
+                            <input class="w-full input-premium rounded-xl py-3.5 pl-12 pr-4 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-base outline-none @error('password') border-red-300 @enderror" 
                                    id="password" type="password" name="password" placeholder="Min. 8 characters" required autocomplete="new-password" />
                         </div>
                         <!-- Strength Bar -->
@@ -192,7 +207,7 @@
                             <span class="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
                                 <span class="material-symbols-outlined text-[20px]">shield</span>
                             </span>
-                            <input class="w-full bg-slate-50 border border-slate-100 rounded-xl py-3.5 pl-12 pr-4 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-base outline-none" 
+                            <input class="w-full input-premium rounded-xl py-3.5 pl-12 pr-4 text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-primary-500/20 focus:border-primary-500 transition-all text-base outline-none" 
                                    id="password_confirmation" type="password" name="password_confirmation" placeholder="••••••••" required autocomplete="new-password" />
                         </div>
                     </div>
