@@ -6,7 +6,7 @@
 @section('content')
 <div class="max-w-5xl">
     <div class="bg-white rounded-[2.5rem] shadow-xl shadow-slate-200/50 p-10 border border-white fade-in">
-        <form action="{{ route('admin.places.update', $place->id) }}" method="POST" class="space-y-8">
+        <form action="{{ route('admin.places.update', $place->id) }}" method="POST" enctype="multipart/form-data" class="space-y-8">
             @csrf
             @method('PATCH')
             
@@ -29,20 +29,7 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-                <div class="space-y-2">
-                    <label for="trip_type" class="block text-xs font-black uppercase tracking-widest text-slate-400">Experience Archetype</label>
-                    <select name="trip_type" id="trip_type" required class="w-full bg-slate-50 border-none rounded-2xl py-4 px-6 text-lg font-bold text-slate-900 focus:ring-4 focus:ring-primary-500/10 transition-all appearance-none cursor-pointer">
-                        <option value="adventure" {{ $place->trip_type === 'adventure' ? 'selected' : '' }}>🏔️ Adventure</option>
-                        <option value="culture" {{ $place->trip_type === 'culture' ? 'selected' : '' }}>🏛️ Culture</option>
-                        <option value="beach" {{ $place->trip_type === 'beach' ? 'selected' : '' }}>🏖️ Beach</option>
-                        <option value="romantic" {{ $place->trip_type === 'romantic' ? 'selected' : '' }}>💍 Romantic</option>
-                        <option value="nature" {{ $place->trip_type === 'nature' ? 'selected' : '' }}>🌿 Nature</option>
-                        <option value="shopping" {{ $place->trip_type === 'shopping' ? 'selected' : '' }}>🛍️ Shopping</option>
-                    </select>
-                    <x-input-error :messages="$errors->get('trip_type')" />
-                </div>
-
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div class="space-y-2">
                     <label for="min_price" class="block text-xs font-black uppercase tracking-widest text-slate-400">Place Price (€)</label>
                     <input type="number" step="0.01" name="min_price" id="min_price" min="0" value="{{ old('min_price', $place->min_price) }}"
@@ -58,20 +45,16 @@
                 </div>
             </div>
 
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <div class="space-y-2">
-                    <label for="image" class="block text-xs font-black uppercase tracking-widest text-slate-400">Hero Image URL</label>
-                    <input type="url" name="image" id="image" value="{{ old('image', $place->image) }}"
-                           class="w-full bg-slate-50 border-none rounded-2xl py-4 px-6 text-lg font-bold text-slate-900 focus:ring-4 focus:ring-primary-500/10 transition-all">
-                    <x-input-error :messages="$errors->get('image')" />
-                </div>
-                
-                <div class="space-y-2">
-                    <label for="description" class="block text-xs font-black uppercase tracking-widest text-slate-400">Experiential Summary</label>
-                    <textarea name="description" id="description" rows="2"
-                              class="w-full bg-slate-50 border-none rounded-2xl py-4 px-6 text-lg font-medium text-slate-900 focus:ring-4 focus:ring-primary-500/10 transition-all">{{ old('description', $place->description) }}</textarea>
-                    <x-input-error :messages="$errors->get('description')" />
-                </div>
+            <div class="space-y-3">
+                <label class="block text-xs font-black uppercase tracking-widest text-slate-400">Hero Image</label>
+                @include('admin.partials.image-upload', ['currentImage' => $place->image])
+            </div>
+
+            <div class="space-y-2">
+                <label for="description" class="block text-xs font-black uppercase tracking-widest text-slate-400">Experiential Summary</label>
+                <textarea name="description" id="description" rows="2"
+                          class="w-full bg-slate-50 border-none rounded-2xl py-4 px-6 text-lg font-medium text-slate-900 focus:ring-4 focus:ring-primary-500/10 transition-all">{{ old('description', $place->description) }}</textarea>
+                <x-input-error :messages="$errors->get('description')" />
             </div>
 
             <div class="pt-6 flex justify-end gap-4 border-t border-slate-50">
