@@ -27,7 +27,6 @@
                 <tr class="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] border-b border-slate-100">
                     <th class="px-10 py-8">Point of Interest</th>
                     <th class="px-10 py-8">Locale Station</th>
-                    <th class="px-10 py-8">Archetype</th>
                     <th class="px-10 py-8">Price Baseline</th>
                     <th class="px-10 py-8 text-right">Governing Control</th>
                 </tr>
@@ -52,11 +51,7 @@
                                 <span class="text-sm font-black text-slate-700 tracking-tight">{{ $place->city->name ?? 'Neutral' }}</span>
                             </div>
                         </td>
-                        <td class="px-10 py-8">
-                            <span class="px-4 py-1.5 bg-primary-50 text-primary-600 rounded-lg text-[9px] font-black uppercase tracking-widest border border-primary-100 italic">
-                                {{ $place->trip_type }} Sector
-                            </span>
-                        </td>
+
                         <td class="px-10 py-8">
                             <span class="text-sm font-black text-slate-900 tracking-tighter">€{{ number_format($place->min_price, 2) }}</span>
                         </td>
