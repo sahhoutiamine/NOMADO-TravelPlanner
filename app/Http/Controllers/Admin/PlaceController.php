@@ -28,7 +28,7 @@ class PlaceController extends Controller
             'city_id' => 'required|exists:cities,id',
             'description' => 'required|string',
             'image' => 'nullable|string|url',
-            'rating' => 'nullable|numeric|min:0|max:5',
+            'min_price' => 'nullable|numeric|min:0',
             'localisation' => 'nullable|string',
             'trip_type' => 'required|in:adventure,culture,beach,romantic,nature,shopping'
         ]);
@@ -50,7 +50,7 @@ class PlaceController extends Controller
             'city_id' => 'required|exists:cities,id',
             'description' => 'required|string',
             'image' => 'nullable|string|url',
-            'rating' => 'nullable|numeric|min:0|max:5',
+            'min_price' => 'nullable|numeric|min:0',
             'localisation' => 'nullable|string',
             'trip_type' => 'required|in:adventure,culture,beach,romantic,nature,shopping'
         ]);
