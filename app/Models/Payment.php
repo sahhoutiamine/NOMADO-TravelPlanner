@@ -15,6 +15,7 @@ class Payment extends Model
         'start_date',
         'departure_country',
         'departure_city',
+        'total_amount',
         'is_flight_paid',
         'is_hotel_paid',
         'airline',
