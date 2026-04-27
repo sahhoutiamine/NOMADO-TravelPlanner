@@ -14,6 +14,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->alias([
             'is.admin' => \App\Http\Middleware\IsAdmin::class,
             'check.banned' => \App\Http\Middleware\CheckBanned::class,
+            'role' => \App\Http\Middleware\CheckRole::class,
         ]);
 
         $middleware->appendToGroup('web', [
