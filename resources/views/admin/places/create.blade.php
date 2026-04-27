@@ -45,10 +45,10 @@
                 </div>
 
                 <div class="space-y-2">
-                    <label for="rating" class="block text-xs font-black uppercase tracking-widest text-slate-400">Public Rating (0-5)</label>
-                    <input type="number" step="0.1" name="rating" id="rating" min="0" max="5" value="{{ old('rating', 4.5) }}"
+                    <label for="min_price" class="block text-xs font-black uppercase tracking-widest text-slate-400">Place Price (€)</label>
+                    <input type="number" step="0.01" name="min_price" id="min_price" min="0" value="{{ old('min_price', 150.00) }}"
                            class="w-full bg-slate-50 border-none rounded-2xl py-4 px-6 text-lg font-bold text-slate-900 focus:ring-4 focus:ring-primary-500/10 transition-all">
-                    <x-input-error :messages="$errors->get('rating')" />
+                    <x-input-error :messages="$errors->get('min_price')" />
                 </div>
 
                 <div class="space-y-2">
