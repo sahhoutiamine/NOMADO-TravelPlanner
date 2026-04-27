@@ -21,7 +21,7 @@ Route::get('/', function () {
 
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/dashboard', function () {
-        if(auth()->user()->role === 'admin') {
+        if(auth()->user()->isAdmin() || auth()->user()->isTravlerAdmin()) {
             return redirect()->route('admin.dashboard');
         }
         return redirect()->route('trip.index');
@@ -53,16 +53,20 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
-// Admin Routes
-Route::middleware(['auth', 'verified', 'is.admin'])->prefix('admin')->name('admin.')->group(function () {
+// Admin Routes (Admin only)
+Route::middleware(['auth', 'verified', 'role:admin'])->prefix('admin')->name('admin.')->group(function () {
+    Route::resource('users', App\Http\Controllers\Admin\UserController::class);
+    Route::patch('users/{user}/toggle-ban', [App\Http\Controllers\Admin\UserController::class, 'toggleBan'])->name('users.toggle-ban');
+    Route::get('bookings', [App\Http\Controllers\Admin\BookingController::class, 'index'])->name('bookings.index');
+});
+
+// Admin & Traveler Admin Routes
+Route::middleware(['auth', 'verified', 'role:admin,travlerAdmin'])->prefix('admin')->name('admin.')->group(function () {
     Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
     Route::resource('countries', CountryController::class);
     Route::resource('cities', App\Http\Controllers\Admin\CityController::class);
     Route::resource('hotels', HotelController::class);
     Route::resource('places', App\Http\Controllers\Admin\PlaceController::class);
-    Route::resource('users', App\Http\Controllers\Admin\UserController::class);
-    Route::patch('users/{user}/toggle-ban', [App\Http\Controllers\Admin\UserController::class, 'toggleBan'])->name('users.toggle-ban');
-    Route::get('bookings', [BookingController::class, 'index'])->name('bookings.index');
 });
 
 require __DIR__.'/auth.php';
