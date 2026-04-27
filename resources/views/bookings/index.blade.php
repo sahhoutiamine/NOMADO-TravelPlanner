@@ -56,7 +56,7 @@
 
             <div class="animate-slide-up" style="animation-delay: 0.1s">
                 <a href="{{ route('trip.index') }}"
-                    class="bg-gradient-primary text-white px-8 py-3.5 rounded-lg font-black text-sm flex items-center gap-2 hover:shadow-xl transition-all active:scale-95">
+                    class="bg-slate-900 text-white px-8 py-3.5 rounded-lg font-black text-sm flex items-center gap-2 hover:shadow-xl transition-all active:scale-95">
                     <span class="material-symbols-outlined text-base">add_circle</span>
                     New Journey
                 </a>
