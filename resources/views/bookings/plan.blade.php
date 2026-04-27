@@ -175,7 +175,7 @@
                             <span class="material-symbols-outlined">print</span>
                             Print
                         </button>
-                        <a href="{{ route('payment.show', $booking->id) }}" 
+                        <a href="{{ $booking->status === 'paid' ? route('payment.ticket', $booking->id) : route('payment.show', $booking->id) }}" 
                            class="px-8 py-4 bg-slate-950 text-white font-bold rounded-xl shadow-xl hover:shadow-2xl hover:-translate-y-1 transition-all flex items-center gap-2">
                             <span class="material-symbols-outlined">confirmation_number</span>
                             E-Ticket
