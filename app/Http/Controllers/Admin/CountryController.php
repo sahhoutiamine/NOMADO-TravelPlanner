@@ -24,9 +24,17 @@ class CountryController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'nullable|string|url'
+            'image' => 'nullable|string|url',
+            'image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
 
+        // Handle file upload - takes priority over URL
+        if ($request->hasFile('image_file')) {
+            $path = $request->file('image_file')->store('countries', 'public');
+            $validated['image'] = '/storage/' . $path;
+        }
+
+        unset($validated['image_file']);
         Country::create($validated);
         return redirect()->route('admin.countries.index')->with('success', 'Pays ajouté.');
     }
@@ -41,9 +49,17 @@ class CountryController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
-            'image' => 'nullable|string|url'
+            'image' => 'nullable|string|url',
+            'image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
         ]);
 
+        // Handle file upload - takes priority over URL
+        if ($request->hasFile('image_file')) {
+            $path = $request->file('image_file')->store('countries', 'public');
+            $validated['image'] = '/storage/' . $path;
+        }
+
+        unset($validated['image_file']);
         $country->update($validated);
         return redirect()->route('admin.countries.index')->with('success', 'Pays modifié.');
     }
