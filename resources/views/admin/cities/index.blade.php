@@ -27,6 +27,7 @@
                 <tr class="bg-slate-50/50 text-[10px] font-black text-slate-400 uppercase tracking-[0.3em] border-b border-slate-100">
                     <th class="px-10 py-8">City Model</th>
                     <th class="px-10 py-8">Regional Authority</th>
+                    <th class="px-10 py-8">Archetype</th>
                     <th class="px-10 py-8 text-right">Governing Controls</th>
                 </tr>
             </thead>
@@ -50,6 +51,11 @@
                                 {{ $city->country->name ?? 'Neutral' }}
                             </span>
                         </td>
+                        <td class="px-10 py-8">
+                            <span class="px-4 py-1.5 bg-indigo-50 text-indigo-600 rounded-lg text-[9px] font-black uppercase tracking-widest border border-indigo-100 italic">
+                                {{ $city->trip_type }} Sector
+                            </span>
+                        </td>
                         <td class="px-10 py-8 text-right">
                             <div class="flex items-center justify-end gap-3 transition-all duration-300">
                                 <a href="{{ route('admin.cities.edit', $city->id) }}" class="w-10 h-10 flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all" title="Adjust Parameters">
@@ -67,7 +73,7 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="3" class="px-10 py-32 text-center">
+                        <td colspan="4" class="px-10 py-32 text-center">
                             <span class="material-symbols-outlined text-5xl mb-4 scale-150 block opacity-20 text-slate-300">domain_disabled</span>
                             <p class="text-slate-400 text-xs font-black uppercase tracking-[0.3em] font-italic">No urban centers detected in current sector.</p>
                         </td>
