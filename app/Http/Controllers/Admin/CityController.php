@@ -27,9 +27,18 @@ class CityController extends Controller
             'name' => 'required|string|max:255',
             'country_id' => 'required|exists:countries,id',
             'description' => 'nullable|string',
-            'image' => 'nullable|string|url'
+            'image' => 'nullable|string|url',
+            'image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'trip_type' => 'required|in:adventure,culture,beach,romantic,nature,shopping',
         ]);
 
+        // Handle file upload - takes priority over URL
+        if ($request->hasFile('image_file')) {
+            $path = $request->file('image_file')->store('cities', 'public');
+            $validated['image'] = '/storage/' . $path;
+        }
+
+        unset($validated['image_file']);
         City::create($validated);
         return redirect()->route('admin.cities.index')->with('success', 'Ville ajoutée avec succès.');
     }
@@ -46,9 +55,18 @@ class CityController extends Controller
             'name' => 'required|string|max:255',
             'country_id' => 'required|exists:countries,id',
             'description' => 'nullable|string',
-            'image' => 'nullable|string|url'
+            'image' => 'nullable|string|url',
+            'image_file' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:5120',
+            'trip_type' => 'required|in:adventure,culture,beach,romantic,nature,shopping',
         ]);
 
+        // Handle file upload - takes priority over URL
+        if ($request->hasFile('image_file')) {
+            $path = $request->file('image_file')->store('cities', 'public');
+            $validated['image'] = '/storage/' . $path;
+        }
+
+        unset($validated['image_file']);
         $city->update($validated);
         return redirect()->route('admin.cities.index')->with('success', 'Ville modifiée avec succès.');
     }
