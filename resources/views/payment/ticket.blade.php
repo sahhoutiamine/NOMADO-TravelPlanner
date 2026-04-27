@@ -2,524 +2,265 @@
 
 @section('content')
 <style>
-    .glass-card {
-        background: rgba(255, 255, 255, 0.85);
-        border: 1px solid rgba(255, 255, 255, 0.4);
+    .ticket-outer {
+        max-width: 800px;
+        margin: 0 auto;
     }
-    .text-gradient {
-        background: linear-gradient(to right, #0284c7, #6366f1);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-    .bg-gradient-primary {
-        background: linear-gradient(135deg, #0284c7, #6366f1);
-    }
-    @keyframes slideUp {
-        from { transform: translateY(20px); opacity: 0; }
-        to { transform: translateY(0); opacity: 1; }
-    }
-    .animate-slide-up {
-        animation: slideUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
-    .ticket {
+    .ticket-card {
         background: white;
-        border-radius: 0.5rem;
-        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-        border: none;
+        border-radius: 2rem;
         overflow: hidden;
-        max-width: 900px;
-    }
-    /* Ticket Layout: Two columns */
-    .ticket-container {
-        display: flex;
-        min-height: 500px;
-    }
-    .ticket-left {
-        flex: 1;
-        background: linear-gradient(135deg, #0284c7 0%, #0284c7 100%);
-        color: white;
-        padding: 3rem 2.5rem;
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
         display: flex;
         flex-direction: column;
-        justify-content: space-between;
+    }
+    .ticket-header {
+        background: #0f172a;
+        color: white;
+        padding: 3rem 4rem;
         position: relative;
         overflow: hidden;
     }
-    .ticket-left::before {
+    .ticket-header::after {
         content: '';
         position: absolute;
-        top: -50%;
-        right: -20%;
-        width: 500px;
-        height: 500px;
-        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-        border-radius: 50%;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 8px;
+        background: repeating-linear-gradient(90deg, transparent, transparent 10px, white 10px, white 20px);
+        opacity: 0.1;
     }
-    .ticket-left-content {
+    .ticket-body {
+        padding: 4rem;
+        background: white;
         position: relative;
-        z-index: 2;
     }
-    .ticket-logo {
-        display: flex;
-        align-items: center;
-        gap: 0.75rem;
-        margin-bottom: 2rem;
-        font-size: 1.5rem;
+    .ticket-perforation {
+        height: 2px;
+        border-bottom: 2px dashed #e2e8f0;
+        margin: 0 4rem;
+        position: relative;
     }
-    .ticket-logo span {
-        font-size: 2rem;
+    .ticket-perforation::before, .ticket-perforation::after {
+        content: '';
+        position: absolute;
+        width: 40px;
+        height: 40px;
+        background: #f8fafc; /* Matches the background of the page */
+        border-radius: 50%;
+        top: 50%;
+        transform: translateY(-50%);
     }
-    .ticket-logo-text {
-        font-size: 1.25rem;
+    .ticket-perforation::before { left: -60px; }
+    .ticket-perforation::after { right: -60px; }
+
+    .city-code {
+        font-size: 4rem;
         font-weight: 900;
-        letter-spacing: 0.1em;
-    }
-    .route-container {
-        margin-bottom: 2rem;
-    }
-    .route-city {
-        font-size: 3rem;
-        font-weight: 900;
+        letter-spacing: -0.05em;
         line-height: 1;
-        margin-bottom: 0.5rem;
     }
-    .route-country {
+    .city-name {
         font-size: 0.875rem;
         font-weight: 700;
-        opacity: 0.9;
         text-transform: uppercase;
         letter-spacing: 0.1em;
+        opacity: 0.6;
     }
-    .route-arrow {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 1rem;
-        margin: 1.5rem 0;
-        font-size: 2rem;
-        opacity: 0.8;
-    }
-    .passenger-name {
-        font-size: 0.875rem;
-        font-weight: 600;
-        opacity: 0.9;
+    .ticket-label {
+        font-size: 0.65rem;
+        font-weight: 800;
         text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: 0.5rem;
-    }
-    .passenger-name-value {
-        font-size: 1.5rem;
-        font-weight: 900;
-    }
-    /* Right section */
-    .ticket-right {
-        flex: 1;
-        background: white;
-        padding: 2.5rem;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        border-left: 2px dashed rgba(2, 132, 199, 0.3);
-    }
-    .ticket-info-row {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.5rem;
-        margin-bottom: 1.5rem;
-    }
-    .ticket-info-item {
-        display: flex;
-        flex-direction: column;
-    }
-    .ticket-info-label {
-        font-size: 0.7rem;
-        font-weight: 900;
-        text-transform: uppercase;
-        letter-spacing: 0.15em;
+        letter-spacing: 0.1em;
         color: #94a3b8;
-        margin-bottom: 0.35rem;
+        margin-bottom: 0.25rem;
     }
-    .ticket-info-value {
+    .ticket-value {
         font-size: 1.125rem;
-        font-weight: 900;
+        font-weight: 700;
         color: #1e293b;
-        line-height: 1.2;
     }
-    .ticket-flight-info {
-        background: #f8fafc;
-        padding: 1.5rem;
-        border-radius: 0.75rem;
-        margin-bottom: 1.5rem;
-    }
-    .flight-time-display {
-        display: grid;
-        grid-template-columns: 1fr auto 1fr;
-        align-items: center;
-        gap: 1rem;
-        margin-bottom: 0.75rem;
-    }
-    .time-item {
-        text-align: center;
-    }
-    .time-label {
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
         font-size: 0.65rem;
-        font-weight: 700;
-        color: #64748b;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        margin-bottom: 0.25rem;
-    }
-    .time-value {
-        font-size: 1.5rem;
-        font-weight: 900;
-        color: #1e293b;
-    }
-    .flight-divider {
-        text-align: center;
-        color: #cbd5e1;
-        font-size: 1rem;
-    }
-    .flight-duration {
-        font-size: 0.75rem;
-        font-weight: 700;
-        color: #64748b;
-        text-align: center;
+        font-weight: 800;
         text-transform: uppercase;
         letter-spacing: 0.05em;
     }
-    .hotel-info {
-        background: #f0f9ff;
-        padding: 1rem;
-        border-radius: 0.5rem;
-        border-left: 3px solid #0284c7;
-        margin-top: 1rem;
-    }
-    .hotel-info-label {
-        font-size: 0.65rem;
-        font-weight: 900;
-        color: #0284c7;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        margin-bottom: 0.25rem;
-    }
-    .hotel-info-value {
-        font-size: 0.95rem;
-        font-weight: 900;
-        color: #1e293b;
-    }
-    .payment-badges {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 0.75rem;
-        margin-top: auto;
-    }
-    .badge-item {
-        background: #f8fafc;
-        padding: 0.75rem;
-        border-radius: 0.5rem;
-        text-align: center;
-        border: 1px solid #e2e8f0;
-    }
-    .badge-status {
-        display: inline-flex;
-        align-items: center;
-        gap: 0.35rem;
-        padding: 0.35rem 0.6rem;
-        border-radius: 0.35rem;
-        font-weight: 700;
-        font-size: 0.7rem;
-    }
-    .badge-paid {
-        background: #d1fae5;
-        color: #047857;
-    }
-    .badge-pending {
-        background: #fed7aa;
-        color: #d97706;
-    }
-    .qr-barcode-section {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 1.5rem;
-        margin-top: 2rem;
-        padding-top: 2rem;
-        border-top: 2px dashed #e2e8f0;
-    }
-    .qr-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    .qr-label {
-        font-size: 0.65rem;
-        font-weight: 900;
-        color: #64748b;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-    }
-    .qr-code-box {
-        background: white;
-        padding: 0.75rem;
-        border: 2px solid #0284c7;
-        border-radius: 0.5rem;
-    }
-    .qr-code-box img {
-        display: block;
-        width: 120px;
-        height: 120px;
-        object-fit: contain;
-    }
-    .barcode-container {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 0.5rem;
-    }
-    .barcode-label {
-        font-size: 0.65rem;
-        font-weight: 900;
-        color: #64748b;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-    }
-    .barcode {
-        display: flex;
-        gap: 1px;
-        justify-content: center;
-        align-items: flex-end;
-        height: 60px;
-    }
-    .barcode-line {
-        width: 1.5px;
-        background: #1e293b;
-        opacity: 0.9;
-    }
-    .barcode-text {
-        font-size: 0.65rem;
-        font-weight: 900;
-        color: #1e293b;
-        margin-top: 0.25rem;
-        letter-spacing: 0.05em;
-        font-family: 'Courier New', monospace;
-    }
-    .booking-reference {
-        font-size: 0.65rem;
-        font-weight: 900;
-        color: #64748b;
-        text-transform: uppercase;
-        letter-spacing: 0.1em;
-        margin-top: 0.5rem;
-        text-align: center;
-    }
-    .booking-reference-value {
-        font-family: 'Courier New', monospace;
-        color: #1e293b;
-        font-size: 0.8rem;
-    }
-    @media (max-width: 768px) {
-        .ticket-container {
-            flex-direction: column;
-            min-height: auto;
-        }
-        .ticket-right {
-            border-left: none;
-            border-top: 2px dashed rgba(2, 132, 199, 0.3);
-        }
-        .qr-barcode-section {
-            grid-template-columns: 1fr;
-        }
-    }
+    .status-paid { background: #f0fdf4; color: #166534; border: 1px solid #dcfce7; }
+    .status-pending { background: #fff7ed; color: #9a3412; border: 1px solid #ffedd5; }
+
     @media print {
-        nav, footer, .no-print {
-            display: none !important;
-        }
-        body {
-            background: white !important;
-        }
-        .ticket {
-            box-shadow: none !important;
-            max-width: 100% !important;
-        }
+        .no-print { display: none !important; }
+        body { background: white !important; }
+        .ticket-card { box-shadow: none; border: 1px solid #e2e8f0; }
+        .ticket-perforation::before, .ticket-perforation::after { display: none; }
     }
 </style>
 
-<div class="flex-grow pt-32 pb-24 px-4 md:px-8 max-w-6xl mx-auto relative min-h-screen">
-    <!-- Atmospheric Background Elements -->
-    <div class="absolute inset-0 pointer-events-none overflow-hidden">
-        <div class="absolute -top-1/4 -right-1/4 w-[800px] h-[800px] bg-primary-200/10 rounded-full blur-[120px]"></div>
-        <div class="absolute bottom-1/4 -left-1/4 w-[600px] h-[600px] bg-indigo-200/10 rounded-full blur-[100px]"></div>
+<div class="flex-grow pt-32 pb-24 px-4 relative min-h-screen bg-slate-50">
+    <!-- Atmospheric Background -->
+    <div class="absolute inset-0 pointer-events-none overflow-hidden no-print">
+        <div class="absolute top-0 right-0 w-1/2 h-1/2 bg-indigo-50/50 rounded-full blur-[120px]"></div>
     </div>
 
-    <!-- Top Actions -->
-    <div class="flex justify-between items-center mb-10 relative z-10 no-print">
-        <a class="flex items-center gap-2 text-primary-600 font-bold text-sm hover:text-primary-700 transition-colors" href="{{ route('bookings.index') }}">
-            <span class="material-symbols-outlined text-sm">arrow_back</span>
-            Back to My Trips
-        </a>
-        <button onclick="window.print()" class="flex items-center gap-2 py-3 px-6 bg-gradient-primary text-white font-black text-sm rounded-lg shadow-lg hover:shadow-xl transition-all">
-            <span class="material-symbols-outlined text-sm">print</span>
-            Print Ticket
-        </button>
-    </div>
+    <div class="ticket-outer relative z-10">
+        <!-- Top Navigation -->
+        <div class="flex justify-between items-center mb-12 no-print">
+            <a href="{{ route('bookings.index') }}" class="inline-flex items-center gap-2 text-slate-400 hover:text-slate-900 font-bold text-sm transition-colors group">
+                <span class="material-symbols-outlined text-sm group-hover:-translate-x-1 transition-transform">arrow_back</span>
+                My Trips
+            </a>
+            <button onclick="window.print()" class="flex items-center gap-2 px-6 py-3 bg-white border border-slate-200 text-slate-900 font-bold text-sm rounded-xl hover:bg-slate-50 transition-all shadow-sm">
+                <span class="material-symbols-outlined text-sm">print</span>
+                Print PDF
+            </button>
+        </div>
 
-    <!-- Professional Ticket -->
-    <div class="ticket animate-slide-up relative z-10">
-        <div class="ticket-container">
-            <!-- LEFT: Route Information (Blue Gradient) -->
-            <div class="ticket-left">
-                <div class="ticket-left-content">
-                    <!-- Logo -->
-                    <div class="ticket-logo">
-                        <span class="material-symbols-outlined">explore</span>
-                        <div class="ticket-logo-text">Nomado</div>
+        <!-- Ticket Card -->
+        <div class="ticket-card animate-fade-in">
+            <!-- Header -->
+            <div class="ticket-header">
+                <div class="flex justify-between items-start mb-12">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center backdrop-blur-md">
+                            <span class="material-symbols-outlined text-white">explore</span>
+                        </div>
+                        <span class="font-black text-xl tracking-tighter uppercase">Nomado</span>
                     </div>
-
-                    <!-- Route -->
-                    <div class="route-container">
-                        <div class="route-city">{{ strtoupper(substr($payment->departure_city, 0, 3)) }}</div>
-                        <div class="route-country">{{ $payment->departure_country }}</div>
-                    </div>
-
-                    <div class="route-arrow">
-                        <span class="material-symbols-outlined">near_me</span>
-                    </div>
-
-                    <div class="route-container">
-                        <div class="route-city">{{ strtoupper(substr($payment->booking->city->name, 0, 3)) }}</div>
-                        <div class="route-country">{{ $payment->booking->city->country->name }}</div>
+                    <div class="text-right">
+                        <div class="text-[10px] font-bold text-white/40 uppercase tracking-widest mb-1">Booking Ref</div>
+                        <div class="font-mono text-sm">#NOM-{{ str_pad($payment->booking->id, 5, '0', STR_PAD_LEFT) }}</div>
                     </div>
                 </div>
 
-                <!-- Passenger Name (Bottom) -->
-                <div>
-                    <div class="passenger-name">Passenger</div>
-                    <div class="passenger-name-value">{{ strtoupper($payment->user->name) }}</div>
+                <div class="flex justify-between items-center gap-8">
+                    <div>
+                        <div class="city-code">{{ strtoupper(substr($payment->departure_city, 0, 3)) }}</div>
+                        <div class="city-name">{{ $payment->departure_city }}</div>
+                    </div>
+                    
+                    <div class="flex-1 flex flex-col items-center">
+                        <div class="w-full border-t border-dashed border-white/20 relative">
+                            <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bg-[#0f172a] px-4">
+                                <span class="material-symbols-outlined text-indigo-400">flight_takeoff</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="text-right">
+                        <div class="city-code">{{ strtoupper(substr($payment->booking->city->name, 0, 3)) }}</div>
+                        <div class="city-name">{{ $payment->booking->city->name }}</div>
+                    </div>
                 </div>
             </div>
 
-            <!-- RIGHT: Details Section -->
-            <div class="ticket-right">
-                <!-- Top Info Section -->
-                <div>
-                    <!-- Basic Info -->
-                    <div class="ticket-info-row">
-                        <div class="ticket-info-item">
-                            <div class="ticket-info-label">Departure</div>
-                            <div class="ticket-info-value">{{ $payment->start_date->format('M d, Y') }}</div>
-                        </div>
-                        <div class="ticket-info-item">
-                            <div class="ticket-info-label">Duration</div>
-                            <div class="ticket-info-value">{{ $payment->booking->duration }} Nights</div>
-                        </div>
+            <!-- Body: Main Info -->
+            <div class="ticket-body">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-8 mb-12">
+                    <div>
+                        <div class="ticket-label">Passenger</div>
+                        <div class="ticket-value text-indigo-600">{{ $payment->user->name }}</div>
                     </div>
+                    <div>
+                        <div class="ticket-label">Departure Date</div>
+                        <div class="ticket-value">{{ $payment->start_date->format('d M Y') }}</div>
+                    </div>
+                    <div>
+                        <div class="ticket-label">Class</div>
+                        <div class="ticket-value">{{ $payment->booking->flight_class ?? 'Economy' }}</div>
+                    </div>
+                    <div>
+                        <div class="ticket-label">Travelers</div>
+                        <div class="ticket-value">{{ $payment->booking->passengers }} Adults</div>
+                    </div>
+                </div>
 
-                    <!-- Flight Info -->
-                    <div class="ticket-flight-info">
-                        <div class="flight-time-display">
-                            <div class="time-item">
-                                <div class="time-label">Departure</div>
-                                <div class="time-value">{{ $payment->flight_departure ?? '--:--' }}</div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-12">
+                    <!-- Flight Details -->
+                    <div class="space-y-6">
+                        <h4 class="text-xs font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 bg-indigo-600 rounded-full"></span>
+                            Flight Information
+                        </h4>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-center p-4 bg-slate-50 rounded-2xl">
+                                <div>
+                                    <div class="text-[10px] font-bold text-slate-400 uppercase">Airline</div>
+                                    <div class="text-sm font-bold text-slate-900">{{ $payment->airline ?? 'Scheduled Carrier' }}</div>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-[10px] font-bold text-slate-400 uppercase">Duration</div>
+                                    <div class="text-sm font-bold text-slate-900">{{ $payment->flight_duration ?? 'TBA' }}</div>
+                                </div>
                             </div>
-                            <div class="flight-divider">✈</div>
-                            <div class="time-item">
-                                <div class="time-label">Arrival</div>
-                                <div class="time-value">{{ $payment->flight_arrival ?? '--:--' }}</div>
+                            <div class="flex justify-between items-center px-2">
+                                <div class="status-badge {{ $payment->is_flight_paid ? 'status-paid' : 'status-pending' }}">
+                                    Flight {{ $payment->is_flight_paid ? 'Paid' : 'Airport' }}
+                                </div>
+                                <div class="text-[10px] font-mono text-slate-400">GATE TBA • SEAT TBA</div>
                             </div>
                         </div>
-                        <div class="flight-duration">{{ $payment->flight_duration ?? 'N/A' }} @if($payment->airline) • {{ $payment->airline }} @endif</div>
                     </div>
 
-                    <!-- Hotel Info -->
-                    <div class="hotel-info">
-                        <div class="hotel-info-label">📍 Accommodation</div>
-                        <div class="hotel-info-value">{{ $payment->booking->hotel->name }}</div>
-                    </div>
-
-                    <!-- Passengers -->
-                    <div class="ticket-info-row" style="margin-top: 1.5rem;">
-                        <div class="ticket-info-item">
-                            <div class="ticket-info-label">Guests</div>
-                            <div class="ticket-info-value">{{ $payment->booking->passengers }} Travelers</div>
-                        </div>
-                        <div class="ticket-info-item">
-                            <div class="ticket-info-label">Total Price</div>
-                            <div class="ticket-info-value" style="color: #0284c7; font-size: 1.375rem;">€{{ number_format($payment->booking->budget_total, 0) }}</div>
+                    <!-- Accommodation -->
+                    <div class="space-y-6">
+                        <h4 class="text-xs font-black text-slate-900 uppercase tracking-widest flex items-center gap-2">
+                            <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full"></span>
+                            Accommodation
+                        </h4>
+                        <div class="space-y-4">
+                            <div class="flex justify-between items-start p-4 bg-slate-50 rounded-2xl">
+                                <div>
+                                    <div class="text-[10px] font-bold text-slate-400 uppercase">Hotel</div>
+                                    <div class="text-sm font-bold text-slate-900 line-clamp-1">{{ $payment->booking->hotel->name }}</div>
+                                    <div class="text-[10px] text-slate-400 mt-1">{{ $payment->booking->duration }} Nights Stay</div>
+                                </div>
+                            </div>
+                            <div class="flex justify-between items-center px-2">
+                                <div class="status-badge {{ $payment->is_hotel_paid ? 'status-paid' : 'status-pending' }}">
+                                    Hotel {{ $payment->is_hotel_paid ? 'Paid' : 'Counter' }}
+                                </div>
+                                <div class="text-[10px] font-mono text-slate-400">CHECK-IN 14:00</div>
+                            </div>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <!-- Payment Status Badges -->
-                <div class="payment-badges">
-                    <div class="badge-item">
-                        <div class="ticket-info-label">Flight</div>
-                        @if($payment->is_flight_paid)
-                            <span class="badge-status badge-paid">
-                                <span class="material-symbols-outlined" style="font-size: 0.65rem;">check_circle</span>
-                                Paid
-                            </span>
-                        @else
-                            <span class="badge-status badge-pending">
-                                <span class="material-symbols-outlined" style="font-size: 0.65rem;">schedule</span>
-                                Airport
-                            </span>
-                        @endif
+            <!-- Perforation -->
+            <div class="ticket-perforation"></div>
+
+            <!-- Footer: QR & Barcode -->
+            <div class="ticket-body flex flex-col md:flex-row justify-between items-center gap-12 pt-8">
+                <div class="flex items-center gap-8">
+                    <div class="p-3 bg-white border-2 border-slate-100 rounded-2xl shadow-sm">
+                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=100x100&data=NOM-{{ $payment->booking->id }}" class="w-20 h-20 opacity-80" alt="QR Code">
                     </div>
-                    <div class="badge-item">
-                        <div class="ticket-info-label">Hotel</div>
-                        @if($payment->is_hotel_paid)
-                            <span class="badge-status badge-paid">
-                                <span class="material-symbols-outlined" style="font-size: 0.65rem;">check_circle</span>
-                                Paid
-                            </span>
-                        @else
-                            <span class="badge-status badge-pending">
-                                <span class="material-symbols-outlined" style="font-size: 0.65rem;">schedule</span>
-                                Hotel
-                            </span>
-                        @endif
+                    <div>
+                        <div class="ticket-label">Validation QR</div>
+                        <p class="text-[10px] text-slate-400 leading-relaxed max-w-[150px]">Scan this code at Nomado counters for priority boarding and check-in.</p>
                     </div>
                 </div>
 
-                <!-- QR Code & Barcode Section -->
-                <div class="qr-barcode-section">
-                    <!-- QR Code -->
-                    <div class="qr-container">
-                        <div class="qr-label">QR Code</div>
-                        <div class="qr-code-box">
-                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=NOM-{{ str_pad($payment->booking->id, 5, '0', STR_PAD_LEFT) }}-{{ urlencode($payment->user->email) }}"
-                                 alt="Booking QR Code" />
-                        </div>
+                <div class="flex-1 flex flex-col items-center md:items-end">
+                    <div class="flex gap-0.5 mb-2">
+                        @for($i = 0; $i < 40; $i++)
+                            <div class="w-[1.5px] bg-slate-900" style="height: {{ rand(30, 45) }}px; opacity: {{ rand(4, 10) / 10 }}"></div>
+                        @endfor
                     </div>
-
-                    <!-- Barcode -->
-                    <div class="barcode-container">
-                        <div class="barcode-label">Booking ID</div>
-                        <div class="barcode">
-                            @for($i = 0; $i < 35; $i++)
-                                <div class="barcode-line" style="height: {{ rand(35, 60) }}px;"></div>
-                            @endfor
-                        </div>
-                        <div class="barcode-text">NOM{{ str_pad($payment->booking->id, 8, '0', STR_PAD_LEFT) }}</div>
-                    </div>
-                </div>
-
-                <!-- Booking Reference -->
-                <div class="booking-reference">
-                    Booking: <span class="booking-reference-value">#NOM-{{ str_pad($payment->booking->id, 5, '0', STR_PAD_LEFT) }}</span>
-                    <br>
-                    <span style="font-size: 0.6rem; opacity: 0.7;">{{ now()->format('M d, Y • H:i') }}</span>
+                    <div class="font-mono text-[10px] tracking-widest text-slate-400">NOM{{ str_pad($payment->booking->id, 10, '0', STR_PAD_LEFT) }}</div>
                 </div>
             </div>
         </div>
-    </div>
 
-    <!-- Bottom Actions -->
-    <div class="mt-10 relative z-10 no-print flex gap-4 justify-center">
-        <a href="{{ route('bookings.index') }}" class="flex items-center gap-2 py-3 px-6 border-2 border-slate-300 text-slate-700 font-black text-sm rounded-lg hover:bg-slate-50 transition-all">
-            <span class="material-symbols-outlined text-sm">arrow_back</span>
-            Back to My Trips
-        </a>
+        <!-- Footer Note -->
+        <div class="mt-8 text-center no-print">
+            <p class="text-xs text-slate-400 font-medium">Please present this ticket along with a valid ID at the airport. Have a safe journey!</p>
+        </div>
     </div>
 </div>
 @endsection
+
