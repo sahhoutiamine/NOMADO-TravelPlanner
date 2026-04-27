@@ -107,10 +107,12 @@
                 Dashboard
             </a>
 
+            @if(auth()->user()->isAdmin())
             <a href="{{ route('admin.bookings.index') }}" class="flex items-center gap-4 px-5 py-4 rounded-xl text-sm font-black uppercase tracking-widest transition-all hover:bg-white/5 group {{ Route::is('admin.bookings.*') ? 'sidebar-link-active' : 'text-slate-400' }}">
                 <span class="material-symbols-outlined text-xl {{ Route::is('admin.bookings.*') ? '' : 'group-hover:text-primary-400' }}">confirmation_number</span>
                 Reservations
             </a>
+            @endif
 
             <div class="pt-10 pb-4">
                 <p class="px-5 text-[10px] font-black uppercase tracking-[0.25em] text-slate-500 mb-6 flex items-center gap-2">
@@ -146,6 +148,7 @@
                 Landmarks
             </a>
 
+            @if(auth()->user()->isAdmin())
             <div class="pt-10 pb-4">
                 <p class="px-5 text-[10px] font-black uppercase tracking-[0.25em] text-slate-500 mb-6 flex items-center gap-2">
                     <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
@@ -157,6 +160,7 @@
                 <span class="material-symbols-outlined text-xl {{ Route::is('admin.users.*') ? '' : 'group-hover:text-primary-400' }}">group</span>
                 Explorers
             </a>
+            @endif
         </nav>
 
         <div class="p-8 mt-auto border-t border-white/5">
