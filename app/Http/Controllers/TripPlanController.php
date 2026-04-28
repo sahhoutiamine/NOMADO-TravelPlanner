@@ -10,7 +10,14 @@ class TripPlanController extends Controller
 {
     public function show($bookingId)
     {
-        $booking = Booking::where('user_id', auth()->id())->findOrFail($bookingId);
+        $userId = auth()->id();
+        $booking = Booking::where(function($query) use ($userId) {
+            $query->where('user_id', $userId)
+                  ->orWhereHas('participants', function($q) use ($userId) {
+                      $q->where('user_id', $userId);
+                  });
+        })->findOrFail($bookingId);
+
         $plan = $this->generatePlan($booking);
         $flightDuration = $this->calculateFlightDuration($booking);
 

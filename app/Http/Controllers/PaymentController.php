@@ -11,7 +11,14 @@ class PaymentController extends Controller
 {
     public function show($id)
     {
-        $booking = Booking::with(['city.country', 'hotel', 'departureCity'])->where('user_id', auth()->id())->findOrFail($id);
+        $userId = auth()->id();
+        $booking = Booking::with(['city.country', 'hotel', 'departureCity'])
+            ->where(function($query) use ($userId) {
+                $query->where('user_id', $userId)
+                      ->orWhereHas('participants', function($q) use ($userId) {
+                          $q->where('user_id', $userId);
+                      });
+            })->findOrFail($id);
 
         if ($booking->status === 'paid') {
             return redirect()->route('bookings.show', $id)->with('error', 'This booking is already paid.');
@@ -22,7 +29,13 @@ class PaymentController extends Controller
 
     public function store(Request $request, $id)
     {
-        $booking = Booking::where('user_id', auth()->id())->findOrFail($id);
+        $userId = auth()->id();
+        $booking = Booking::where(function($query) use ($userId) {
+            $query->where('user_id', $userId)
+                  ->orWhereHas('participants', function($q) use ($userId) {
+                      $q->where('user_id', $userId);
+                  });
+        })->findOrFail($id);
 
         $request->validate([
             'start_date' => 'required|date|after_or_equal:today',
@@ -63,8 +76,15 @@ class PaymentController extends Controller
 
     public function ticket($id)
     {
-        $booking = Booking::where('user_id', auth()->id())->findOrFail($id);
-        $payment = Payment::where('booking_id', $booking->id)->where('user_id', auth()->id())->latest()->firstOrFail();
+        $userId = auth()->id();
+        $booking = Booking::where(function($query) use ($userId) {
+            $query->where('user_id', $userId)
+                  ->orWhereHas('participants', function($q) use ($userId) {
+                      $q->where('user_id', $userId);
+                  });
+        })->findOrFail($id);
+
+        $payment = Payment::where('booking_id', $booking->id)->latest()->firstOrFail();
         $payment->load(['booking.city.country', 'booking.hotel', 'user']);
 
         return view('payment.ticket', compact('payment'));
