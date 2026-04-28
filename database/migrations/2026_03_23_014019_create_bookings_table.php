@@ -21,8 +21,14 @@ return new class extends Migration
             $table->decimal('hotel_budget', 10, 2);
             $table->decimal('activities_budget', 10, 2);
             $table->decimal('misc_budget', 10, 2);
-            $table->decimal('total_price', 10, 2);
             $table->enum('status', ['pending', 'paid'])->default('pending');
+            $table->string('share_code', 6)->nullable()->unique();
+            $table->text('selected_place_ids')->nullable();
+            $table->boolean('include_hotel')->default(true);
+            $table->foreignId('departure_city_id')->nullable()->constrained('cities');
+            $table->string('flight_airline')->nullable();
+            $table->string('flight_class')->nullable();
+            $table->string('flight_duration')->nullable();
             $table->timestamps();
         });
     }

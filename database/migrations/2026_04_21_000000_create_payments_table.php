@@ -21,6 +21,10 @@ return new class extends Migration
             $table->decimal('total_amount', 10, 2)->default(0);
             $table->boolean('is_flight_paid')->default(false);
             $table->boolean('is_hotel_paid')->default(false);
+            $table->string('airline')->nullable();
+            $table->string('flight_departure')->nullable();
+            $table->string('flight_arrival')->nullable();
+            $table->string('flight_duration')->nullable();
             $table->timestamps();
         });
     }
