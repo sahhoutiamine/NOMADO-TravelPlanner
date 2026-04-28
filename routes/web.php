@@ -33,7 +33,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('/trip/confirm', [TripGeneratorController::class, 'confirm'])->name('trip.confirm');
 
     Route::get('/my-bookings', [MyBookingsController::class, 'index'])->name('bookings.index');
+    Route::post('/my-bookings/join', [MyBookingsController::class, 'join'])->name('bookings.join');
     Route::get('/my-bookings/{id}', [MyBookingsController::class, 'show'])->name('bookings.show');
+    Route::post('/my-bookings/{id}/share-code', [MyBookingsController::class, 'shareCode'])->name('bookings.share-code');
     Route::put('/my-bookings/{id}', [MyBookingsController::class, 'update'])->name('bookings.update');
     Route::delete('/my-bookings/{id}', [MyBookingsController::class, 'destroy'])->name('bookings.destroy');
     Route::get('/my-bookings/{id}/plan', [TripPlanController::class, 'show'])->name('bookings.plan');

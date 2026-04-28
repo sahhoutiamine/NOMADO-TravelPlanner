@@ -11,13 +11,31 @@ class MyBookingsController extends Controller
 {
     public function index()
     {
-        $bookings = Booking::with(['city.country', 'hotel'])->where('user_id', auth()->id())->latest()->get();
+        $userId = auth()->id();
+        $bookings = Booking::with(['city.country', 'hotel'])
+            ->where(function($query) use ($userId) {
+                $query->where('user_id', $userId)
+                      ->orWhereHas('participants', function($q) use ($userId) {
+                          $q->where('user_id', $userId);
+                      });
+            })
+            ->latest()
+            ->get();
+            
         return view('bookings.index', compact('bookings'));
     }
 
     public function show($id)
     {
-        $booking = Booking::with(['city.country', 'city.places', 'hotel.city', 'departureCity'])->where('user_id', auth()->id())->findOrFail($id);
+        $userId = auth()->id();
+        $booking = Booking::with(['city.country', 'city.places', 'hotel.city', 'departureCity'])
+            ->where(function($query) use ($userId) {
+                $query->where('user_id', $userId)
+                      ->orWhereHas('participants', function($q) use ($userId) {
+                          $q->where('user_id', $userId);
+                      });
+            })
+            ->findOrFail($id);
         
         $flightDurationData = $this->calculateFlightData($booking);
         $durationMinutes = $flightDurationData['minutes_total'];
@@ -196,5 +214,50 @@ class MyBookingsController extends Controller
         }
 
         return redirect()->route('bookings.index')->with('error', 'Impossible de supprimer un voyage payé.');
+    }
+
+    public function shareCode($id)
+    {
+        $booking = Booking::where('user_id', auth()->id())->findOrFail($id);
+        
+        if ($booking->passengers <= 1) {
+            return response()->json(['success' => false, 'error' => 'Only multi-passenger trips can be shared.'], 403);
+        }
+
+        if (!$booking->share_code) {
+            $code = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 6));
+            // Ensure uniqueness
+            while (Booking::where('share_code', $code)->exists()) {
+                $code = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 6));
+            }
+            $booking->update(['share_code' => $code]);
+        }
+
+        return response()->json(['success' => true, 'code' => $booking->share_code]);
+    }
+
+    public function join(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|string|size:6',
+        ]);
+
+        $booking = Booking::where('share_code', strtoupper($request->code))->first();
+
+        if (!$booking) {
+            return back()->with('error', 'Invalid share code.');
+        }
+
+        if ($booking->user_id === auth()->id()) {
+            return back()->with('error', 'You are already the owner of this trip.');
+        }
+
+        if ($booking->participants()->where('user_id', auth()->id())->exists()) {
+            return back()->with('error', 'You have already joined this trip.');
+        }
+
+        $booking->participants()->attach(auth()->id());
+
+        return redirect()->route('bookings.show', $booking->id)->with('success', 'You have successfully joined the trip!');
     }
 }

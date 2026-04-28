@@ -30,6 +30,11 @@ class User extends Authenticatable
         return $this->hasMany(Booking::class);
     }
 
+    public function sharedBookings()
+    {
+        return $this->belongsToMany(Booking::class, 'booking_user')->withTimestamps();
+    }
+
     public function isAdmin()
     {
         return $this->role === 'admin';

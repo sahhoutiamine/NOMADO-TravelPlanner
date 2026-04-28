@@ -14,7 +14,7 @@ class Booking extends Model
         'budget_total', 'duration', 'passengers',
         'flight_budget', 'hotel_budget', 'activities_budget', 'misc_budget',
         'status', 'selected_place_ids', 'include_hotel',
-        'flight_airline', 'flight_class', 'flight_duration',
+        'flight_airline', 'flight_class', 'flight_duration', 'share_code',
     ];
 
     public function user()
@@ -40,5 +40,10 @@ class Booking extends Model
     public function payment()
     {
         return $this->hasOne(Payment::class);
+    }
+
+    public function participants()
+    {
+        return $this->belongsToMany(User::class, 'booking_user')->withTimestamps();
     }
 }
