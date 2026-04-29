@@ -3,11 +3,11 @@
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TripGeneratorController;
 use App\Http\Controllers\MyBookingsController;
-use App\Http\Controllers\HotelShowController;
+use App\Http\Controllers\HotelController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\TripPlanController;
 use App\Http\Controllers\Admin\CountryController;
-use App\Http\Controllers\Admin\HotelController;
+use App\Http\Controllers\Admin\HotelController as AdminHotelController;
 use App\Http\Controllers\Admin\BookingController;
 use App\Http\Controllers\PlaceController;
 use Illuminate\Support\Facades\Route;
@@ -47,7 +47,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::get('/places/{id}', [PlaceController::class, 'show'])->name('places.show');
 
     // Hotel Detail Route
-    Route::get('/hotels/{id}', [HotelShowController::class, 'show'])->name('hotels.show');
+    Route::get('/hotels/{id}', [HotelController::class, 'show'])->name('hotels.show');
 
     // Profile Routes
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
@@ -67,7 +67,7 @@ Route::middleware(['auth', 'verified', 'role:admin,travlerAdmin'])->prefix('admi
     Route::get('/dashboard', [App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
     Route::resource('countries', CountryController::class);
     Route::resource('cities', App\Http\Controllers\Admin\CityController::class);
-    Route::resource('hotels', HotelController::class);
+    Route::resource('hotels', AdminHotelController::class);
     Route::resource('places', App\Http\Controllers\Admin\PlaceController::class);
 });
 

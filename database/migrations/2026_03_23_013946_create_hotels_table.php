@@ -13,7 +13,7 @@ return new class extends Migration {
             $table->string('name');
             $table->decimal('price_per_night', 8, 2);
             $table->text('description');
-            $table->string('localisation')->nullable(); // Format: "latitude, longitude"
+            $table->string('localisation')->nullable();
             $table->string('contact_number');
             $table->string('email');
             $table->enum('type', ['luxury', 'mid-range', 'economy', 'budget', 'boutique', 'resort']);
