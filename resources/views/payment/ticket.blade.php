@@ -215,8 +215,14 @@
                             <div class="flex justify-between items-start p-4 bg-slate-50 rounded-2xl">
                                 <div>
                                     <div class="text-[10px] font-bold text-slate-400 uppercase">Hotel</div>
-                                    <div class="text-sm font-bold text-slate-900 line-clamp-1">{{ $payment->booking->hotel->name }}</div>
-                                    <div class="text-[10px] text-slate-400 mt-1">{{ $payment->booking->duration }} Nights Stay</div>
+                                    @if($payment->booking->hotels->count() > 0)
+                                        <div class="text-sm font-bold text-slate-900 line-clamp-1">{{ $payment->booking->hotels->first()->name }}</div>
+                                        <div class="text-[10px] text-slate-400 mt-1">
+                                            {{ $payment->booking->hotels->count() > 1 ? 'Multiple Hotels' : $payment->booking->duration . ' Nights Stay' }}
+                                        </div>
+                                    @else
+                                        <div class="text-sm font-bold text-slate-400">No Hotel Selected</div>
+                                    @endif
                                 </div>
                             </div>
                             <div class="flex justify-between items-center px-2">

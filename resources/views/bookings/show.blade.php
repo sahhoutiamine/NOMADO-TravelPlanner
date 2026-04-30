@@ -863,8 +863,12 @@
             pMin.setDate(pMin.getDate() + 2);
             minPlaceVisit = pMin;
 
+            // Places must end at least 2 days before the trip ends
+            const maxPlaceVisit = new Date(tripEndDate);
+            maxPlaceVisit.setDate(maxPlaceVisit.getDate() - 2);
+
             // Apply constraints to place inputs
-            const maxDateStr = tripEndDate.toISOString().split('T')[0];
+            const maxDateStr = maxPlaceVisit.toISOString().split('T')[0];
             const minPlaceStr = minPlaceVisit.toISOString().split('T')[0];
             
             document.querySelectorAll('.place-date-input').forEach(di => {

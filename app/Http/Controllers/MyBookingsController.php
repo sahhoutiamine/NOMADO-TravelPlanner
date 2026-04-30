@@ -201,11 +201,17 @@ class MyBookingsController extends Controller
                 $syncData = [];
                 
                 $minVisitDate = $booking->departure_date ? $booking->departure_date->copy()->addDays(2) : null;
+                $maxVisitDate = $booking->departure_date ? $booking->departure_date->copy()->addDays($booking->duration - 2) : null;
 
                 if (is_array($placeData)) {
                     foreach ($placeData as $placeId => $date) {
-                        if ($date && $minVisitDate && \Carbon\Carbon::parse($date)->lt($minVisitDate)) {
-                            $date = $minVisitDate->format('Y-m-d'); // Force to minimum allowed date
+                        if ($date) {
+                            $carbonDate = \Carbon\Carbon::parse($date);
+                            if ($minVisitDate && $carbonDate->lt($minVisitDate)) {
+                                $date = $minVisitDate->format('Y-m-d');
+                            } elseif ($maxVisitDate && $carbonDate->gt($maxVisitDate)) {
+                                $date = $maxVisitDate->format('Y-m-d');
+                            }
                         }
                         $syncData[$placeId] = ['visit_date' => $date ?: null];
                     }
@@ -262,6 +268,10 @@ class MyBookingsController extends Controller
     {
         $booking = Booking::where('user_id', auth()->id())->findOrFail($id);
         
+        if ($booking->status !== 'paid') {
+            return response()->json(['success' => false, 'error' => 'You must pay for the trip before sharing it.'], 403);
+        }
+
         if ($booking->passengers <= 1) {
             return response()->json(['success' => false, 'error' => 'Only multi-passenger trips can be shared.'], 403);
         }
@@ -288,6 +298,10 @@ class MyBookingsController extends Controller
 
         if (!$booking) {
             return back()->with('error', 'Invalid share code.');
+        }
+
+        if ($booking->status !== 'paid') {
+            return back()->with('error', 'This trip cannot be joined yet as it is not fully confirmed (payment pending).');
         }
 
         if ($booking->user_id === auth()->id()) {

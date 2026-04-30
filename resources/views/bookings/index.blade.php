@@ -163,9 +163,16 @@
                                         #NOM-{{ str_pad($booking->id, 4, '0', STR_PAD_LEFT) }}</span>
                                     <div class="flex items-center gap-3">
                                         @if($booking->passengers > 1 && $booking->user_id === auth()->id())
-                                            <button onclick="shareTrip({{ $booking->id }})" class="p-2 text-slate-400 hover:text-primary-600 transition-colors flex items-center" title="Share trip">
-                                                <span class="material-symbols-outlined text-xl">share</span>
-                                            </button>
+                                            @if($booking->status === 'paid')
+                                                <button onclick="shareTrip({{ $booking->id }})" class="p-2 text-slate-400 hover:text-primary-600 transition-colors flex items-center" title="Share trip">
+                                                    <span class="material-symbols-outlined text-xl">share</span>
+                                                </button>
+                                            @else
+                                                <button class="p-2 text-slate-300 flex items-center cursor-not-allowed group/share relative" title="Pay to share">
+                                                    <span class="material-symbols-outlined text-xl">share_off</span>
+                                                    <span class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 px-2 py-1 bg-slate-800 text-white text-[10px] rounded opacity-0 group-hover/share:opacity-100 transition-opacity whitespace-nowrap pointer-events-none font-bold">Pay to share</span>
+                                                </button>
+                                            @endif
                                         @endif
                                         <a href="{{ route('bookings.show', $booking->id) }}"
                                             class="flex items-center gap-2 text-primary-600 font-black text-sm group-hover:translate-x-1 transition-transform">
