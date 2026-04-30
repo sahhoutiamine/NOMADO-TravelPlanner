@@ -24,6 +24,7 @@ class TripGeneratorController extends Controller
             'duration'  => 'required|integer|min:1',
             'passengers' => 'required|integer|min:1',
             'departure_city_id' => 'required|exists:cities,id',
+            'departure_date' => 'required|date|after_or_equal:' . date('Y-m-d', strtotime('tomorrow')),
         ]);
 
         $budgetTotal = $request->budget;
@@ -31,6 +32,7 @@ class TripGeneratorController extends Controller
         $duration = $request->duration;
         $passengers = $request->passengers;
         $departure_city_id = $request->departure_city_id;
+        $departure_date = $request->departure_date;
 
         // Find cities matching trip type (excluding departure city)
         $cities = City::where('trip_type', $trip_type)
@@ -86,7 +88,7 @@ class TripGeneratorController extends Controller
             ];
         }
 
-        return view('results', compact('trips', 'budgetTotal', 'departure_city_id'));
+        return view('results', compact('trips', 'budgetTotal', 'departure_city_id', 'departure_date'));
     }
 
     public function confirm(Request $request)
@@ -103,6 +105,7 @@ class TripGeneratorController extends Controller
             'misc_budget' => 'required|numeric',
             'trip_type' => 'required',
             'departure_city_id' => 'required|exists:cities,id',
+            'departure_date' => 'required|date',
             'selected_place_ids' => 'nullable|string',
             'include_hotel' => 'nullable|boolean',
         ]);
@@ -110,11 +113,11 @@ class TripGeneratorController extends Controller
         $booking = Booking::create([
             'user_id'           => Auth::id(),
             'city_id'           => $request->city_id,
-            'hotel_id'          => $request->hotel_id,
             'trip_type'         => $request->trip_type,
             'budget_total'      => $request->budget_total,
             'duration'          => $request->duration,
             'passengers'        => $request->passengers,
+            'departure_date'    => $request->departure_date,
             'flight_budget'     => $request->flight_budget,
             'hotel_budget'      => $request->hotel_budget,
             'activities_budget' => $request->activities_budget,
@@ -124,6 +127,23 @@ class TripGeneratorController extends Controller
             'include_hotel'     => $request->include_hotel ?? true,
             'status'            => 'pending',
         ]);
+
+        $booking->participants()->attach(Auth::id(), ['isOwner' => true]);
+
+        // Attach hotel to pivot table
+        if ($request->hotel_id && ($request->include_hotel ?? true)) {
+            $checkIn = \Carbon\Carbon::parse($request->departure_date)->addDay();
+            $checkOut = (clone $checkIn)->addDays((int) $request->duration);
+            $booking->hotels()->attach($request->hotel_id, [
+                'check_in_date' => $checkIn->format('Y-m-d'),
+                'check_out_date' => $checkOut->format('Y-m-d')
+            ]);
+        }
+
+        if ($request->selected_place_ids) {
+            $placeIds = array_filter(explode(',', $request->selected_place_ids));
+            $booking->places()->sync($placeIds);
+        }
 
         return redirect()->route('bookings.show', $booking->id)->with('success', 'Voyage enregistré avec succès !');
     }

@@ -234,6 +234,7 @@
                                 <input type="hidden" name="misc_budget" value="{{ $trip['misc_budget'] }}" class="misc-budget-{{ $index }}">
                                 <input type="hidden" name="trip_type" value="{{ $trip['trip_type'] }}" class="trip-type-{{ $index }}">
                                 <input type="hidden" name="departure_city_id" value="{{ $departure_city_id }}" class="departure-city-id-{{ $index }}">
+                                <input type="hidden" name="departure_date" value="{{ $departure_date }}" class="departure-date-{{ $index }}">
 
                                 <button type="submit"
                                     class="w-full py-5 bg-slate-950 text-white font-black text-xl rounded-lg shadow-lg hover:shadow-xl transition-all relative overflow-hidden group">

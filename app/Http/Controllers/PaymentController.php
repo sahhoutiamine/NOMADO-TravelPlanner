@@ -12,7 +12,7 @@ class PaymentController extends Controller
     public function show($id)
     {
         $userId = auth()->id();
-        $booking = Booking::with(['city.country', 'hotel', 'departureCity'])
+        $booking = Booking::with(['city.country', 'hotels', 'departureCity'])
             ->where(function($query) use ($userId) {
                 $query->where('user_id', $userId)
                       ->orWhereHas('participants', function($q) use ($userId) {
@@ -43,7 +43,7 @@ class PaymentController extends Controller
 
         // Determine if flight and hotel should be marked as paid
         $isFlightPaid = !empty($booking->flight_airline);
-        $isHotelPaid = (bool) $booking->include_hotel && !empty($booking->hotel_id);
+        $isHotelPaid = (bool) $booking->include_hotel && $booking->hotels()->exists();
 
         // Calculate total amount paid (flight + hotel)
         $totalAmount = 0;
@@ -85,7 +85,7 @@ class PaymentController extends Controller
         })->findOrFail($id);
 
         $payment = Payment::where('booking_id', $booking->id)->latest()->firstOrFail();
-        $payment->load(['booking.city.country', 'booking.hotel', 'user']);
+        $payment->load(['booking.city.country', 'booking.hotels', 'user']);
 
         return view('payment.ticket', compact('payment'));
     }

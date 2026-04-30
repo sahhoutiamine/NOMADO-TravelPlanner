@@ -12,7 +12,7 @@ class MyBookingsController extends Controller
     public function index()
     {
         $userId = auth()->id();
-        $bookings = Booking::with(['city.country', 'hotel'])
+        $bookings = Booking::with(['city.country', 'hotels'])
             ->where(function($query) use ($userId) {
                 $query->where('user_id', $userId)
                       ->orWhereHas('participants', function($q) use ($userId) {
@@ -28,7 +28,7 @@ class MyBookingsController extends Controller
     public function show($id)
     {
         $userId = auth()->id();
-        $booking = Booking::with(['city.country', 'city.places', 'hotel.city', 'departureCity'])
+        $booking = Booking::with(['city.country', 'city.places', 'hotels.city', 'departureCity', 'places'])
             ->where(function($query) use ($userId) {
                 $query->where('user_id', $userId)
                       ->orWhereHas('participants', function($q) use ($userId) {
@@ -126,7 +126,7 @@ class MyBookingsController extends Controller
             }
 
             $request->validate([
-                'hotel_id' => 'nullable|exists:hotels,id',
+                'selected_hotels' => 'nullable|string',
                 'include_hotel' => 'nullable|boolean',
                 'selected_place_ids' => 'nullable|string',
                 'airline' => 'nullable|string',
@@ -140,12 +140,25 @@ class MyBookingsController extends Controller
                 $booking->budget_total = $request->budget_total;
             }
 
-            // Recalculate budgets based on selections
+            // Recalculate hotel cost from JSON
             $hotelCost = 0;
-            if ($request->hotel_id && ($request->include_hotel ?? true)) {
-                $hotel = Hotel::find($request->hotel_id);
-                if ($hotel) {
-                    $hotelCost = $hotel->price_per_night * $booking->duration * $booking->passengers;
+            $hotelSyncData = [];
+            if ($request->has('selected_hotels') && ($request->include_hotel ?? true)) {
+                $hotelData = json_decode($request->selected_hotels, true);
+                if (is_array($hotelData)) {
+                    foreach ($hotelData as $h) {
+                        $hotel = Hotel::find($h['id']);
+                        if ($hotel && !empty($h['check_in']) && !empty($h['check_out'])) {
+                            $checkIn = \Carbon\Carbon::parse($h['check_in']);
+                            $checkOut = \Carbon\Carbon::parse($h['check_out']);
+                            $nights = max(1, $checkIn->diffInDays($checkOut));
+                            $hotelCost += $hotel->price_per_night * $nights * $booking->passengers;
+                            $hotelSyncData[$h['id']] = [
+                                'check_in_date' => $h['check_in'],
+                                'check_out_date' => $h['check_out']
+                            ];
+                        }
+                    }
                 }
             }
 
@@ -164,7 +177,6 @@ class MyBookingsController extends Controller
             // Update booking
             $booking->update([
                 'budget_total' => $booking->budget_total,
-                'hotel_id' => $request->hotel_id,
                 'include_hotel' => $request->include_hotel ?? true,
                 'selected_place_ids' => $request->selected_place_ids,
                 'flight_airline' => $request->airline,
@@ -175,6 +187,36 @@ class MyBookingsController extends Controller
                 'activities_budget' => $activitiesBudget,
                 'misc_budget' => $miscBudget,
             ]);
+
+            // Sync hotels
+            if (!empty($hotelSyncData)) {
+                $booking->hotels()->sync($hotelSyncData);
+            } else if (!$request->include_hotel) {
+                $booking->hotels()->detach();
+            }
+
+            // Sync places with dates
+            if ($request->has('place_dates')) {
+                $placeData = json_decode($request->place_dates, true);
+                $syncData = [];
+                
+                $minVisitDate = $booking->departure_date ? $booking->departure_date->copy()->addDays(2) : null;
+
+                if (is_array($placeData)) {
+                    foreach ($placeData as $placeId => $date) {
+                        if ($date && $minVisitDate && \Carbon\Carbon::parse($date)->lt($minVisitDate)) {
+                            $date = $minVisitDate->format('Y-m-d'); // Force to minimum allowed date
+                        }
+                        $syncData[$placeId] = ['visit_date' => $date ?: null];
+                    }
+                }
+                
+                $booking->places()->sync($syncData);
+            } else if ($request->has('selected_place_ids')) {
+                // Fallback if place_dates is not sent but selected_place_ids is
+                $placeIds = array_filter(explode(',', $request->selected_place_ids));
+                $booking->places()->sync($placeIds);
+            }
 
             return response()->json([
                 'success' => true,
@@ -256,7 +298,7 @@ class MyBookingsController extends Controller
             return back()->with('error', 'You have already joined this trip.');
         }
 
-        $booking->participants()->attach(auth()->id());
+        $booking->participants()->attach(auth()->id(), ['isOwner' => false]);
 
         return redirect()->route('bookings.show', $booking->id)->with('success', 'You have successfully joined the trip!');
     }

@@ -197,7 +197,24 @@
                         {{ strtoupper($booking->trip_type ?? 'Adventure') }} TRIP
                     </span>
                     <h2 class="text-6xl font-black text-white tracking-tighter">{{ $booking->city->name }}</h2>
-                    <p class="text-2xl font-bold text-white/80">{{ $booking->city->country->name ?? 'Europe' }}</p>
+                    <div class="flex items-center gap-3 text-white/80 text-2xl font-bold">
+                        <span>{{ $booking->city->country->name ?? 'Europe' }}</span>
+                        @if($booking->departure_date)
+                            <span class="w-2 h-2 rounded-full bg-white/40"></span>
+                            <span class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-xl text-white">calendar_today</span>
+                                @if($booking->status === 'pending')
+                                    <input type="date" id="departure-date-input" 
+                                           class="bg-white/10 border border-white/20 text-white font-bold text-lg rounded-lg px-3 py-1 focus:ring-2 focus:ring-white/50 outline-none backdrop-blur-sm"
+                                           value="{{ $booking->departure_date->format('Y-m-d') }}"
+                                           min="{{ date('Y-m-d', strtotime('tomorrow')) }}"
+                                           onchange="updateTrip()">
+                                @else
+                                    <span class="text-white">{{ $booking->departure_date->format('M d, Y') }}</span>
+                                @endif
+                            </span>
+                        @endif
+                    </div>
                 </div>
             </div>
 
@@ -241,10 +258,16 @@
                     </label>
                 </div>
 
-                <div class="hotel-scroll flex gap-6 pb-6" id="hotels-container">
+                <div class="hotel-scroll flex gap-6 pb-6 overflow-x-auto" id="hotels-container">
                     @foreach($booking->city->hotels as $hotel)
-                        <div class="hotel-card glass-card p-4 rounded-xl border border-white/50 hover:shadow-2xl w-72 flex-shrink-0 transition-all duration-300 relative group {{ $booking->hotel_id === $hotel->id ? 'selected' : '' }}"
-                            onclick="selectHotel({{ $hotel->id }})" data-hotel-id="{{ $hotel->id }}" data-hotel-price="{{ $hotel->price_per_night }}">
+                        @php
+                            $pivot = $booking->hotels->where('id', $hotel->id)->first()?->pivot;
+                            $isSelected = (bool)$pivot;
+                            $checkIn = $pivot?->check_in_date ?? '';
+                            $checkOut = $pivot?->check_out_date ?? '';
+                        @endphp
+                        <div class="hotel-card glass-card p-4 rounded-xl border border-white/50 hover:shadow-2xl w-72 flex-shrink-0 transition-all duration-300 relative group {{ $isSelected ? 'selected' : '' }}"
+                            onclick="toggleHotel({{ $hotel->id }})" data-hotel-id="{{ $hotel->id }}" data-hotel-price="{{ $hotel->price_per_night }}">
                             
                             <div class="absolute top-4 right-4 z-20">
                                 <div class="w-6 h-6 rounded-full bg-white border-2 border-slate-200 flex items-center justify-center transition-all group-[.selected]:bg-primary-600 group-[.selected]:border-primary-600">
@@ -261,34 +284,72 @@
                             
                             <div class="px-1">
                                 <h4 class="font-bold text-slate-900 text-lg truncate mb-1 tracking-tight">{{ $hotel->name }}</h4>
-                                <div class="flex items-center gap-2 mb-4">
+                                <div class="flex items-center gap-2 mb-2">
                                     <span class="text-primary-600 font-black text-xl">€{{ number_format($hotel->price_per_night) }}</span>
                                     <span class="text-slate-400 text-xs font-bold uppercase italic">/ night</span>
                                 </div>
                                 
-                                <a class="inline-flex items-center gap-2 text-primary-600 font-black text-xs uppercase tracking-widest hover:text-primary-700 transition-all relative z-30" 
-                                   href="{{ route('hotels.show', $hotel->id) }}?booking_id={{ $booking->id }}" 
-                                   onclick="event.stopPropagation()">
-                                    View Details <span class="material-symbols-outlined text-sm">arrow_forward</span>
-                                </a>
+                                @if($booking->status === 'pending')
+                                <div class="mt-4 pt-4 border-t border-slate-100 hotel-config {{ $isSelected ? '' : 'opacity-40 pointer-events-none' }} transition-opacity duration-300" id="hotel-config-{{ $hotel->id }}">
+                                    <div class="grid grid-cols-2 gap-3">
+                                        <div class="flex flex-col gap-1">
+                                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Check-in</label>
+                                            <input type="date" class="hotel-date-input bg-slate-50 border-none text-[10px] font-bold text-slate-600 p-1 rounded focus:ring-1 focus:ring-primary-500" 
+                                                   data-hotel-id="{{ $hotel->id }}" value="{{ $checkIn }}" onchange="updateTrip()" onclick="event.stopPropagation()">
+                                        </div>
+                                        <div class="flex flex-col gap-1">
+                                            <label class="text-[9px] font-black text-slate-400 uppercase tracking-widest">Check-out</label>
+                                            <input type="date" class="hotel-checkout-input bg-slate-50 border-none text-[10px] font-bold text-slate-600 p-1 rounded focus:ring-1 focus:ring-primary-500" 
+                                                   data-hotel-id="{{ $hotel->id }}" value="{{ $checkOut }}" onchange="updateTrip()" onclick="event.stopPropagation()">
+                                        </div>
+                                    </div>
+                                </div>
+                                @endif
+
+                                <div class="mt-4">
+                                    <a class="inline-flex items-center gap-2 text-primary-600 font-black text-[10px] uppercase tracking-widest hover:text-primary-700 transition-all relative z-30" 
+                                       href="{{ route('hotels.show', $hotel->id) }}?booking_id={{ $booking->id }}" 
+                                       onclick="event.stopPropagation()">
+                                        View Details <span class="material-symbols-outlined text-sm">arrow_forward</span>
+                                    </a>
+                                </div>
                             </div>
                         </div>
                     @endforeach
                 </div>
             </div>
             @else
-            <div class="glass-card p-8 rounded-xl flex flex-col sm:flex-row gap-8 items-center border border-white/50 shadow-xl group hover:shadow-2xl transition-all duration-500">
-                <div class="relative w-full sm:w-64 h-44 rounded-lg overflow-hidden shrink-0 shadow-lg">
-                    <img src="{{ $booking->hotel->image ?? 'https://images.unsplash.com/photo-1566073171639-3f8b3f5e4c4b' }}" 
-                         alt="{{ $booking->hotel->name }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+            <div class="space-y-6">
+                @foreach($booking->hotels as $hotel)
+                <div class="glass-card p-8 rounded-xl flex flex-col sm:flex-row gap-8 items-center border border-white/50 shadow-xl group hover:shadow-2xl transition-all duration-500">
+                    <div class="relative w-full sm:w-64 h-44 rounded-lg overflow-hidden shrink-0 shadow-lg">
+                        <img src="{{ $hotel->image }}" 
+                             alt="{{ $hotel->name }}" class="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700">
+                    </div>
+                    <div class="flex-1 w-full text-center sm:text-left">
+                        <span class="px-3 py-1 bg-primary-50 text-primary-700 text-[10px] font-black uppercase tracking-widest rounded-full border border-primary-100 mb-3 inline-block">
+                            {{ $hotel->getTypeLabel() }}
+                        </span>
+                        <h4 class="text-3xl font-black text-slate-900 tracking-tight mb-2">{{ $hotel->name }}</h4>
+                        <div class="flex flex-wrap justify-center sm:justify-start gap-4 mt-4">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-primary-600">calendar_today</span>
+                                <div class="flex flex-col">
+                                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Check-in</span>
+                                    <span class="text-sm font-bold text-slate-700">{{ $hotel->pivot->check_in_date ? \Carbon\Carbon::parse($hotel->pivot->check_in_date)->format('M d, Y') : 'TBD' }}</span>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-indigo-600">logout</span>
+                                <div class="flex flex-col">
+                                    <span class="text-[9px] font-black text-slate-400 uppercase tracking-widest leading-none">Check-out</span>
+                                    <span class="text-sm font-bold text-slate-700">{{ $hotel->pivot->check_out_date ? \Carbon\Carbon::parse($hotel->pivot->check_out_date)->format('M d, Y') : 'TBD' }}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
-                <div class="flex-1 text-center sm:text-left">
-                    <h4 class="text-2xl font-black text-slate-900 mb-1 tracking-tight">{{ $booking->hotel->name }}</h4>
-                    <p class="text-slate-400 font-bold text-sm mb-6 uppercase tracking-widest italic">Luxury Stay &middot; {{ $booking->city->name }}</p>
-                    <a class="inline-flex items-center gap-2 text-primary-600 font-black text-sm hover:text-primary-700 transition-all hover:translate-x-1" href="{{ route('hotels.show', $booking->hotel->id) }}">
-                        View Hotel Details <span class="material-symbols-outlined text-sm">arrow_forward</span>
-                    </a>
-                </div>
+                @endforeach
             </div>
             @endif
 
@@ -297,32 +358,60 @@
                 <h3 class="text-2xl font-black text-slate-900 tracking-tight ml-2">Must-Visit Spots</h3>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="places-grid">
                     @foreach($booking->city->places->sortBy('min_price') as $place)
-                    <div class="place-card glass-card p-5 rounded-xl flex gap-5 border border-white/50 hover:shadow-lg transition-all group relative {{ $booking->status === 'pending' ? 'cursor-pointer' : '' }}">
-                        @if($booking->status === 'pending')
-                        <input type="checkbox" class="place-checkbox absolute top-4 right-4 w-5 h-5 cursor-pointer z-20"
-                            data-place-id="{{ $place->id }}"
-                            data-place-price="{{ $place->min_price }}"
-                            {{ in_array($place->id, array_filter(explode(',', $booking->selected_place_ids ?? ''))) ? 'checked' : '' }}
-                            onchange="updateTrip()">
+                    @php
+                        $isSelected = in_array($place->id, array_filter(explode(',', $booking->selected_place_ids ?? '')));
+                        $visitDate = $booking->places->find($place->id)?->pivot?->visit_date;
+                    @endphp
+                    <div class="place-card glass-card p-5 rounded-xl flex flex-col gap-4 border border-white/50 hover:shadow-lg transition-all group relative {{ $booking->status === 'pending' ? 'cursor-pointer' : '' }}">
+                        <div class="flex gap-5">
+                            @if($booking->status === 'pending')
+                            <input type="checkbox" class="place-checkbox absolute top-4 right-4 w-5 h-5 cursor-pointer z-20"
+                                data-place-id="{{ $place->id }}"
+                                data-place-price="{{ $place->min_price }}"
+                                {{ $isSelected ? 'checked' : '' }}
+                                onchange="updateTrip()">
+                            @endif
+                            
+                            <div class="w-24 h-24 rounded-lg overflow-hidden shrink-0 shadow-sm">
+                                <img src="{{ $place->image }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
+                            </div>
+                            <div class="flex-1 flex flex-col justify-between min-w-0">
+                                <div>
+                                    <h4 class="font-bold text-slate-900 truncate tracking-tight pr-8">{{ $place->name }}</h4>
+                                    <p class="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">{{ $place->description }}</p>
+                                </div>
+                                <div class="flex items-center justify-between mt-3">
+                                    <a class="text-[10px] font-black text-primary-600 uppercase tracking-widest flex items-center gap-1 hover:text-primary-700 w-fit relative z-30" href="{{ route('places.show', $place->id) }}?booking_id={{ $booking->id }}">
+                                        Explore <span class="material-symbols-outlined text-[12px]">arrow_forward</span>
+                                    </a>
+                                    <span class="px-3 py-1 bg-primary-50 text-primary-600 font-black text-xs rounded-full border border-primary-100">
+                                        €{{ number_format($place->min_price) }}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        @if($isSelected || $booking->status === 'pending')
+                        <div class="mt-2 pt-4 border-t border-slate-100 flex items-center justify-between {{ !$isSelected && $booking->status === 'pending' ? 'opacity-40 pointer-events-none' : '' }} transition-opacity duration-300" id="date-container-{{ $place->id }}">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm text-slate-400">calendar_month</span>
+                                <span class="text-[10px] font-black text-slate-400 uppercase tracking-widest">Visit Date</span>
+                            </div>
+                            @if($booking->status === 'pending')
+                                @php
+                                    $minVisitDate = $booking->departure_date ? $booking->departure_date->copy()->addDays(2)->format('Y-m-d') : '';
+                                @endphp
+                                <input type="date" 
+                                       class="place-date-input bg-slate-50 border-none text-[11px] font-bold text-slate-600 p-1 rounded focus:ring-1 focus:ring-primary-500" 
+                                       data-place-id="{{ $place->id }}"
+                                       value="{{ $visitDate }}"
+                                       min="{{ $minVisitDate }}"
+                                       onchange="updateTrip()">
+                            @else
+                                <span class="text-[11px] font-bold text-slate-600">{{ $visitDate ? \Carbon\Carbon::parse($visitDate)->format('M d, Y') : 'Not scheduled' }}</span>
+                            @endif
+                        </div>
                         @endif
-                        
-                        <div class="w-24 h-24 rounded-lg overflow-hidden shrink-0 shadow-sm">
-                            <img src="{{ $place->image }}" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500">
-                        </div>
-                        <div class="flex-1 flex flex-col justify-between min-w-0">
-                            <div>
-                                <h4 class="font-bold text-slate-900 truncate tracking-tight pr-8">{{ $place->name }}</h4>
-                                <p class="text-xs text-slate-500 mt-1 line-clamp-2 leading-relaxed">{{ $place->description }}</p>
-                            </div>
-                            <div class="flex items-center justify-between mt-3">
-                                <a class="text-[10px] font-black text-primary-600 uppercase tracking-widest flex items-center gap-1 hover:text-primary-700 w-fit relative z-30" href="{{ route('places.show', $place->id) }}?booking_id={{ $booking->id }}">
-                                    Explore <span class="material-symbols-outlined text-[12px]">arrow_forward</span>
-                                </a>
-                                <span class="px-3 py-1 bg-primary-50 text-primary-600 font-black text-xs rounded-full border border-primary-100">
-                                    €{{ number_format($place->min_price) }}
-                                </span>
-                            </div>
-                        </div>
                     </div>
                     @endforeach
                 </div>
@@ -483,9 +572,17 @@
                         <div class="text-6xl font-black text-slate-900 tracking-tighter mb-6">
                             &euro;<span id="final-amount-paid" data-target="{{ $booking->budget_total }}">0</span>
                         </div>
-                        <div class="text-[11px] font-black text-slate-400 uppercase tracking-[0.15em] flex items-center gap-2 pt-4 border-t border-slate-100">
-                            <span class="material-symbols-outlined text-sm">schedule</span>
-                            {{ $booking->duration }} Nights &middot; {{ $booking->passengers }} Travelers
+                        <div class="text-[11px] font-black text-slate-400 mt-6 uppercase tracking-[0.15em] flex flex-wrap items-center gap-y-2 gap-x-4 border-t border-slate-100 pt-4">
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm">schedule</span>
+                                {{ $booking->duration }} Nights &middot; {{ $booking->passengers }} Travelers
+                            </div>
+                            @if($booking->departure_date)
+                            <div class="flex items-center gap-2">
+                                <span class="material-symbols-outlined text-sm">calendar_month</span>
+                                {{ $booking->departure_date->format('M d, Y') }}
+                            </div>
+                            @endif
                         </div>
                     </div>
                     @endif
@@ -563,14 +660,16 @@
                             <form id="selections-form" action="{{ route('bookings.update', $booking->id) }}" method="POST" class="hidden">
                                 @csrf
                                 @method('PUT')
-                                <input type="hidden" name="hotel_id" id="form-hotel-id" value="{{ $booking->hotel_id }}">
+                                <input type="hidden" name="selected_hotels" id="form-selected-hotels" value="">
                                 <input type="hidden" name="include_hotel" id="form-include-hotel" value="{{ $booking->include_hotel ? '1' : '0' }}">
                                 <input type="hidden" name="selected_place_ids" id="form-selected-places" value="{{ $booking->selected_place_ids }}">
+                                <input type="hidden" name="place_dates" id="form-place-dates" value="">
                                 <input type="hidden" name="airline" id="form-airline" value="{{ $booking->flight_airline }}">
                                 <input type="hidden" name="flight_duration" id="form-flight-duration" value="{{ $booking->flight_duration }}">
                                 <input type="hidden" name="flight_class" id="form-flight-class" value="{{ $booking->flight_class }}">
                                 <input type="hidden" name="flight_budget" id="form-flight-price" value="{{ $booking->flight_airline ? ($booking->passengers > 0 ? $booking->flight_budget / $booking->passengers : 0) : 0 }}">
                                 <input type="hidden" name="budget_total" id="form-budget-total" value="{{ $booking->budget_total }}">
+                                <input type="hidden" name="departure_date" id="form-departure-date" value="{{ $booking->departure_date ? $booking->departure_date->format('Y-m-d') : '' }}">
                             </form>
                         @endif
 
@@ -623,18 +722,20 @@
     const MIN_EXPERIENCES = 150 * passengers; 
     const MIN_MISC = 50 * passengers;
 
-    function selectHotel(hotelId) {
-        const card = event.currentTarget;
-        const container = document.getElementById('hotels-container');
+    function toggleHotel(hotelId) {
+        const card = document.querySelector(`.hotel-card[data-hotel-id="${hotelId}"]`);
+        if (!card) return;
         
-        // Remove selection from all cards
-        container.querySelectorAll('.hotel-card').forEach(c => {
-            c.classList.remove('selected');
-        });
-
-        // Always select the clicked hotel
-        card.classList.add('selected');
-        document.getElementById('form-hotel-id').value = hotelId;
+        const isSelected = card.classList.toggle('selected');
+        const config = document.getElementById(`hotel-config-${hotelId}`);
+        
+        if (config) {
+            if (isSelected) {
+                config.classList.remove('opacity-40', 'pointer-events-none');
+            } else {
+                config.classList.add('opacity-40', 'pointer-events-none');
+            }
+        }
         
         updateTrip();
     }
@@ -738,10 +839,113 @@
         const includeHotelCheckbox = document.querySelector('.hotel-toggle');
         const includeHotel = includeHotelCheckbox ? includeHotelCheckbox.checked : true;
 
+        // Handle Departure Date
+        const departureDateInput = document.getElementById('departure-date-input');
+        const tripDuration = parseInt("{{ $booking->duration }}");
+        let tripEndDate = null;
+        let minHotelCheckIn = null;
+        let minPlaceVisit = null;
+
+        if (departureDateInput && departureDateInput.value) {
+            const d = new Date(departureDateInput.value);
+            
+            // Trip End Date
+            tripEndDate = new Date(d);
+            tripEndDate.setDate(tripEndDate.getDate() + tripDuration);
+            
+            // First hotel starts at least 1 day after departure
+            const hMin = new Date(d);
+            hMin.setDate(hMin.getDate() + 1);
+            minHotelCheckIn = hMin;
+
+            // Places start at least 2 days after departure
+            const pMin = new Date(d);
+            pMin.setDate(pMin.getDate() + 2);
+            minPlaceVisit = pMin;
+
+            // Apply constraints to place inputs
+            const maxDateStr = tripEndDate.toISOString().split('T')[0];
+            const minPlaceStr = minPlaceVisit.toISOString().split('T')[0];
+            
+            document.querySelectorAll('.place-date-input').forEach(di => {
+                di.min = minPlaceStr;
+                di.max = maxDateStr;
+                if (di.value && di.value < minPlaceStr) di.value = minPlaceStr;
+                if (di.value && di.value > maxDateStr) di.value = maxDateStr;
+            });
+        }
+
         // 1. Accommodation Cost (Starts at 0)
-        const selectedHotelCard = document.querySelector('#hotels-container .hotel-card.selected');
-        const hotelPricePerNight = selectedHotelCard ? parseFloat(selectedHotelCard.dataset.hotelPrice) : 0;
-        const hotelCost = includeHotel ? (hotelPricePerNight * duration * passengers) : 0;
+        let hotelCost = 0;
+        const selectedHotels = [];
+        const hotelCards = document.querySelectorAll('.hotel-card.selected');
+        let currentMinCheckIn = minHotelCheckIn;
+
+        hotelCards.forEach((card) => {
+            const hotelId = card.dataset.hotelId;
+            const price = parseFloat(card.dataset.hotelPrice);
+            const dateInput = document.querySelector(`.hotel-date-input[data-hotel-id="${hotelId}"]`);
+            const checkoutInput = document.querySelector(`.hotel-checkout-input[data-hotel-id="${hotelId}"]`);
+            
+            if (!dateInput || !checkoutInput || !tripEndDate) return;
+
+            // --- CHECK-IN constraints ---
+            const minStr = currentMinCheckIn.toISOString().split('T')[0];
+            // Check-in can be at most 1 day before trip end (need at least 1 night)
+            const maxCheckInDate = new Date(tripEndDate);
+            maxCheckInDate.setDate(maxCheckInDate.getDate() - 1);
+            const maxCheckInStr = maxCheckInDate.toISOString().split('T')[0];
+
+            dateInput.min = minStr;
+            dateInput.max = maxCheckInStr;
+
+            let checkIn = dateInput.value;
+            if (!checkIn || checkIn < minStr) {
+                checkIn = minStr;
+                dateInput.value = checkIn;
+            }
+            if (checkIn > maxCheckInStr) {
+                checkIn = maxCheckInStr;
+                dateInput.value = checkIn;
+            }
+
+            // --- CHECK-OUT constraints ---
+            const checkInObj = new Date(checkIn);
+            const minCheckOut = new Date(checkInObj);
+            minCheckOut.setDate(minCheckOut.getDate() + 1); // At least 1 night
+            const minCheckOutStr = minCheckOut.toISOString().split('T')[0];
+            const maxCheckOutStr = tripEndDate.toISOString().split('T')[0];
+
+            checkoutInput.min = minCheckOutStr;
+            checkoutInput.max = maxCheckOutStr;
+
+            let checkOut = checkoutInput.value;
+            if (!checkOut || checkOut < minCheckOutStr) {
+                checkOut = minCheckOutStr;
+                checkoutInput.value = checkOut;
+            }
+            if (checkOut > maxCheckOutStr) {
+                checkOut = maxCheckOutStr;
+                checkoutInput.value = checkOut;
+            }
+
+            // Calculate nights
+            const checkOutObj = new Date(checkOut);
+            const nights = Math.max(1, Math.floor((checkOutObj - checkInObj) / (1000 * 60 * 60 * 24)));
+
+            // Update min for next hotel — next hotel check-in starts at this hotel's check-out
+            currentMinCheckIn = checkOutObj;
+
+            selectedHotels.push({
+                id: hotelId,
+                check_in: checkIn,
+                check_out: checkOut
+            });
+
+            hotelCost += price * nights * passengers;
+        });
+
+        if (!includeHotel) hotelCost = 0;
 
         // 2. Flight Cost (Starts at 0)
         const flightPrice = parseFloat(document.getElementById('form-flight-price').value) || 0;
@@ -751,6 +955,23 @@
         const selectedPlaces = Array.from(document.querySelectorAll('.place-checkbox:checked'));
         const selectedPlaceIds = selectedPlaces.map(p => p.dataset.placeId).join(',');
         const placesCost = selectedPlaces.reduce((sum, p) => sum + (parseFloat(p.dataset.placePrice) * passengers), 0);
+
+        // Handle dates and container visibility
+        const placeDates = {};
+        document.querySelectorAll('.place-checkbox').forEach(cb => {
+            const id = cb.dataset.placeId;
+            const container = document.getElementById(`date-container-${id}`);
+            const dateInput = document.querySelector(`.place-date-input[data-place-id="${id}"]`);
+            
+            if (cb.checked) {
+                if (container) container.classList.remove('opacity-40', 'pointer-events-none');
+                if (dateInput && dateInput.value) {
+                    placeDates[id] = dateInput.value;
+                }
+            } else {
+                if (container) container.classList.add('opacity-40', 'pointer-events-none');
+            }
+        });
 
         // 4. Experiences & Miscellaneous (Minimum base)
         let experiencesBudget = MIN_EXPERIENCES;
@@ -772,7 +993,9 @@
 
         // Update Form
         document.getElementById('form-include-hotel').value = includeHotel ? '1' : '0';
+        document.getElementById('form-selected-hotels').value = JSON.stringify(selectedHotels);
         document.getElementById('form-selected-places').value = selectedPlaceIds;
+        document.getElementById('form-place-dates').value = JSON.stringify(placeDates);
 
         // Update Display
         animateNumber(document.getElementById('total-amount'), Math.round(finalTotal));

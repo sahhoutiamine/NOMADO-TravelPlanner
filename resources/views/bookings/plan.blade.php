@@ -185,7 +185,11 @@
             </div>
 
             <!-- Summary Bar -->
-            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-20 animate-slide-up" style="animation-delay: 0.2s">
+            <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-20 animate-slide-up" style="animation-delay: 0.2s">
+                <div class="glass-card p-6 rounded-2xl text-center border-white/80">
+                    <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Departure</p>
+                    <p class="text-2xl font-black text-slate-900">{{ $booking->departure_date ? \Carbon\Carbon::parse($booking->departure_date)->format('M d') : 'TBD' }}</p>
+                </div>
                 <div class="glass-card p-6 rounded-2xl text-center border-white/80">
                     <p class="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">Duration</p>
                     <p class="text-2xl font-black text-slate-900">{{ count($plan) }} Days</p>
@@ -230,6 +234,11 @@
                                     <span class="px-4 py-1.5 rounded-full text-xs font-black {{ $color['bg'] }} {{ $color['text'] }} {{ $color['border'] }} border">
                                         DAY {{ $day['day'] }}
                                     </span>
+                                    @if(!empty($day['date']))
+                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                        {{ $day['date'] }}
+                                    </span>
+                                    @endif
                                 </div>
                                 
                                 <h3 class="text-2xl font-black text-slate-900 mb-3 tracking-tight">

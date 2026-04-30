@@ -32,7 +32,7 @@ class User extends Authenticatable
 
     public function sharedBookings()
     {
-        return $this->belongsToMany(Booking::class, 'booking_user')->withTimestamps();
+        return $this->belongsToMany(Booking::class, 'booking_user')->withPivot('isOwner')->withTimestamps();
     }
 
     public function isAdmin()

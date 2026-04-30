@@ -97,36 +97,11 @@
 
                 <form id="payment-form" method="POST" action="{{ route('payment.store', $booking->id) }}" class="space-y-8">
                     @csrf
-                    
-                    <!-- Date Selection -->
-                    <div class="glass-card p-8 rounded-2xl animate-fade-in" style="animation-delay: 0.2s">
-                        <h2 class="text-lg font-bold text-slate-900 mb-6 flex items-center gap-3">
-                            <div class="w-8 h-8 rounded-lg bg-indigo-50 flex items-center justify-center">
-                                <span class="material-symbols-outlined text-indigo-600 text-sm">calendar_today</span>
-                            </div>
-                            Journey Schedule
-                        </h2>
-                        
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                            <div>
-                                <label class="input-label">Departure Date</label>
-                                <input type="date" name="start_date" required class="payment-input"
-                                    value="{{ old('start_date') }}" min="{{ date('Y-m-d') }}">
-                                @error('start_date')
-                                    <div class="text-red-500 text-xs font-bold mt-2">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="flex flex-col justify-end pb-1">
-                                <div class="text-xs text-slate-400 italic">
-                                    Your trip will last for <strong>{{ $booking->duration }} nights</strong>.
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <input type="hidden" name="start_date" value="{{ $booking->departure_date?->format('Y-m-d') ?? date('Y-m-d') }}">
 
                     @php
                         $hasFlight = !empty($booking->flight_airline);
-                        $hasHotel = $booking->include_hotel && !empty($booking->hotel_id);
+                        $hasHotel = $booking->include_hotel && $booking->hotels->isNotEmpty();
                         $needsPayment = $hasFlight || $hasHotel;
                     @endphp
 
@@ -241,10 +216,18 @@
                             @endif
 
                             @if($hasHotel)
+                            @foreach($booking->hotels as $hotel)
                             <div class="summary-row">
                                 <div class="flex items-center gap-3">
                                     <span class="material-symbols-outlined text-slate-400 text-sm">bed</span>
-                                    <span class="text-sm font-medium text-slate-600">{{ $booking->hotel->name }}</span>
+                                    <span class="text-sm font-medium text-slate-600">{{ $hotel->name }}</span>
+                                </div>
+                            </div>
+                            @endforeach
+                            <div class="summary-row">
+                                <div class="flex items-center gap-3">
+                                    <span class="material-symbols-outlined text-slate-400 text-sm">payments</span>
+                                    <span class="text-sm font-medium text-slate-600">Hotels Total</span>
                                 </div>
                                 <div class="text-sm font-bold text-slate-900">€{{ number_format($booking->hotel_budget) }}</div>
                             </div>

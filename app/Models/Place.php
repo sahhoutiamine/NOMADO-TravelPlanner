@@ -27,4 +27,9 @@ class Place extends Model
         // For now, let's keep it consistent with what the controller or seeder expects
         return $this->city->hotels();
     }
+
+    public function bookings()
+    {
+        return $this->belongsToMany(Booking::class, 'booking_place')->withPivot('visit_date')->withTimestamps();
+    }
 }

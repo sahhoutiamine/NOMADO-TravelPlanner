@@ -11,14 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('booking_user', function (Blueprint $table) {
+        Schema::create('booking_place', function (Blueprint $table) {
             $table->id();
             $table->foreignId('booking_id')->constrained()->onDelete('cascade');
-            $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->boolean('isOwner')->default(false);
+            $table->foreignId('place_id')->constrained()->onDelete('cascade');
+            $table->date('visit_date')->nullable();
             $table->timestamps();
-            
-            $table->unique(['booking_id', 'user_id']);
         });
     }
 
@@ -27,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('booking_user');
+        Schema::dropIfExists('booking_place');
     }
 };

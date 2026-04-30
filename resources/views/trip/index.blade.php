@@ -136,7 +136,7 @@
                             style="font-variation-settings: 'FILL' 1;">tune</span>
                         The Logistics
                     </h2>
-                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
                         <!-- Budget -->
                         <div class="space-y-2">
                             <label class="font-bold text-xs uppercase tracking-widest text-slate-400 block"
@@ -198,6 +198,21 @@
                                 </select>
                             </div>
                             <x-input-error :messages="$errors->get('departure_city_id')" class="mt-1" />
+                        </div>
+                        <!-- Departure Date -->
+                        <div class="space-y-2">
+                            <label class="font-bold text-xs uppercase tracking-widest text-slate-400 block"
+                                for="departure_date">Departure Date</label>
+                            <div class="relative group">
+                                <span
+                                    class="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 group-focus-within:text-primary-600 transition-colors">calendar_today</span>
+                                <input
+                                    class="w-full bg-slate-50/50 border border-slate-100 rounded-2xl py-4 pl-12 pr-4 text-slate-900 focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all text-sm outline-none font-semibold"
+                                    id="departure_date" name="departure_date" type="date" required
+                                    min="{{ date('Y-m-d', strtotime('tomorrow')) }}"
+                                    value="{{ old('departure_date') }}" />
+                            </div>
+                            <x-input-error :messages="$errors->get('departure_date')" class="mt-1" />
                         </div>
                     </div>
                 </div>

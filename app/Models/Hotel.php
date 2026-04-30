@@ -26,7 +26,7 @@ class Hotel extends Model
 
     public function bookings()
     {
-        return $this->hasMany(Booking::class);
+        return $this->belongsToMany(Booking::class, 'booking_hotel')->withPivot('check_in_date', 'check_out_date')->withTimestamps();
     }
 
     public function getTypeLabel(): string

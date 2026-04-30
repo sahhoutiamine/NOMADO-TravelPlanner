@@ -16,7 +16,7 @@ class TripPlanController extends Controller
                   ->orWhereHas('participants', function($q) use ($userId) {
                       $q->where('user_id', $userId);
                   });
-        })->findOrFail($bookingId);
+        })->with(['city', 'departureCity', 'hotels', 'places'])->findOrFail($bookingId);
 
         $plan = $this->generatePlan($booking);
         $flightDuration = $this->calculateFlightDuration($booking);
@@ -73,110 +73,202 @@ class TripPlanController extends Controller
     {
         $destinationCity = $booking->city;
         $departureCity = $booking->departureCity ?? City::find($booking->departure_city_id);
-        $duration = $booking->duration; // User's total duration (e.g. 7)
+        $duration = $booking->duration;
         $flightDuration = $this->calculateFlightDuration($booking);
 
-        // Get places sorted by price
-        $places = $destinationCity->places->sortBy('min_price')->values();
-
-        // Get selected place IDs - only show what user chose
-        if ($booking->selected_place_ids) {
-            $selectedPlaceIds = array_map('intval', explode(',', $booking->selected_place_ids));
-            $places = $places->filter(fn($p) => in_array($p->id, $selectedPlaceIds))->values();
-        } else {
-            $places = collect();
-        }
-
-        $plan = [];
         $departureCityName = $departureCity ? $departureCity->name : 'home';
         $departureCountry = $departureCity && $departureCity->country ? $departureCity->country->name : '';
+        $departureDate = $booking->departure_date ? \Carbon\Carbon::parse($booking->departure_date) : now();
 
-        // Day 1: Arrival & Welcome
-        $hotelInfo = "";
-        if ($booking->include_hotel && $booking->hotel) {
-            $hotelInfo = ". Upon arrival in {$destinationCity->name}, check-in at {$booking->hotel->name} and relax after your journey";
-        } else {
-            $hotelInfo = ". Upon arrival, take some time to settle in and explore your surroundings";
+        // Build lookup maps from real booking data
+        // Hotels keyed by date
+        $hotelCheckIns = [];  // date => hotel
+        $hotelCheckOuts = []; // date => hotel
+        $hotelStays = [];     // date => hotel (staying at this hotel on this night)
+
+        foreach ($booking->hotels as $hotel) {
+            $checkIn = $hotel->pivot->check_in_date ? \Carbon\Carbon::parse($hotel->pivot->check_in_date) : null;
+            $checkOut = $hotel->pivot->check_out_date ? \Carbon\Carbon::parse($hotel->pivot->check_out_date) : null;
+
+            if ($checkIn) {
+                $hotelCheckIns[$checkIn->format('Y-m-d')] = $hotel;
+            }
+            if ($checkOut) {
+                $hotelCheckOuts[$checkOut->format('Y-m-d')] = $hotel;
+            }
+            // Mark each night of stay
+            if ($checkIn && $checkOut) {
+                $cursor = $checkIn->copy();
+                while ($cursor->lt($checkOut)) {
+                    $hotelStays[$cursor->format('Y-m-d')] = $hotel;
+                    $cursor->addDay();
+                }
+            }
         }
 
-        $plan[] = [
-            'day' => 1,
-            'icon' => 'flight_land',
-            'title' => "Travel Day & Welcome",
-            'description' => "Flight from {$departureCityName}" . ($departureCountry ? ", {$departureCountry}" : "") . " ({$flightDuration}){$hotelInfo}.",
-            'type' => 'travel',
-            'color' => 'blue',
-        ];
+        // Places keyed by visit_date
+        $placesByDate = [];
+        $unscheduledPlaces = [];
 
-        if ($duration > 1) {
-            $activityDays = $duration - 2; // Middle days
-            $placeIndex = 0;
-            $totalPlaces = count($places);
-            
-            // Calculate how many places per day to ensure ALL are shown
-            $placesPerDay = $activityDays > 0 ? ceil($totalPlaces / $activityDays) : $totalPlaces;
-            $placesPerDay = max(1, $placesPerDay);
+        foreach ($booking->places as $place) {
+            $visitDate = $place->pivot->visit_date;
+            if ($visitDate) {
+                $key = \Carbon\Carbon::parse($visitDate)->format('Y-m-d');
+                $placesByDate[$key][] = $place;
+            } else {
+                $unscheduledPlaces[] = $place;
+            }
+        }
 
-            // Fill activity days
-            for ($d = 1; $d <= max(0, $activityDays); $d++) {
-                $currentDay = $d + 1;
-                $dayPlaces = [];
+        // Build the plan day by day
+        $plan = [];
 
-                for ($i = 0; $i < $placesPerDay && $placeIndex < $totalPlaces; $i++) {
-                    $dayPlaces[] = $places[$placeIndex];
-                    $placeIndex++;
-                }
+        for ($d = 0; $d < $duration; $d++) {
+            $currentDate = $departureDate->copy()->addDays($d);
+            $dateStr = $currentDate->format('Y-m-d');
+            $dateLabel = $currentDate->format('M d, Y');
+            $dayNum = $d + 1;
 
-                if (count($dayPlaces) > 0) {
-                    $titles = [];
-                    $descriptions = [];
-                    foreach ($dayPlaces as $p) {
-                        $titles[] = $p->name;
-                        $descSnippet = substr($p->description, 0, 100);
-                        if (strlen($p->description) > 100) $descSnippet .= '...';
-                        $descriptions[] = "{$p->name}: {$descSnippet} (€{$p->min_price})";
+            // --- Day 1: Arrival ---
+            if ($d === 0) {
+                $hotelNote = '';
+                $checkInHotel = $hotelCheckIns[$dateStr] ?? null;
+                if (!$checkInHotel) {
+                    // Check if there's a hotel check-in the next day
+                    $nextDate = $departureDate->copy()->addDay()->format('Y-m-d');
+                    $checkInHotel = $hotelCheckIns[$nextDate] ?? null;
+                    if ($checkInHotel) {
+                        $hotelNote = " Check-in at {$checkInHotel->name} tomorrow.";
                     }
-
-                    $plan[] = [
-                        'day' => $currentDay,
-                        'icon' => 'location_on',
-                        'title' => implode(' & ', $titles),
-                        'description' => implode(' ', $descriptions),
-                        'type' => 'place',
-                        'color' => 'emerald',
-                    ];
                 } else {
-                    // Free exploration day
-                    $plan[] = [
-                        'day' => $currentDay,
-                        'icon' => 'explore',
-                        'title' => "Free Exploration in {$destinationCity->name}",
-                        'description' => "Take this day to discover hidden gems, visit local markets, or simply soak in the atmosphere of the city at your own pace.",
-                        'type' => 'free',
-                        'color' => 'slate',
-                    ];
+                    $hotelNote = " Check-in at {$checkInHotel->name}.";
+                }
+
+                $plan[] = [
+                    'day' => $dayNum,
+                    'date' => $dateLabel,
+                    'icon' => 'flight_land',
+                    'title' => "Arrival in {$destinationCity->name}",
+                    'description' => "Flight from {$departureCityName}" . ($departureCountry ? ", {$departureCountry}" : "") . " ({$flightDuration}). Welcome to {$destinationCity->name}!{$hotelNote}",
+                    'type' => 'travel',
+                    'color' => 'blue',
+                    'hotels' => [],
+                    'places' => [],
+                ];
+                continue;
+            }
+
+            // --- Last Day: Departure ---
+            if ($d === $duration - 1) {
+                $checkOutHotel = $hotelCheckOuts[$dateStr] ?? null;
+                $checkOutNote = $checkOutHotel ? " Check-out from {$checkOutHotel->name}." : "";
+
+                $plan[] = [
+                    'day' => $dayNum,
+                    'date' => $dateLabel,
+                    'icon' => 'flight_takeoff',
+                    'title' => "Departure Day",
+                    'description' => "Last moments in {$destinationCity->name}.{$checkOutNote} Return flight to {$departureCityName} ({$flightDuration}).",
+                    'type' => 'travel',
+                    'color' => 'blue',
+                    'hotels' => [],
+                    'places' => [],
+                ];
+                continue;
+            }
+
+            // --- Middle Days ---
+            $dayHotels = [];
+            $dayPlaces = $placesByDate[$dateStr] ?? [];
+
+            // Hotel check-in today?
+            $checkInHotel = $hotelCheckIns[$dateStr] ?? null;
+            if ($checkInHotel) {
+                $dayHotels[] = ['hotel' => $checkInHotel, 'action' => 'check_in'];
+            }
+
+            // Hotel check-out today?
+            $checkOutHotel = $hotelCheckOuts[$dateStr] ?? null;
+            if ($checkOutHotel) {
+                // Put check-out before check-in
+                array_unshift($dayHotels, ['hotel' => $checkOutHotel, 'action' => 'check_out']);
+            }
+
+            // Currently staying at a hotel?
+            $stayingAt = $hotelStays[$dateStr] ?? null;
+
+            // Build description
+            $parts = [];
+
+            foreach ($dayHotels as $hInfo) {
+                if ($hInfo['action'] === 'check_out') {
+                    $parts[] = "Check-out from {$hInfo['hotel']->name}.";
+                } else {
+                    $parts[] = "Check-in at {$hInfo['hotel']->name}.";
                 }
             }
 
-            // If there are still places left (e.g. duration is small), add them to the last activity day or arrival
-            if ($placeIndex < $totalPlaces && count($plan) > 0) {
-                $remainingPlaces = $places->slice($placeIndex);
-                $extraDesc = [];
-                foreach ($remainingPlaces as $p) {
-                    $extraDesc[] = "{$p->name} (€{$p->min_price})";
+            if (count($dayPlaces) > 0) {
+                foreach ($dayPlaces as $p) {
+                    $desc = substr($p->description ?? '', 0, 80);
+                    if (strlen($p->description ?? '') > 80) $desc .= '...';
+                    $parts[] = "Visit {$p->name}" . ($desc ? ": {$desc}" : "") . " (€{$p->min_price}).";
                 }
-                $plan[count($plan)-1]['description'] .= " Also consider visiting: " . implode(', ', $extraDesc) . ".";
             }
 
-            // Last Day: Return Home (only if duration > 1)
+            if (empty($parts) && $stayingAt) {
+                $parts[] = "Free exploration day in {$destinationCity->name}. Enjoy your stay at {$stayingAt->name}.";
+            } elseif (empty($parts)) {
+                $parts[] = "Free day to explore {$destinationCity->name} at your own pace.";
+            }
+
+            // Determine type & color
+            $type = 'free';
+            $color = 'slate';
+            $icon = 'explore';
+            $title = "Day in {$destinationCity->name}";
+
+            if (count($dayPlaces) > 0) {
+                $type = 'place';
+                $color = 'emerald';
+                $icon = 'location_on';
+                $placeNames = array_map(fn($p) => $p->name, $dayPlaces);
+                $title = implode(' & ', $placeNames);
+            }
+
+            if (!empty($dayHotels)) {
+                if ($type === 'free') {
+                    $color = 'amber';
+                    $icon = 'hotel';
+                    $title = $dayHotels[0]['hotel']->name;
+                }
+            }
+
             $plan[] = [
-                'day' => $duration,
-                'icon' => 'flight_takeoff',
-                'title' => "Final Day & Departure",
-                'description' => "Enjoy your last breakfast in {$destinationCity->name}, complete your souvenir shopping, and head to the airport for your return flight to {$departureCityName} ({$flightDuration}).",
-                'type' => 'travel',
-                'color' => 'blue',
+                'day' => $dayNum,
+                'date' => $dateLabel,
+                'icon' => $icon,
+                'title' => $title,
+                'description' => implode(' ', $parts),
+                'type' => $type,
+                'color' => $color,
+                'hotels' => $dayHotels,
+                'places' => $dayPlaces,
             ];
+        }
+
+        // If there are unscheduled places, append them to the first free day
+        if (!empty($unscheduledPlaces)) {
+            foreach ($plan as &$day) {
+                if ($day['type'] === 'free') {
+                    $names = array_map(fn($p) => "{$p->name} (€{$p->min_price})", $unscheduledPlaces);
+                    $day['description'] .= " Also planned: " . implode(', ', $names) . ".";
+                    $day['type'] = 'place';
+                    $day['color'] = 'emerald';
+                    $day['icon'] = 'location_on';
+                    break;
+                }
+            }
         }
 
         return $plan;

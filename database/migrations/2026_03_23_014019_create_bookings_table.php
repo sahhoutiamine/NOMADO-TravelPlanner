@@ -12,9 +12,9 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('city_id')->constrained()->onDelete('cascade');
-            $table->foreignId('hotel_id')->constrained()->onDelete('cascade');
             $table->string('trip_type');
             $table->decimal('budget_total', 10, 2);
+            $table->date('departure_date')->nullable();
             $table->integer('duration');
             $table->integer('passengers');
             $table->decimal('flight_budget', 10, 2);
@@ -31,10 +31,20 @@ return new class extends Migration
             $table->string('flight_duration')->nullable();
             $table->timestamps();
         });
+
+        Schema::create('booking_hotel', function (Blueprint $table) {
+            $table->id();
+            $table->foreignId('booking_id')->constrained()->onDelete('cascade');
+            $table->foreignId('hotel_id')->constrained()->onDelete('cascade');
+            $table->date('check_in_date')->nullable();
+            $table->date('check_out_date')->nullable();
+            $table->timestamps();
+        });
     }
 
     public function down(): void
     {
+        Schema::dropIfExists('booking_hotel');
         Schema::dropIfExists('bookings');
     }
 };
