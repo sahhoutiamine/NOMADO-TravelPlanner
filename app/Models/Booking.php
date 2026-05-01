@@ -55,4 +55,14 @@ class Booking extends Model
     {
         return $this->belongsToMany(Place::class, 'booking_place')->withPivot('visit_date')->withTimestamps();
     }
+
+    public function customActivities()
+    {
+        return $this->hasMany(CustomActivity::class);
+    }
+
+    public function getCustomActivitiesBudgetAttribute()
+    {
+        return $this->customActivities()->sum('budget');
+    }
 }

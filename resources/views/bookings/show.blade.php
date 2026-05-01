@@ -717,6 +717,7 @@
     let budgetLimit = {{ $booking->budget_total }};
     const duration = {{ $booking->duration }};
     const passengers = {{ $booking->passengers }};
+    const customActivitiesBudget = {{ $booking->custom_activities_budget }};
 
     // Minimum budgets for Experiences and Misc
     const MIN_EXPERIENCES = 150 * passengers; 
@@ -978,7 +979,7 @@
         });
 
         // 4. Experiences & Miscellaneous (Minimum base)
-        let experiencesBudget = MIN_EXPERIENCES;
+        let experiencesBudget = MIN_EXPERIENCES + customActivitiesBudget;
         let miscBudget = MIN_MISC;
 
         // Current real spent

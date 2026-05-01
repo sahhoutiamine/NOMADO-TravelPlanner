@@ -168,11 +168,13 @@ class MyBookingsController extends Controller
             $places = Place::whereIn('id', $placeIds)->get();
             $placesCost = $places->sum(fn($p) => $p->min_price * $booking->passengers);
 
-            $remaining = $booking->budget_total - $hotelCost - $flightCost;
+            $customActivitiesCost = $booking->custom_activities_budget;
+
+            $remaining = $booking->budget_total - $hotelCost - $flightCost - $placesCost - $customActivitiesCost;
             
             // Simple budget redistribution
             $miscBudget = $remaining * 0.20;
-            $activitiesBudget = $remaining * 0.80;
+            $activitiesBudget = ($remaining * 0.80) + $customActivitiesCost;
 
             // Update booking
             $booking->update([

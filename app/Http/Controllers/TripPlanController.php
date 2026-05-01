@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Booking;
 use App\Models\City;
+use App\Models\CustomActivity;
 use Illuminate\Http\Request;
 
 class TripPlanController extends Controller
@@ -16,7 +17,7 @@ class TripPlanController extends Controller
                   ->orWhereHas('participants', function($q) use ($userId) {
                       $q->where('user_id', $userId);
                   });
-        })->with(['city', 'departureCity', 'hotels', 'places'])->findOrFail($bookingId);
+        })->with(['city', 'departureCity', 'hotels', 'places', 'customActivities'])->findOrFail($bookingId);
 
         $plan = $this->generatePlan($booking);
         $flightDuration = $this->calculateFlightDuration($booking);
@@ -120,6 +121,13 @@ class TripPlanController extends Controller
             }
         }
 
+        // Custom activities keyed by date
+        $customActivitiesByDate = [];
+        foreach ($booking->customActivities as $activity) {
+            $key = $activity->date->format('Y-m-d');
+            $customActivitiesByDate[$key][] = $activity;
+        }
+
         // Build the plan day by day
         $plan = [];
 
@@ -154,6 +162,8 @@ class TripPlanController extends Controller
                     'color' => 'blue',
                     'hotels' => [],
                     'places' => [],
+                    'custom_activities' => $customActivitiesByDate[$dateStr] ?? [],
+                    'raw_date' => $dateStr,
                 ];
                 continue;
             }
@@ -173,6 +183,8 @@ class TripPlanController extends Controller
                     'color' => 'blue',
                     'hotels' => [],
                     'places' => [],
+                    'custom_activities' => $customActivitiesByDate[$dateStr] ?? [],
+                    'raw_date' => $dateStr,
                 ];
                 continue;
             }
@@ -216,6 +228,11 @@ class TripPlanController extends Controller
                 }
             }
 
+            $dayCustomActivities = $customActivitiesByDate[$dateStr] ?? [];
+            foreach ($dayCustomActivities as $ca) {
+                $parts[] = "Custom Activity: {$ca->name} (€" . number_format($ca->budget) . ").";
+            }
+
             if (empty($parts) && $stayingAt) {
                 $parts[] = "Free exploration day in {$destinationCity->name}. Enjoy your stay at {$stayingAt->name}.";
             } elseif (empty($parts)) {
@@ -254,6 +271,8 @@ class TripPlanController extends Controller
                 'color' => $color,
                 'hotels' => $dayHotels,
                 'places' => $dayPlaces,
+                'custom_activities' => $dayCustomActivities,
+                'raw_date' => $dateStr,
             ];
         }
 
@@ -273,6 +292,43 @@ class TripPlanController extends Controller
 
         return $plan;
     }
+
+    public function storeActivity(Request $request, $bookingId)
+    {
+        $request->validate([
+            'name' => 'required|string|max:255',
+            'budget' => 'required|numeric|min:0',
+            'date' => 'required|date',
+        ]);
+
+        $userId = auth()->id();
+        $booking = Booking::where('user_id', $userId)->findOrFail($bookingId);
+
+        $activity = $booking->customActivities()->create([
+            'name' => $request->name,
+            'budget' => $request->budget,
+            'date' => $request->date,
+        ]);
+
+        // Update experiences budget
+        $booking->activities_budget += $request->budget;
+        $booking->save();
+
+        return back()->with('success', 'Activity added successfully!');
+    }
+
+    public function deleteActivity($bookingId, $activityId)
+    {
+        $userId = auth()->id();
+        $booking = Booking::where('user_id', $userId)->findOrFail($bookingId);
+        $activity = $booking->customActivities()->findOrFail($activityId);
+
+        // Update budget before deleting
+        $booking->activities_budget -= $activity->budget;
+        $booking->save();
+
+        $activity->delete();
+
+        return back()->with('success', 'Activity removed successfully!');
+    }
 }
-
-

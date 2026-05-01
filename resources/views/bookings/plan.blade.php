@@ -17,6 +17,13 @@
             -webkit-backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.4);
             box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.07);
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .glass-card.expanded {
+            transform: scale(1.02);
+            box-shadow: 0 25px 50px -12px rgba(31, 38, 135, 0.15);
+            background: rgba(255, 255, 255, 0.9);
         }
 
         .text-gradient {
@@ -41,6 +48,23 @@
 
         .animate-fade-scale { animation: fadeInScale 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
         .animate-slide-up { animation: slideInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+
+        .form-section {
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+            opacity: 0;
+            transform: translateY(20px);
+        }
+
+        .form-section.active {
+            max-height: 400px;
+            opacity: 1;
+            transform: translateY(0);
+            margin-top: 2rem;
+            padding-top: 2rem;
+            border-top: 2px dashed var(--slate-100);
+        }
 
         .timeline-container {
             position: relative;
@@ -70,15 +94,20 @@
         .day-node {
             position: relative;
             z-index: 10;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 6rem;
+            display: grid;
+            grid-template-columns: 1fr 48px 1fr;
+            gap: 2rem;
+            align-items: flex-start;
+            margin-bottom: 1.5rem;
+            max-width: 1000px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .day-node:last-child { margin-bottom: 0; }
 
         .day-marker {
+            grid-column: 2;
             width: 48px;
             height: 48px;
             border-radius: 16px;
@@ -90,38 +119,47 @@
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             background: white;
             border: 2px solid currentColor;
+            position: relative;
+            z-index: 20;
         }
 
         .day-node:hover .day-marker {
-            transform: scale(1.2) rotate(8deg);
+            transform: scale(1.1) rotate(5deg);
         }
 
         .day-content {
-            width: 42%;
-            position: absolute;
+            grid-column: 1;
+            position: relative;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .day-node:nth-child(odd) .day-content {
-            right: calc(50% + 50px);
+            grid-column: 1;
             text-align: right;
         }
 
         .day-node:nth-child(even) .day-content {
-            left: calc(50% + 50px);
+            grid-column: 3;
             text-align: left;
         }
 
+        .empty-spacer {
+            content: "";
+        }
+
         @media (max-width: 768px) {
-            .day-node { justify-content: flex-start; padding-left: 60px; }
-            .day-content { 
-                position: relative; 
-                width: 100%; 
-                left: 0 !important; 
-                right: 0 !important; 
-                text-align: left !important;
-                margin-top: 1rem;
+            .day-node { 
+                grid-template-columns: 48px 1fr; 
+                gap: 1.5rem;
+                padding-left: 1rem;
+                padding-right: 1rem;
             }
-            .day-marker { position: absolute; left: 0; top: 0; }
+            .day-marker { grid-column: 1; }
+            .day-content { 
+                grid-column: 2;
+                text-align: left !important;
+            }
+            .empty-spacer { display: none; }
         }
 
         .type-pill {
@@ -148,6 +186,16 @@
         <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-secondary/5 rounded-full blur-[120px] -ml-64 -mb-64"></div>
 
         <div class="max-w-6xl mx-auto px-4 pt-32 pb-24 relative z-10">
+            <!-- Session Messages -->
+            @if(session('success'))
+                <div class="mb-8 animate-fade-scale">
+                    <div class="glass-card p-4 rounded-xl border-emerald-200 bg-emerald-50/50 flex items-center gap-3 text-emerald-700 font-bold">
+                        <span class="material-symbols-outlined">check_circle</span>
+                        {{ session('success') }}
+                    </div>
+                </div>
+            @endif
+
             <!-- Navigation & Header -->
             <div class="mb-16 animate-fade-scale">
                 <a href="{{ route('bookings.show', $booking->id) }}" 
@@ -224,32 +272,197 @@
                             $color = $colors[$day['color']] ?? $colors['slate'];
                         @endphp
                         
-                        <div class="day-marker {{ $color['text'] }}">
-                            <span class="material-symbols-outlined" style="font-size: 1.5rem;">{{ $day['icon'] }}</span>
-                        </div>
-                        
-                        <div class="day-content">
-                            <div class="glass-card p-8 rounded-2xl card-hover transition-all duration-500 border-white/90">
-                                <div class="flex items-center gap-3 mb-4 {{ $index % 2 == 0 ? 'md:justify-end' : '' }}">
-                                    <span class="px-4 py-1.5 rounded-full text-xs font-black {{ $color['bg'] }} {{ $color['text'] }} {{ $color['border'] }} border">
-                                        DAY {{ $day['day'] }}
-                                    </span>
-                                    @if(!empty($day['date']))
-                                    <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
-                                        {{ $day['date'] }}
-                                    </span>
+                        @if($index % 2 == 0)
+                            <div class="day-content">
+                                <div class="glass-card p-8 rounded-2xl card-hover transition-all duration-500 border-white/90">
+                                    <div class="flex items-center gap-3 mb-4 md:justify-end">
+                                        <span class="px-4 py-1.5 rounded-full text-xs font-black {{ $color['bg'] }} {{ $color['text'] }} {{ $color['border'] }} border">
+                                            DAY {{ $day['day'] }}
+                                        </span>
+                                        @if(!empty($day['date']))
+                                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                            {{ $day['date'] }}
+                                        </span>
+                                        @endif
+                                    </div>
+                                    
+                                    <h3 class="text-2xl font-black text-slate-900 mb-3 tracking-tight">
+                                        {{ $day['title'] }}
+                                    </h3>
+                                    
+                                    <p class="text-slate-600 font-medium leading-relaxed mb-6">
+                                        {{ $day['description'] }}
+                                    </p>
+
+                                    <!-- Custom Activities List -->
+                                    @if(!empty($day['custom_activities']))
+                                        <div class="space-y-3 mb-6">
+                                            @foreach($day['custom_activities'] as $activity)
+                                                <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 group/item">
+                                                    <div class="flex items-center gap-3">
+                                                        <span class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                                                            <span class="material-symbols-outlined" style="font-size: 1.2rem;">star</span>
+                                                        </span>
+                                                        <div>
+                                                            <p class="text-sm font-bold text-slate-900">{{ $activity->name }}</p>
+                                                            <p class="text-[10px] font-black text-emerald-600 uppercase">€{{ number_format($activity->budget) }}</p>
+                                                        </div>
+                                                    </div>
+                                                    <form action="{{ route('bookings.plan.activity.destroy', [$booking->id, $activity->id]) }}" method="POST" onsubmit="return confirm('Remove this activity?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="text-slate-300 hover:text-red-500 transition-colors p-1 opacity-0 group-hover/item:opacity-100">
+                                                            <span class="material-symbols-outlined" style="font-size: 1.2rem;">delete</span>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
+
+                                    @if($booking->status === 'pending')
+                                    <button onclick="toggleActivityForm('{{ $index }}')" 
+                                            id="add-btn-{{ $index }}"
+                                            class="w-full py-3 rounded-xl border-2 border-dashed border-slate-200 text-slate-400 hover:border-primary hover:text-primary hover:bg-primary/5 transition-all font-bold text-sm flex items-center justify-center gap-2">
+                                        <span class="material-symbols-outlined">add_circle</span>
+                                        Add Custom Plan
+                                    </button>
+
+                                    <div id="form-{{ $index }}" class="form-section">
+                                        <div class="flex items-center justify-between mb-6">
+                                            <h4 class="text-lg font-black text-slate-900">New Custom Plan</h4>
+                                            <button onclick="toggleActivityForm('{{ $index }}')" class="text-slate-400 hover:text-slate-600 transition-colors">
+                                                <span class="material-symbols-outlined">close</span>
+                                            </button>
+                                        </div>
+
+                                        <form action="{{ route('bookings.plan.activity.store', $booking->id) }}" method="POST" class="space-y-5">
+                                            @csrf
+                                            <input type="hidden" name="date" value="{{ $day['raw_date'] }}">
+                                            
+                                            <div>
+                                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Activity Name</label>
+                                                <input type="text" name="name" required placeholder="e.g. Dinner at Le Meurice" 
+                                                       class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-primary focus:ring-0 transition-all font-bold text-slate-900 text-sm">
+                                            </div>
+
+                                            <div>
+                                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Estimated Budget (EUR)</label>
+                                                <div class="relative">
+                                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 font-black text-slate-400 text-sm">€</span>
+                                                    <input type="number" name="budget" required min="0" value="0"
+                                                           class="w-full pl-8 pr-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-primary focus:ring-0 transition-all font-bold text-slate-900 text-sm">
+                                                </div>
+                                            </div>
+
+                                            <button type="submit" class="w-full py-4 bg-slate-950 text-white font-black rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all text-sm">
+                                                Save Activity
+                                            </button>
+                                        </form>
+                                    </div>
                                     @endif
                                 </div>
-                                
-                                <h3 class="text-2xl font-black text-slate-900 mb-3 tracking-tight">
-                                    {{ $day['title'] }}
-                                </h3>
-                                
-                                <p class="text-slate-600 font-medium leading-relaxed">
-                                    {{ $day['description'] }}
-                                </p>
                             </div>
-                        </div>
+                            <div class="day-marker {{ $color['text'] }}">
+                                <span class="material-symbols-outlined" style="font-size: 1.5rem;">{{ $day['icon'] }}</span>
+                            </div>
+                            <div class="empty-spacer"></div>
+                        @else
+                            <div class="empty-spacer"></div>
+                            <div class="day-marker {{ $color['text'] }}">
+                                <span class="material-symbols-outlined" style="font-size: 1.5rem;">{{ $day['icon'] }}</span>
+                            </div>
+                            <div class="day-content">
+                                <div class="glass-card p-8 rounded-2xl card-hover transition-all duration-500 border-white/90">
+                                    <div class="flex items-center gap-3 mb-4">
+                                        <span class="px-4 py-1.5 rounded-full text-xs font-black {{ $color['bg'] }} {{ $color['text'] }} {{ $color['border'] }} border">
+                                            DAY {{ $day['day'] }}
+                                        </span>
+                                        @if(!empty($day['date']))
+                                        <span class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">
+                                            {{ $day['date'] }}
+                                        </span>
+                                        @endif
+                                    </div>
+                                    
+                                    <h3 class="text-2xl font-black text-slate-900 mb-3 tracking-tight">
+                                        {{ $day['title'] }}
+                                    </h3>
+                                    
+                                    <p class="text-slate-600 font-medium leading-relaxed mb-6">
+                                        {{ $day['description'] }}
+                                    </p>
+
+                                    <!-- Custom Activities List -->
+                                    @if(!empty($day['custom_activities']))
+                                        <div class="space-y-3 mb-6">
+                                            @foreach($day['custom_activities'] as $activity)
+                                                <div class="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 group/item">
+                                                    <div class="flex items-center gap-3">
+                                                        <span class="w-8 h-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center">
+                                                            <span class="material-symbols-outlined" style="font-size: 1.2rem;">star</span>
+                                                        </span>
+                                                        <div>
+                                                            <p class="text-sm font-bold text-slate-900">{{ $activity->name }}</p>
+                                                            <p class="text-[10px] font-black text-emerald-600 uppercase">€{{ number_format($activity->budget) }}</p>
+                                                        </div>
+                                                    </div>
+                                                    <form action="{{ route('bookings.plan.activity.destroy', [$booking->id, $activity->id]) }}" method="POST" onsubmit="return confirm('Remove this activity?')">
+                                                        @csrf
+                                                        @method('DELETE')
+                                                        <button type="submit" class="text-slate-300 hover:text-red-500 transition-colors p-1 opacity-0 group-hover/item:opacity-100">
+                                                            <span class="material-symbols-outlined" style="font-size: 1.2rem;">delete</span>
+                                                        </button>
+                                                    </form>
+                                                </div>
+                                            @endforeach
+                                        </div>
+                                    @endif
+
+                                    @if($booking->status === 'pending')
+                                    <button onclick="toggleActivityForm('{{ $index }}')" 
+                                            id="add-btn-{{ $index }}"
+                                            class="w-full py-3 rounded-xl border-2 border-dashed border-slate-200 text-slate-400 hover:border-primary hover:text-primary hover:bg-primary/5 transition-all font-bold text-sm flex items-center justify-center gap-2">
+                                        <span class="material-symbols-outlined">add_circle</span>
+                                        Add Custom Plan
+                                    </button>
+
+                                    <div id="form-{{ $index }}" class="form-section">
+                                        <div class="flex items-center justify-between mb-6">
+                                            <h4 class="text-lg font-black text-slate-900">New Custom Plan</h4>
+                                            <button onclick="toggleActivityForm('{{ $index }}')" class="text-slate-400 hover:text-slate-600 transition-colors">
+                                                <span class="material-symbols-outlined">close</span>
+                                            </button>
+                                        </div>
+
+                                        <form action="{{ route('bookings.plan.activity.store', $booking->id) }}" method="POST" class="space-y-5">
+                                            @csrf
+                                            <input type="hidden" name="date" value="{{ $day['raw_date'] }}">
+                                            
+                                            <div>
+                                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Activity Name</label>
+                                                <input type="text" name="name" required placeholder="e.g. Dinner at Le Meurice" 
+                                                       class="w-full px-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-primary focus:ring-0 transition-all font-bold text-slate-900 text-sm">
+                                            </div>
+
+                                            <div>
+                                                <label class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">Estimated Budget (EUR)</label>
+                                                <div class="relative">
+                                                    <span class="absolute left-4 top-1/2 -translate-y-1/2 font-black text-slate-400 text-sm">€</span>
+                                                    <input type="number" name="budget" required min="0" value="0"
+                                                           class="w-full pl-8 pr-4 py-3 bg-slate-50 border-2 border-slate-100 rounded-xl focus:border-primary focus:ring-0 transition-all font-bold text-slate-900 text-sm">
+                                                </div>
+                                            </div>
+
+                                            <button type="submit" class="w-full py-4 bg-slate-950 text-white font-black rounded-xl shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all text-sm">
+                                                Save Activity
+                                            </button>
+                                        </form>
+                                    </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endif
                     </div>
                 @endforeach
             </div>
@@ -295,4 +508,38 @@
             .day-node { page-break-inside: avoid; }
         }
     </style>
+
+    <script>
+        function toggleActivityForm(index) {
+            const form = document.getElementById('form-' + index);
+            const btn = document.getElementById('add-btn-' + index);
+            const card = form.closest('.glass-card');
+            
+            if (form.classList.contains('active')) {
+                form.classList.remove('active');
+                card.classList.remove('expanded');
+                btn.classList.remove('hidden');
+            } else {
+                // Close all other forms first for a cleaner experience
+                document.querySelectorAll('.form-section').forEach(f => {
+                    f.classList.remove('active');
+                    f.closest('.glass-card').classList.remove('expanded');
+                });
+                document.querySelectorAll('[id^="add-btn-"]').forEach(b => b.classList.remove('hidden'));
+                
+                form.classList.add('active');
+                card.classList.add('expanded');
+                btn.classList.add('hidden');
+                
+                // Scroll into view if needed
+                setTimeout(() => {
+                    const rect = form.getBoundingClientRect();
+                    const isVisible = (rect.top >= 0 && rect.bottom <= window.innerHeight);
+                    if (!isVisible) {
+                        form.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                }, 400);
+            }
+        }
+    </script>
 @endsection

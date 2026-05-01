@@ -39,6 +39,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::put('/my-bookings/{id}', [MyBookingsController::class, 'update'])->name('bookings.update');
     Route::delete('/my-bookings/{id}', [MyBookingsController::class, 'destroy'])->name('bookings.destroy');
     Route::get('/my-bookings/{id}/plan', [TripPlanController::class, 'show'])->name('bookings.plan');
+    Route::post('/my-bookings/{id}/plan/activity', [TripPlanController::class, 'storeActivity'])->name('bookings.plan.activity.store');
+    Route::delete('/my-bookings/{id}/plan/activity/{activityId}', [TripPlanController::class, 'deleteActivity'])->name('bookings.plan.activity.destroy');
 
     Route::get('/my-bookings/{id}/payment', [PaymentController::class, 'show'])->name('payment.show');
     Route::post('/my-bookings/{id}/payment', [PaymentController::class, 'store'])->name('payment.store');
