@@ -20,8 +20,8 @@ class TripGeneratorController extends Controller
     {
         $request->validate([
             'trip_type' => 'required|in:adventure,culture,beach,romantic,nature,shopping',
-            'budget'    => 'required|numeric|min:100',
-            'duration'  => 'required|integer|min:1',
+            'budget' => 'required|numeric|min:100',
+            'duration' => 'required|integer|min:1',
             'passengers' => 'required|integer|min:1',
             'departure_city_id' => 'required|exists:cities,id',
             'departure_date' => 'required|date|after_or_equal:' . date('Y-m-d', strtotime('tomorrow')),
@@ -34,7 +34,6 @@ class TripGeneratorController extends Controller
         $departure_city_id = $request->departure_city_id;
         $departure_date = $request->departure_date;
 
-        // Find cities matching trip type (excluding departure city)
         $cities = City::where('trip_type', $trip_type)
             ->where('id', '!=', $departure_city_id)
             ->get();
@@ -43,7 +42,6 @@ class TripGeneratorController extends Controller
             return back()->with('error', 'Aucune ville trouvée pour ce type de voyage.');
         }
 
-        // Search for hotels that fit within ~70% of the total budget to leave room for activities
         $maxHotelTotal = $budgetTotal * 0.7;
         $maxPricePerNight = $maxHotelTotal / $duration / $passengers;
 
@@ -111,21 +109,20 @@ class TripGeneratorController extends Controller
         ]);
 
         $booking = Booking::create([
-            'user_id'           => Auth::id(),
-            'city_id'           => $request->city_id,
-            'trip_type'         => $request->trip_type,
-            'budget_total'      => $request->budget_total,
-            'duration'          => $request->duration,
-            'passengers'        => $request->passengers,
-            'departure_date'    => $request->departure_date,
-            'flight_budget'     => $request->flight_budget,
-            'hotel_budget'      => $request->hotel_budget,
+            'city_id' => $request->city_id,
+            'trip_type' => $request->trip_type,
+            'budget_total' => $request->budget_total,
+            'duration' => $request->duration,
+            'passengers' => $request->passengers,
+            'departure_date' => $request->departure_date,
+            'flight_budget' => $request->flight_budget,
+            'hotel_budget' => $request->hotel_budget,
             'activities_budget' => $request->activities_budget,
-            'misc_budget'       => $request->misc_budget,
+            'misc_budget' => $request->misc_budget,
             'departure_city_id' => $request->departure_city_id,
             'selected_place_ids' => $request->selected_place_ids,
-            'include_hotel'     => $request->include_hotel ?? true,
-            'status'            => 'pending',
+            'include_hotel' => $request->include_hotel ?? true,
+            'status' => 'pending',
         ]);
 
         $booking->participants()->attach(Auth::id(), ['isOwner' => true]);

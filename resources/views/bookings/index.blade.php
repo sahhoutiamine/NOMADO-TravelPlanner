@@ -162,7 +162,7 @@
                                     <span class="text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 italic">ID:
                                         #NOM-{{ str_pad($booking->id, 4, '0', STR_PAD_LEFT) }}</span>
                                     <div class="flex items-center gap-3">
-                                        @if($booking->passengers > 1 && $booking->user_id === auth()->id())
+                                        @if($booking->passengers > 1 && $booking->isOwnedBy(auth()->id()))
                                             @if($booking->status === 'paid')
                                                 <button onclick="shareTrip({{ $booking->id }})" class="p-2 text-slate-400 hover:text-primary-600 transition-colors flex items-center" title="Share trip">
                                                     <span class="material-symbols-outlined text-xl">share</span>

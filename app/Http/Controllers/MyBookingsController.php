@@ -12,48 +12,42 @@ class MyBookingsController extends Controller
     public function index()
     {
         $userId = auth()->id();
-        $bookings = Booking::with(['city.country', 'hotels'])
-            ->where(function($query) use ($userId) {
-                $query->where('user_id', $userId)
-                      ->orWhereHas('participants', function($q) use ($userId) {
-                          $q->where('user_id', $userId);
-                      });
+        $bookings = Booking::with(['city.country', 'hotels', 'participants'])
+            ->whereHas('participants', function ($q) use ($userId) {
+                $q->where('user_id', $userId);
             })
             ->latest()
             ->get();
-            
+
         return view('bookings.index', compact('bookings'));
     }
 
     public function show($id)
     {
         $userId = auth()->id();
-        $booking = Booking::with(['city.country', 'city.places', 'hotels.city', 'departureCity', 'places'])
-            ->where(function($query) use ($userId) {
-                $query->where('user_id', $userId)
-                      ->orWhereHas('participants', function($q) use ($userId) {
-                          $q->where('user_id', $userId);
-                      });
+        $booking = Booking::with(['city.country', 'city.places', 'hotels.city', 'departureCity', 'places', 'participants'])
+            ->whereHas('participants', function ($q) use ($userId) {
+                $q->where('user_id', $userId);
             })
             ->findOrFail($id);
-        
+
         $flightDurationData = $this->calculateFlightData($booking);
         $durationMinutes = $flightDurationData['minutes_total'];
         $durationStr = $flightDurationData['duration_str'];
-        
+
         // Real airlines with realistic duration-based pricing
         $airlineNames = ['Emirates', 'Qatar Airways', 'Lufthansa', 'Air France', 'British Airways'];
         $flights = [];
-        
+
         $startCity = $booking->departureCity->name ?? 'Home';
         $endCity = $booking->city->name;
 
-        foreach($airlineNames as $index => $airline) {
+        foreach ($airlineNames as $index => $airline) {
             // Realistic pricing: ~0.85 EUR per minute + fixed base fee
             // Short haul (2h) -> ~150-200 EUR
             // Long haul (10h) -> ~600-800 EUR
             $basePrice = (100 + ($durationMinutes * 0.85)) * (1 + ($index * 0.05));
-            
+
             $flights[] = [
                 'airline' => $airline,
                 'duration' => $durationStr,
@@ -119,7 +113,9 @@ class MyBookingsController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $booking = Booking::where('user_id', auth()->id())->findOrFail($id);
+            $booking = Booking::whereHas('participants', function ($q) {
+                $q->where('user_id', auth()->id())->where('isOwner', true);
+            })->findOrFail($id);
 
             if ($booking->status !== 'pending') {
                 return response()->json(['success' => false, 'error' => 'Cannot modify paid bookings'], 403);
@@ -171,7 +167,7 @@ class MyBookingsController extends Controller
             $customActivitiesCost = $booking->custom_activities_budget;
 
             $remaining = $booking->budget_total - $hotelCost - $flightCost - $placesCost - $customActivitiesCost;
-            
+
             // Simple budget redistribution
             $miscBudget = $remaining * 0.20;
             $activitiesBudget = ($remaining * 0.80) + $customActivitiesCost;
@@ -201,7 +197,7 @@ class MyBookingsController extends Controller
             if ($request->has('place_dates')) {
                 $placeData = json_decode($request->place_dates, true);
                 $syncData = [];
-                
+
                 $minVisitDate = $booking->departure_date ? $booking->departure_date->copy()->addDays(2) : null;
                 $maxVisitDate = $booking->departure_date ? $booking->departure_date->copy()->addDays($booking->duration - 2) : null;
 
@@ -218,7 +214,7 @@ class MyBookingsController extends Controller
                         $syncData[$placeId] = ['visit_date' => $date ?: null];
                     }
                 }
-                
+
                 $booking->places()->sync($syncData);
             } else if ($request->has('selected_place_ids')) {
                 // Fallback if place_dates is not sent but selected_place_ids is
@@ -242,22 +238,13 @@ class MyBookingsController extends Controller
         }
     }
 
-    public function pay($id)
-    {
-        $booking = Booking::where('user_id', auth()->id())->findOrFail($id);
-        
-        if ($booking->status === 'pending') {
-            $booking->update(['status' => 'paid']);
-            return redirect()->route('bookings.show', $booking->id)->with('success', 'Paiement simulé avec succès. Voyage confirmé !');
-        }
-
-        return redirect()->route('bookings.show', $booking->id)->with('error', 'Ce voyage est déjà payé.');
-    }
 
     public function destroy($id)
     {
-        $booking = Booking::where('user_id', auth()->id())->findOrFail($id);
-        
+        $booking = Booking::whereHas('participants', function ($q) {
+            $q->where('user_id', auth()->id())->where('isOwner', true);
+        })->findOrFail($id);
+
         if ($booking->status === 'pending') {
             $booking->delete();
             return redirect()->route('bookings.index')->with('success', 'Voyage en attente supprimé.');
@@ -268,8 +255,10 @@ class MyBookingsController extends Controller
 
     public function shareCode($id)
     {
-        $booking = Booking::where('user_id', auth()->id())->findOrFail($id);
-        
+        $booking = Booking::whereHas('participants', function ($q) {
+            $q->where('user_id', auth()->id())->where('isOwner', true);
+        })->findOrFail($id);
+
         if ($booking->status !== 'paid') {
             return response()->json(['success' => false, 'error' => 'You must pay for the trip before sharing it.'], 403);
         }
@@ -306,7 +295,7 @@ class MyBookingsController extends Controller
             return back()->with('error', 'This trip cannot be joined yet as it is not fully confirmed (payment pending).');
         }
 
-        if ($booking->user_id === auth()->id()) {
+        if ($booking->participants()->where('user_id', auth()->id())->wherePivot('isOwner', true)->exists()) {
             return back()->with('error', 'You are already the owner of this trip.');
         }
 

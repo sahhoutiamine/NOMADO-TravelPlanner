@@ -18,10 +18,6 @@ class Payment extends Model
         'total_amount',
         'is_flight_paid',
         'is_hotel_paid',
-        'airline',
-        'flight_departure',
-        'flight_arrival',
-        'flight_duration',
     ];
 
     protected $casts = [

@@ -189,11 +189,11 @@
                             <div class="flex justify-between items-center p-4 bg-slate-50 rounded-2xl">
                                 <div>
                                     <div class="text-[10px] font-bold text-slate-400 uppercase">Airline</div>
-                                    <div class="text-sm font-bold text-slate-900">{{ $payment->airline ?? 'Scheduled Carrier' }}</div>
+                                    <div class="text-sm font-bold text-slate-900">{{ $payment->booking->flight_airline ?? 'Scheduled Carrier' }}</div>
                                 </div>
                                 <div class="text-right">
                                     <div class="text-[10px] font-bold text-slate-400 uppercase">Duration</div>
-                                    <div class="text-sm font-bold text-slate-900">{{ $payment->flight_duration ?? 'TBA' }}</div>
+                                    <div class="text-sm font-bold text-slate-900">{{ $payment->booking->flight_duration ?? 'TBA' }}</div>
                                 </div>
                             </div>
                             <div class="flex justify-between items-center px-2">

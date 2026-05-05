@@ -10,7 +10,7 @@ class BookingController extends Controller
 {
     public function index()
     {
-        $bookings = Booking::with(['user', 'city.country', 'hotels'])->latest()->get();
+        $bookings = Booking::with(['participants', 'city.country', 'hotels'])->latest()->get();
         return view('admin.bookings.index', compact('bookings'));
     }
 }

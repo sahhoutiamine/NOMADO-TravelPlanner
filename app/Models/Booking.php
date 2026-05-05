@@ -10,7 +10,7 @@ class Booking extends Model
     use HasFactory;
 
     protected $fillable = [
-        'user_id', 'city_id', 'trip_type', 'departure_city_id',
+        'city_id', 'trip_type', 'departure_city_id',
         'budget_total', 'duration', 'passengers', 'departure_date',
         'flight_budget', 'hotel_budget', 'activities_budget', 'misc_budget',
         'status', 'selected_place_ids', 'include_hotel',
@@ -23,7 +23,18 @@ class Booking extends Model
 
     public function user()
     {
-        return $this->belongsTo(User::class);
+        return $this->participants->first(fn($u) => $u->pivot->isOwner);
+    }
+
+    public function isOwnedBy($userId)
+    {
+        $owner = $this->user();
+        return $owner && $owner->id === $userId;
+    }
+
+    public function owner()
+    {
+        return $this->belongsToMany(User::class, 'booking_user')->wherePivot('isOwner', true);
     }
 
     public function city()

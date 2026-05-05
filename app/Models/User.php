@@ -27,7 +27,7 @@ class User extends Authenticatable
 
     public function bookings()
     {
-        return $this->hasMany(Booking::class);
+        return $this->belongsToMany(Booking::class, 'booking_user')->withPivot('isOwner')->wherePivot('isOwner', true)->withTimestamps();
     }
 
     public function sharedBookings()

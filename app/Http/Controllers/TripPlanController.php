@@ -12,12 +12,9 @@ class TripPlanController extends Controller
     public function show($bookingId)
     {
         $userId = auth()->id();
-        $booking = Booking::where(function($query) use ($userId) {
-            $query->where('user_id', $userId)
-                  ->orWhereHas('participants', function($q) use ($userId) {
-                      $q->where('user_id', $userId);
-                  });
-        })->with(['city', 'departureCity', 'hotels', 'places', 'customActivities'])->findOrFail($bookingId);
+        $booking = Booking::whereHas('participants', function($q) use ($userId) {
+            $q->where('user_id', $userId);
+        })->with(['city', 'departureCity', 'hotels', 'places', 'customActivities', 'participants'])->findOrFail($bookingId);
 
         $plan = $this->generatePlan($booking);
         $flightDuration = $this->calculateFlightDuration($booking);
@@ -302,7 +299,9 @@ class TripPlanController extends Controller
         ]);
 
         $userId = auth()->id();
-        $booking = Booking::where('user_id', $userId)->findOrFail($bookingId);
+        $booking = Booking::whereHas('participants', function($q) use ($userId) {
+            $q->where('user_id', $userId)->where('isOwner', true);
+        })->findOrFail($bookingId);
 
         $activity = $booking->customActivities()->create([
             'name' => $request->name,
@@ -320,7 +319,9 @@ class TripPlanController extends Controller
     public function deleteActivity($bookingId, $activityId)
     {
         $userId = auth()->id();
-        $booking = Booking::where('user_id', $userId)->findOrFail($bookingId);
+        $booking = Booking::whereHas('participants', function($q) use ($userId) {
+            $q->where('user_id', $userId)->where('isOwner', true);
+        })->findOrFail($bookingId);
         $activity = $booking->customActivities()->findOrFail($activityId);
 
         // Update budget before deleting

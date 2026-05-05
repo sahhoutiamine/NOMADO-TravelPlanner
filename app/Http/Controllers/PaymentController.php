@@ -12,12 +12,9 @@ class PaymentController extends Controller
     public function show($id)
     {
         $userId = auth()->id();
-        $booking = Booking::with(['city.country', 'hotels', 'departureCity'])
-            ->where(function($query) use ($userId) {
-                $query->where('user_id', $userId)
-                      ->orWhereHas('participants', function($q) use ($userId) {
-                          $q->where('user_id', $userId);
-                      });
+        $booking = Booking::with(['city.country', 'hotels', 'departureCity', 'participants'])
+            ->whereHas('participants', function($q) use ($userId) {
+                $q->where('user_id', $userId);
             })->findOrFail($id);
 
         if ($booking->status === 'paid') {
@@ -30,11 +27,8 @@ class PaymentController extends Controller
     public function store(Request $request, $id)
     {
         $userId = auth()->id();
-        $booking = Booking::where(function($query) use ($userId) {
-            $query->where('user_id', $userId)
-                  ->orWhereHas('participants', function($q) use ($userId) {
-                      $q->where('user_id', $userId);
-                  });
+        $booking = Booking::whereHas('participants', function($q) use ($userId) {
+            $q->where('user_id', $userId);
         })->findOrFail($id);
 
         $request->validate([
@@ -60,10 +54,6 @@ class PaymentController extends Controller
             'total_amount' => $totalAmount,
             'is_flight_paid' => $isFlightPaid,
             'is_hotel_paid' => $isHotelPaid,
-            'airline' => $booking->flight_airline,
-            'flight_duration' => $booking->flight_duration,
-            'flight_departure' => $isFlightPaid ? '10:30' : null,
-            'flight_arrival' => $isFlightPaid ? '14:45' : null,
         ]);
 
         // Update booking status
@@ -77,11 +67,8 @@ class PaymentController extends Controller
     public function ticket($id)
     {
         $userId = auth()->id();
-        $booking = Booking::where(function($query) use ($userId) {
-            $query->where('user_id', $userId)
-                  ->orWhereHas('participants', function($q) use ($userId) {
-                      $q->where('user_id', $userId);
-                  });
+        $booking = Booking::whereHas('participants', function($q) use ($userId) {
+            $q->where('user_id', $userId);
         })->findOrFail($id);
 
         $payment = Payment::where('booking_id', $booking->id)->latest()->firstOrFail();
