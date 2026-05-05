@@ -169,8 +169,10 @@
                         <div class="ticket-value">{{ $payment->start_date->format('d M Y') }}</div>
                     </div>
                     <div>
-                        <div class="ticket-label">Class</div>
-                        <div class="ticket-value">{{ $payment->booking->flight_class ?? 'Economy' }}</div>
+                        @if(!empty($payment->booking->flight_airline))
+                            <div class="ticket-label">Class</div>
+                            <div class="ticket-value">{{ $payment->booking->flight_class ?? 'Economy' }}</div>
+                        @endif
                     </div>
                     <div>
                         <div class="ticket-label">Travelers</div>

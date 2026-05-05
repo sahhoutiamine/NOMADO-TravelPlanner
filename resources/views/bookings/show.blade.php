@@ -359,7 +359,7 @@
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4" id="places-grid">
                     @foreach($booking->city->places->sortBy('min_price') as $place)
                     @php
-                        $isSelected = in_array($place->id, array_filter(explode(',', $booking->selected_place_ids ?? '')));
+                        $isSelected = $booking->places->contains('id', $place->id);
                         $visitDate = $booking->places->find($place->id)?->pivot?->visit_date;
                     @endphp
                     <div class="place-card glass-card p-5 rounded-xl flex flex-col gap-4 border border-white/50 hover:shadow-lg transition-all group relative {{ $booking->status === 'pending' ? 'cursor-pointer' : '' }}">
@@ -662,7 +662,7 @@
                                 @method('PUT')
                                 <input type="hidden" name="selected_hotels" id="form-selected-hotels" value="">
                                 <input type="hidden" name="include_hotel" id="form-include-hotel" value="{{ $booking->include_hotel ? '1' : '0' }}">
-                                <input type="hidden" name="selected_place_ids" id="form-selected-places" value="{{ $booking->selected_place_ids }}">
+                                <input type="hidden" name="selected_place_ids" id="form-selected-places" value="{{ implode(',', $booking->places->pluck('id')->toArray()) }}">
                                 <input type="hidden" name="place_dates" id="form-place-dates" value="">
                                 <input type="hidden" name="airline" id="form-airline" value="{{ $booking->flight_airline }}">
                                 <input type="hidden" name="flight_duration" id="form-flight-duration" value="{{ $booking->flight_duration }}">

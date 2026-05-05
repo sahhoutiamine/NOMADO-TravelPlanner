@@ -15,7 +15,6 @@
                     <th class="px-10 py-8">Destination Node</th>
                     <th class="px-10 py-8">Volume</th>
                     <th class="px-10 py-8">Flow Status</th>
-                    <th class="px-10 py-8 text-right">Operations</th>
                 </tr>
             </thead>
             <tbody class="divide-y divide-slate-50">
@@ -27,7 +26,7 @@
                                     #{{ str_pad($booking->id, 3, '0', STR_PAD_LEFT) }}
                                 </div>
                                 <div class="flex flex-col">
-                                    <p class="text-sm font-black text-slate-950 leading-none mb-1.5 uppercase tracking-tight">{{ $booking->user->name }}</p>
+                                    <p class="text-sm font-black text-slate-950 leading-none mb-1.5 uppercase tracking-tight">{{ $booking->user()?->name ?? 'Unknown' }}</p>
                                     <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest italic">{{ $booking->created_at->format('d M — H:i') }}</p>
                                 </div>
                             </div>
@@ -45,15 +44,10 @@
                                 {{ $booking->status }}
                             </span>
                         </td>
-                        <td class="px-10 py-8 text-right">
-                            <a href="{{ route('bookings.show', $booking->id) }}" class="inline-flex items-center gap-2 text-[10px] font-black uppercase tracking-[0.2em] text-slate-400 hover:text-primary-600 transition-colors group/btn">
-                                Intelligence <span class="material-symbols-outlined text-sm group-hover/btn:translate-x-1 transition-transform">insights</span>
-                            </a>
-                        </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="5" class="px-10 py-32 text-center">
+                        <td colspan="4" class="px-10 py-32 text-center">
                             <span class="material-symbols-outlined text-5xl text-slate-200 mb-4 scale-150 block">history_toggle_off</span>
                             <p class="text-slate-400 text-xs font-black uppercase tracking-[0.3em] italic">The record stream is currently dormant.</p>
                         </td>

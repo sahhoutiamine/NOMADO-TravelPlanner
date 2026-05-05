@@ -13,7 +13,7 @@ class Booking extends Model
         'city_id', 'trip_type', 'departure_city_id',
         'budget_total', 'duration', 'passengers', 'departure_date',
         'flight_budget', 'hotel_budget', 'activities_budget', 'misc_budget',
-        'status', 'selected_place_ids', 'include_hotel',
+        'status', 'include_hotel',
         'flight_airline', 'flight_class', 'flight_duration', 'share_code',
     ];
 

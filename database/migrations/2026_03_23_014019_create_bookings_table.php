@@ -22,7 +22,6 @@ return new class extends Migration
             $table->decimal('misc_budget', 10, 2);
             $table->enum('status', ['pending', 'paid'])->default('pending');
             $table->string('share_code', 6)->nullable()->unique();
-            $table->text('selected_place_ids')->nullable();
             $table->boolean('include_hotel')->default(true);
             $table->foreignId('departure_city_id')->nullable()->constrained('cities');
             $table->string('flight_airline')->nullable();

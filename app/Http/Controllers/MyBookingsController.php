@@ -176,7 +176,6 @@ class MyBookingsController extends Controller
             $booking->update([
                 'budget_total' => $booking->budget_total,
                 'include_hotel' => $request->include_hotel ?? true,
-                'selected_place_ids' => $request->selected_place_ids,
                 'flight_airline' => $request->airline,
                 'flight_duration' => $request->flight_duration,
                 'flight_class' => $request->flight_class,

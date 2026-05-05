@@ -120,7 +120,6 @@ class TripGeneratorController extends Controller
             'activities_budget' => $request->activities_budget,
             'misc_budget' => $request->misc_budget,
             'departure_city_id' => $request->departure_city_id,
-            'selected_place_ids' => $request->selected_place_ids,
             'include_hotel' => $request->include_hotel ?? true,
             'status' => 'pending',
         ]);

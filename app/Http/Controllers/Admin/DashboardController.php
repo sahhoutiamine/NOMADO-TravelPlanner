@@ -28,7 +28,7 @@ class DashboardController extends Controller
             $stats['total_bookings'] = Booking::count();
             $stats['total_revenue'] = Booking::where('status', 'paid')->sum('budget_total');
             
-            $latest_bookings = Booking::with(['user', 'city'])->latest()->take(5)->get();
+            $latest_bookings = Booking::with(['owner', 'city'])->latest()->take(5)->get();
             $recent_users = User::latest()->take(5)->get();
         } else {
             $latest_bookings = collect();

@@ -122,8 +122,8 @@
                     @forelse($latest_bookings as $booking)
                         <tr class="group hover:bg-slate-50/50 transition-all">
                             <td class="py-6 pr-4">
-                                <p class="text-sm font-black text-slate-900 leading-none mb-1">{{ $booking->user->name }}</p>
-                                <p class="text-[10px] text-slate-400 font-bold italic">{{ $booking->user->email }}</p>
+                                <p class="text-sm font-black text-slate-900 leading-none mb-1">{{ $booking->owner->first()->name ?? 'Unknown' }}</p>
+                                <p class="text-[10px] text-slate-400 font-bold italic">{{ $booking->owner->first()->email ?? 'N/A' }}</p>
                             </td>
                             <td class="py-6 pr-4">
                                 <p class="text-sm font-black text-slate-700 leading-none mb-1 capitalize">{{ $booking->city->name ?? 'Unknown' }}</p>

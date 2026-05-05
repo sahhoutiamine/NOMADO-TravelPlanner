@@ -27,6 +27,13 @@ Route::middleware(['auth', 'verified'])->group(function () {
         return redirect()->route('trip.index');
     })->name('dashboard');
 
+    // Profile Routes
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+});
+
+Route::middleware(['auth', 'verified', 'role:user'])->group(function () {
     // User Routes
     Route::get('/generate', [TripGeneratorController::class, 'index'])->name('trip.index');
     Route::post('/generate', [TripGeneratorController::class, 'generate'])->name('trip.generate');
@@ -51,10 +58,6 @@ Route::middleware(['auth', 'verified'])->group(function () {
     // Hotel Detail Route
     Route::get('/hotels/{id}', [HotelController::class, 'show'])->name('hotels.show');
 
-    // Profile Routes
-    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
-    Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
-    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 });
 
 // Admin Routes (Admin only)
