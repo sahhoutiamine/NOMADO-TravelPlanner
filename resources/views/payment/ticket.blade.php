@@ -166,7 +166,7 @@
                     </div>
                     <div>
                         <div class="ticket-label">Departure Date</div>
-                        <div class="ticket-value">{{ $payment->start_date->format('d M Y') }}</div>
+                        <div class="ticket-value">{{ $payment->start_date?->format('d M Y') ?? 'TBD' }}</div>
                     </div>
                     <div>
                         @if(!empty($payment->booking->flight_airline))

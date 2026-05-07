@@ -164,7 +164,7 @@
                 Back to My Trips
             </a>
             <h1 class="text-4xl md:text-5xl font-black tracking-tighter mb-2 text-slate-900">Trip <span class="text-gradient">#NOM-{{ str_pad($booking->id, 5, '0', STR_PAD_LEFT) }}</span></h1>
-            <p class="text-slate-500 text-lg font-medium">Booked on {{ $booking->created_at->format('M d, Y') }}</p>
+            <p class="text-slate-500 text-lg font-medium">Booked on {{ $booking->created_at?->format('M d, Y') ?? 'N/A' }}</p>
         </div>
         
         <div class="animate-slide-left">
@@ -206,11 +206,11 @@
                                 @if($booking->status === 'pending')
                                     <input type="date" id="departure-date-input" 
                                            class="bg-white/10 border border-white/20 text-white font-bold text-lg rounded-lg px-3 py-1 focus:ring-2 focus:ring-white/50 outline-none backdrop-blur-sm"
-                                           value="{{ $booking->departure_date->format('Y-m-d') }}"
+                                           value="{{ $booking->departure_date?->format('Y-m-d') }}"
                                            min="{{ date('Y-m-d', strtotime('tomorrow')) }}"
                                            onchange="updateTrip()">
                                 @else
-                                    <span class="text-white">{{ $booking->departure_date->format('M d, Y') }}</span>
+                                    <span class="text-white">{{ $booking->departure_date?->format('M d, Y') ?? 'TBD' }}</span>
                                 @endif
                             </span>
                         @endif
@@ -580,7 +580,7 @@
                             @if($booking->departure_date)
                             <div class="flex items-center gap-2">
                                 <span class="material-symbols-outlined text-sm">calendar_month</span>
-                                {{ $booking->departure_date->format('M d, Y') }}
+                                {{ $booking->departure_date?->format('M d, Y') ?? 'TBD' }}
                             </div>
                             @endif
                         </div>

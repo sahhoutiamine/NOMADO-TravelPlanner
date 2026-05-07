@@ -27,7 +27,7 @@
                                 </div>
                                 <div class="flex flex-col">
                                     <p class="text-sm font-black text-slate-950 leading-none mb-1.5 uppercase tracking-tight">{{ $booking->user()?->name ?? 'Unknown' }}</p>
-                                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest italic">{{ $booking->created_at->format('d M — H:i') }}</p>
+                                    <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest italic">{{ $booking->created_at?->format('d M — H:i') ?? 'No Date' }}</p>
                                 </div>
                             </div>
                         </td>

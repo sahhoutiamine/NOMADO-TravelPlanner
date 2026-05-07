@@ -53,7 +53,7 @@
                             </span>
                         </td>
                         <td class="px-10 py-8">
-                            <span class="text-xs font-black text-slate-500 uppercase tracking-tighter">{{ $user->created_at->format('M d, Y') }}</span>
+                            <span class="text-xs font-black text-slate-500 uppercase tracking-tighter">{{ $user->created_at?->format('M d, Y') ?? 'Not Available' }}</span>
                         </td>
                         <td class="px-10 py-8">
                             <span class="px-4 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest flex items-center gap-2 w-fit {{ $user->is_banned ? 'bg-amber-50 text-amber-600 border border-amber-100' : 'bg-emerald-50 text-emerald-600 border border-emerald-100' }}">

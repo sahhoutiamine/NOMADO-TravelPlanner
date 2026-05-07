@@ -169,7 +169,7 @@
                     </div>
                     <div class="flex-1">
                         <p class="text-sm font-black text-slate-900 leading-none mb-1 group-hover:text-primary-600 transition-colors uppercase tracking-tight">{{ $user->name }}</p>
-                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest italic">{{ $user->created_at->diffForHumans() }}</p>
+                        <p class="text-[9px] text-slate-400 font-bold uppercase tracking-widest italic">{{ $user->created_at?->diffForHumans() ?? 'Registered recently' }}</p>
                     </div>
                     <div class="w-2 h-2 rounded-full bg-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity"></div>
                 </div>
