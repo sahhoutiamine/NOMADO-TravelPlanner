@@ -35,17 +35,13 @@ class MyBookingsController extends Controller
         $durationMinutes = $flightDurationData['minutes_total'];
         $durationStr = $flightDurationData['duration_str'];
 
-        // Real airlines with realistic duration-based pricing
         $airlineNames = ['Emirates', 'Qatar Airways', 'Lufthansa', 'Air France', 'British Airways'];
         $flights = [];
 
-        $startCity = $booking->departureCity->name ?? 'Home';
+        $startCity = $booking->departureCity->name ?? 'Tsushima';
         $endCity = $booking->city->name;
 
         foreach ($airlineNames as $index => $airline) {
-            // Realistic pricing: ~0.85 EUR per minute + fixed base fee
-            // Short haul (2h) -> ~150-200 EUR
-            // Long haul (10h) -> ~600-800 EUR
             $basePrice = (100 + ($durationMinutes * 0.85)) * (1 + ($index * 0.05));
 
             $flights[] = [
@@ -136,7 +132,6 @@ class MyBookingsController extends Controller
                 $booking->budget_total = $request->budget_total;
             }
 
-            // Recalculate hotel cost from JSON
             $hotelCost = 0;
             $hotelSyncData = [];
             if ($request->has('selected_hotels') && ($request->include_hotel ?? true)) {
@@ -185,14 +180,12 @@ class MyBookingsController extends Controller
                 'misc_budget' => $miscBudget,
             ]);
 
-            // Sync hotels
             if (!empty($hotelSyncData)) {
                 $booking->hotels()->sync($hotelSyncData);
             } else if (!$request->include_hotel) {
                 $booking->hotels()->detach();
             }
 
-            // Sync places with dates
             if ($request->has('place_dates')) {
                 $placeData = json_decode($request->place_dates, true);
                 $syncData = [];
@@ -216,7 +209,6 @@ class MyBookingsController extends Controller
 
                 $booking->places()->sync($syncData);
             } else if ($request->has('selected_place_ids')) {
-                // Fallback if place_dates is not sent but selected_place_ids is
                 $placeIds = array_filter(explode(',', $request->selected_place_ids));
                 $booking->places()->sync($placeIds);
             }
@@ -268,7 +260,6 @@ class MyBookingsController extends Controller
 
         if (!$booking->share_code) {
             $code = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 6));
-            // Ensure uniqueness
             while (Booking::where('share_code', $code)->exists()) {
                 $code = strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 6));
             }

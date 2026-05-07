@@ -104,7 +104,6 @@ class TripGeneratorController extends Controller
             'trip_type' => 'required',
             'departure_city_id' => 'required|exists:cities,id',
             'departure_date' => 'required|date',
-            'selected_place_ids' => 'nullable|string',
             'include_hotel' => 'nullable|boolean',
         ]);
 
@@ -126,7 +125,6 @@ class TripGeneratorController extends Controller
 
         $booking->participants()->attach(Auth::id(), ['isOwner' => true]);
 
-        // Attach hotel to pivot table
         if ($request->hotel_id && ($request->include_hotel ?? true)) {
             $checkIn = \Carbon\Carbon::parse($request->departure_date)->addDay();
             $checkOut = (clone $checkIn)->addDays((int) $request->duration);
@@ -136,10 +134,7 @@ class TripGeneratorController extends Controller
             ]);
         }
 
-        if ($request->selected_place_ids) {
-            $placeIds = array_filter(explode(',', $request->selected_place_ids));
-            $booking->places()->sync($placeIds);
-        }
+
 
         return redirect()->route('bookings.show', $booking->id)->with('success', 'Voyage enregistré avec succès !');
     }

@@ -12,7 +12,7 @@ return new class extends Migration {
             $table->foreignId('city_id')->constrained()->onDelete('cascade');
             $table->string('name');
             $table->text('description')->nullable();
-            $table->string('localisation')->nullable(); // Format: "latitude, longitude"
+            $table->string('localisation')->nullable();
             $table->decimal('min_price', 10, 2)->default(150.00);
             $table->string('image')->nullable();
             $table->timestamps();

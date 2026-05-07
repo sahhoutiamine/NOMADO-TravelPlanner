@@ -10,8 +10,15 @@ class Hotel extends Model
     use HasFactory;
 
     protected $fillable = [
-        'city_id', 'name', 'price_per_night', 'description',
-        'localisation', 'contact_number', 'email', 'type', 'image',
+        'city_id',
+        'name',
+        'price_per_night',
+        'description',
+        'localisation',
+        'contact_number',
+        'email',
+        'type',
+        'image',
     ];
 
     public function city()
@@ -31,14 +38,14 @@ class Hotel extends Model
 
     public function getTypeLabel(): string
     {
-        return match($this->type) {
-            'luxury'    => '⭐ Luxe',
-            'mid-range' => '🏨 Milieu de gamme',
-            'economy'   => '💰 Économique',
-            'budget'    => '🎒 Budget',
-            'boutique'  => '🌸 Boutique',
-            'resort'    => '🏝️ Resort',
-            default     => '🏨 Hôtel',
+        return match ($this->type) {
+            'luxury' => 'Luxe',
+            'mid-range' => 'Milieu de gamme',
+            'economy' => 'Économique',
+            'budget' => 'Budget',
+            'boutique' => 'Boutique',
+            'resort' => 'Resort',
+            default => 'Hôtel',
         };
     }
 }
